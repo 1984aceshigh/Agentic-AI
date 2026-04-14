@@ -1,11 +1,15 @@
-<div class="card">
-  <h3>Adapter Information</h3>
-  <table>
-    <tbody>
-      <tr><th>adapter_ref</th><td>{{ node.adapter_ref or "-" }}</td></tr>
-      <tr><th>contract</th><td>{{ node.contract or "-" }}</td></tr>
-      <tr><th>connection_ref</th><td>{{ node.connection_ref or "-" }}</td></tr>
-      <tr><th>resolved_capabilities</th><td>{{ node.resolved_capabilities|join(', ') if node.resolved_capabilities else '-' }}</td></tr>
-    </tbody>
-  </table>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="h5">Adapter Information</h3>
+    <div class="table-responsive">
+      <table class="table table-sm align-middle mb-0">
+        <tbody>
+          <tr><th class="text-muted">adapter_ref</th><td>{{ node.adapter_ref or "-" }}</td></tr>
+          <tr><th class="text-muted">contract</th><td>{{ node.contract or "-" }}</td></tr>
+          <tr><th class="text-muted">connection_ref</th><td>{{ node.connection_ref or "-" }}</td></tr>
+          <tr><th class="text-muted">resolved_capabilities</th><td>{{ node.resolved_capabilities|join(', ') if node.resolved_capabilities else '-' }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>

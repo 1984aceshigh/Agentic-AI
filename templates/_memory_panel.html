@@ -1,9 +1,11 @@
-<div class="card">
-  <h3>Memory Results</h3>
-  <div><strong>count:</strong> {{ node.memory_count }}</div>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+  <h3 class="h5">Memory Results</h3>
+  <p><strong>count:</strong> {{ node.memory_count }}</p>
   {% if node.memory_records %}
-    <pre>{{ node.memory_records | tojson(indent=2) }}</pre>
+    <pre class="code-block">{{ node.memory_records | tojson(indent=2) }}</pre>
   {% else %}
-    <p>No memory records</p>
+    <p class="text-muted mb-0">No memory records</p>
   {% endif %}
+  </div>
 </div>

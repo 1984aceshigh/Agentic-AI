@@ -1,21 +1,33 @@
 {% extends "base.html" %}
 {% block title %}Node Detail{% endblock %}
 {% block content %}
-<h1>Node Detail</h1>
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Node Detail</h1>
+    <p class="text-muted mb-0">{{ node.node_name }} / {{ node.node_id }}</p>
+  </div>
+  <span class="badge rounded-pill text-bg-secondary">{{ node.status }}</span>
+</section>
 
-<div class="card">
-  <h2>{{ node.node_name }}</h2>
-  <div><strong>node_id:</strong> {{ node.node_id }}</div>
-  <div><strong>node_type:</strong> {{ node.node_type }}</div>
-  <div><strong>status:</strong> {{ node.status }}</div>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Basic Information</h2>
+    <dl class="row mb-0">
+      <dt class="col-sm-3 text-muted">node_id</dt><dd class="col-sm-9">{{ node.node_id }}</dd>
+      <dt class="col-sm-3 text-muted">node_type</dt><dd class="col-sm-9">{{ node.node_type }}</dd>
+      <dt class="col-sm-3 text-muted">status</dt><dd class="col-sm-9">{{ node.status }}</dd>
+    </dl>
+  </div>
 </div>
 
-<div class="card">
-  <h3>Input / Output</h3>
-  <h4>Input Preview</h4>
-  <pre>{{ node.input_preview or "No input preview" }}</pre>
-  <h4>Output Preview</h4>
-  <pre>{{ node.output_preview or "No output preview" }}</pre>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="h5 mb-3">Input / Output</h3>
+    <h4 class="h6">Input Preview</h4>
+    <pre class="code-block">{{ node.input_preview or "No input preview" }}</pre>
+    <h4 class="h6 mt-3">Output Preview</h4>
+    <pre class="code-block">{{ node.output_preview or "No output preview" }}</pre>
+  </div>
 </div>
 
 {% include "_logs_panel.html" %}
@@ -23,10 +35,12 @@
 {% include "_memory_panel.html" %}
 {% include "_rag_panel.html" %}
 
-<div class="card">
-  <h3>Event History</h3>
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+  <h3 class="h5">Event History</h3>
   {% if node.event_history %}
-    <table>
+    <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
       <thead>
         <tr>
           <th>event_type</th>
@@ -44,10 +58,12 @@
         {% endfor %}
       </tbody>
     </table>
-    <h4>Raw Event History</h4>
-    <pre>{{ node.event_history | tojson(indent=2) }}</pre>
+    </div>
+    <h4 class="h6">Raw Event History</h4>
+    <pre class="code-block">{{ node.event_history | tojson(indent=2) }}</pre>
   {% else %}
-    <p>No event history</p>
+    <p class="text-muted mb-0">No event history</p>
   {% endif %}
+  </div>
 </div>
 {% endblock %}

@@ -1,9 +1,11 @@
-<div class="card">
-  <h3>RAG Results</h3>
-  <div><strong>query_text:</strong> {{ node.rag_query_text or "-" }}</div>
-  <div><strong>count:</strong> {{ node.rag_count }}</div>
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+  <h3 class="h5">RAG Results</h3>
+  <p class="mb-1"><strong>query_text:</strong> {{ node.rag_query_text or "-" }}</p>
+  <p><strong>count:</strong> {{ node.rag_count }}</p>
   {% if node.rag_hits %}
-    <table>
+    <div class="table-responsive">
+    <table class="table table-sm table-hover align-middle">
       <thead>
         <tr>
           <th>text</th>
@@ -21,9 +23,11 @@
         {% endfor %}
       </tbody>
     </table>
-    <h4>Raw RAG Hits</h4>
-    <pre>{{ node.rag_hits | tojson(indent=2) }}</pre>
+    </div>
+    <h4 class="h6">Raw RAG Hits</h4>
+    <pre class="code-block">{{ node.rag_hits | tojson(indent=2) }}</pre>
   {% else %}
-    <p>No rag hits</p>
+    <p class="text-muted mb-0">No rag hits</p>
   {% endif %}
+  </div>
 </div>

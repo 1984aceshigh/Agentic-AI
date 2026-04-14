@@ -1,60 +1,76 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>Workflow Definitions</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 24px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
-    .actions a, .actions button { margin-right: 8px; }
-  </style>
-</head>
-<body>
-  <h1>Workflow Definitions</h1>
-  <p><a href="/workflow-definitions/new">新規作成</a></p>
-  <form method="get" action="/workflow-definitions">
-    <label><input type="checkbox" name="include_archived" value="1" {% if include_archived %}checked{% endif %}> archived も表示</label>
-    <button type="submit">更新</button>
-  </form>
-  <table>
-    <thead>
-      <tr>
-        <th>workflow_id</th>
-        <th>name</th>
-        <th>version</th>
-        <th>updated</th>
-        <th>status</th>
-        <th>nodes</th>
-        <th>edges</th>
-        <th>actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for item in definition_summaries %}
-      <tr>
-        <td>{{ item.workflow_id }}</td>
-        <td>{{ item.workflow_name }}</td>
-        <td>{{ item.version or '-' }}</td>
-        <td>{{ item.updated_at or '-' }}</td>
-        <td>{{ item.validation_status or '-' }}{% if item.is_archived %} / archived{% endif %}</td>
-        <td>{{ item.node_count if item.node_count is not none else '-' }}</td>
-        <td>{{ item.edge_count if item.edge_count is not none else '-' }}</td>
-        <td class="actions">
-          <a href="/workflow-definitions/{{ item.workflow_id }}/graph-editor">graph editor</a>
-          <a href="/workflow-definitions/{{ item.workflow_id }}/edit?tab=yaml">raw YAML</a>
-          {% if not item.is_archived %}
-          <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/clone" style="display:inline;">
-            <button type="submit">clone</button>
-          </form>
-          <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/archive" style="display:inline;">
-            <button type="submit">archive</button>
-          </form>
-          {% endif %}
-        </td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Workflow Definitions{% endblock %}
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Workflow Definitions</h1>
+    <p class="text-muted mb-0">定義の管理・編集・アーカイブ</p>
+  </div>
+  <a class="btn btn-primary" href="/workflow-definitions/new">新規作成</a>
+</section>
+
+<section class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" action="/workflow-definitions" class="d-flex flex-wrap align-items-center gap-3">
+      <div class="form-check">
+        <input class="form-check-input" type="checkbox" id="include_archived" name="include_archived" value="1" {% if include_archived %}checked{% endif %}>
+        <label class="form-check-label" for="include_archived">archived も表示</label>
+      </div>
+      <button type="submit" class="btn btn-outline-secondary btn-sm">更新</button>
+    </form>
+  </div>
+</section>
+
+<section class="card border-0 shadow-sm">
+  <div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>workflow_id</th>
+          <th>name</th>
+          <th>version</th>
+          <th>updated</th>
+          <th>status</th>
+          <th>nodes</th>
+          <th>edges</th>
+          <th>actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in definition_summaries %}
+        <tr>
+          <td class="text-nowrap">{{ item.workflow_id }}</td>
+          <td>{{ item.workflow_name }}</td>
+          <td>{{ item.version or '-' }}</td>
+          <td class="text-nowrap">{{ item.updated_at or '-' }}</td>
+          <td>
+            <span class="badge text-bg-secondary">{{ item.validation_status or '-' }}</span>
+            {% if item.is_archived %}<span class="badge text-bg-dark">archived</span>{% endif %}
+          </td>
+          <td>{{ item.node_count if item.node_count is not none else '-' }}</td>
+          <td>{{ item.edge_count if item.edge_count is not none else '-' }}</td>
+          <td>
+            <div class="d-flex flex-wrap gap-2">
+              <a class="btn btn-sm btn-outline-primary" href="/workflow-definitions/{{ item.workflow_id }}/graph-editor">graph editor</a>
+              <a class="btn btn-sm btn-outline-secondary" href="/workflow-definitions/{{ item.workflow_id }}/edit?tab=yaml">raw YAML</a>
+              {% if not item.is_archived %}
+              <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/clone" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-info">clone</button>
+              </form>
+              <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/archive" class="d-inline">
+                <button type="submit" class="btn btn-sm btn-outline-danger">archive</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-center text-muted py-4">No workflow definitions found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

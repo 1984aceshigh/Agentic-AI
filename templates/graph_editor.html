@@ -1,119 +1,112 @@
-<!doctype html>
-<html lang="ja">
-<head>
-  <meta charset="utf-8">
-  <title>Graph Editor - {{ editor.workflow_name }}</title>
-  <style>
-    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 0; }
-    .page { display: flex; min-height: 100vh; }
-    .left { width: 40%; min-width: 420px; padding: 20px; border-right: 1px solid #ddd; overflow-y: auto; }
-    .right { width: 60%; padding: 20px; overflow-y: auto; }
-    .tabs a { margin-right: 12px; text-decoration: none; }
-    .tabs .active { font-weight: 700; }
-    .panel { margin-top: 18px; padding: 16px; border: 1px solid #ddd; border-radius: 10px; }
-    textarea { width: 100%; min-height: 140px; font-family: ui-monospace, SFMono-Regular, monospace; }
-    input[type=text] { width: 100%; box-sizing: border-box; }
-    .node-list a { display: block; padding: 6px 0; }
-    .badge { display: inline-block; padding: 4px 8px; border-radius: 999px; background: #eee; }
-    .badge.invalid { background: #ffd7d7; }
-    .mermaid-box { border: 1px solid #ddd; border-radius: 10px; padding: 16px; min-height: 300px; }
-    .grid-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    pre { white-space: pre-wrap; }
-    .muted { color: #666; font-size: 0.92rem; }
-  </style>
-  <script type="module">
-    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
-    mermaid.initialize({ startOnLoad: true });
-  </script>
-</head>
-<body>
-<div class="page">
-  <div class="left">
-    <p><a href="/workflow-definitions">← definitions</a></p>
-    <h1>{{ editor.workflow_name }}</h1>
-    <p class="muted">workflow_id: {{ editor.workflow_id }}{% if editor.version %} / version: {{ editor.version }}{% endif %}{% if editor.is_dirty %} / unsaved{% endif %}</p>
-    <p>
-      <span class="badge {% if editor.validation_status != 'valid' %}invalid{% endif %}">{{ editor.validation_status }}</span>
-      nodes: {{ editor.node_count }} / edges: {{ editor.edge_count }}
-    </p>
+{% extends "base.html" %}
+{% block title %}Graph Editor - {{ editor.workflow_name }}{% endblock %}
 
-    <div class="tabs">
-      {% for tab in ['overview', 'nodes', 'edges', 'yaml', 'validation'] %}
-        <a href="?tab={{ tab }}{% if editor.selected_node_id %}&selected_node_id={{ editor.selected_node_id }}{% endif %}" class="{% if editor.selected_tab == tab %}active{% endif %}">{{ tab }}</a>
-      {% endfor %}
+{% block content %}
+<section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
+  <div>
+    <a href="/workflow-definitions" class="text-decoration-none small">← definitions</a>
+    <h1 class="h3 mb-1 mt-1">{{ editor.workflow_name }}</h1>
+    <p class="text-muted mb-0">workflow_id: {{ editor.workflow_id }}{% if editor.version %} / version: {{ editor.version }}{% endif %}{% if editor.is_dirty %} / unsaved{% endif %}</p>
+  </div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <span class="badge {% if editor.validation_status == 'valid' %}text-bg-success{% else %}text-bg-danger{% endif %}">{{ editor.validation_status }}</span>
+    <span class="badge text-bg-secondary">nodes: {{ editor.node_count }}</span>
+    <span class="badge text-bg-secondary">edges: {{ editor.edge_count }}</span>
+  </div>
+</section>
+
+<div class="row g-4">
+  <div class="col-12 col-xl-5">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div class="nav nav-pills flex-wrap gap-2">
+          {% for tab in ['overview', 'nodes', 'edges', 'yaml', 'validation'] %}
+          <a href="?tab={{ tab }}{% if editor.selected_node_id %}&selected_node_id={{ editor.selected_node_id }}{% endif %}" class="btn btn-sm {% if editor.selected_tab == tab %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ tab }}</a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
 
     {% if editor.selected_tab == 'overview' %}
-    <div class="panel">
-      <h2>Overview</h2>
-      <form method="post" action="{% if editor.workflow_id == 'new_workflow' or editor.workflow_id == 'unsaved_workflow' %}/actions/workflow-definitions/create{% else %}/actions/workflow-definitions/{{ editor.workflow_id }}/save{% endif %}">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <input type="hidden" name="next" value="/workflow-definitions/{{ editor.workflow_id }}/graph-editor">
-        <button type="submit">Save</button>
-      </form>
-      {% if editor.workflow_id not in ['new_workflow', 'unsaved_workflow'] %}
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/clone" style="margin-top:8px;">
-        <button type="submit">Clone</button>
-      </form>
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/archive" style="margin-top:8px;">
-        <button type="submit">Archive</button>
-      </form>
-      {% endif %}
-      <form method="post" action="/actions/workflow-definitions/validate" style="margin-top:8px;">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <input type="hidden" name="selected_tab" value="validation">
-        <button type="submit">Validate</button>
-      </form>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body d-flex flex-wrap gap-2">
+        <form method="post" action="{% if editor.workflow_id == 'new_workflow' or editor.workflow_id == 'unsaved_workflow' %}/actions/workflow-definitions/create{% else %}/actions/workflow-definitions/{{ editor.workflow_id }}/save{% endif %}" class="d-inline">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <input type="hidden" name="next" value="/workflow-definitions/{{ editor.workflow_id }}/graph-editor">
+          <button type="submit" class="btn btn-primary btn-sm">Save</button>
+        </form>
+        {% if editor.workflow_id not in ['new_workflow', 'unsaved_workflow'] %}
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/clone" class="d-inline">
+          <button type="submit" class="btn btn-outline-info btn-sm">Clone</button>
+        </form>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/archive" class="d-inline">
+          <button type="submit" class="btn btn-outline-danger btn-sm">Archive</button>
+        </form>
+        {% endif %}
+        <form method="post" action="/actions/workflow-definitions/validate" class="d-inline">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <input type="hidden" name="selected_tab" value="validation">
+          <button type="submit" class="btn btn-outline-secondary btn-sm">Validate</button>
+        </form>
+      </div>
     </div>
     {% endif %}
 
     {% if editor.selected_tab == 'nodes' %}
-    <div class="panel">
-      <h2>Nodes</h2>
-      <div class="node-list">
-        {% for node in editor.node_summaries %}
-          <a href="?tab=nodes&selected_node_id={{ node.node_id }}">{% if node.selected %}<strong>{% endif %}{{ node.node_id }} / {{ node.node_name }} / {{ node.node_type }}{% if node.selected %}</strong>{% endif %}</a>
-        {% endfor %}
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h2 class="h5">Nodes</h2>
+        <div class="list-group list-group-flush">
+          {% for node in editor.node_summaries %}
+          <a class="list-group-item list-group-item-action {% if node.selected %}active{% endif %}" href="?tab=nodes&selected_node_id={{ node.node_id }}">{{ node.node_id }} / {{ node.node_name }} / {{ node.node_type }}</a>
+          {% endfor %}
+        </div>
       </div>
     </div>
 
-    <div class="panel">
-      <h3>Add Node</h3>
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/add-node">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <label>node_id<input type="text" name="node_id"></label>
-        <label>node_name<input type="text" name="node_name"></label>
-        <label>node_type<input type="text" name="node_type"></label>
-        <label>group<input type="text" name="group"></label>
-        <label>advanced_yaml_fragment<textarea name="advanced_yaml_fragment"></textarea></label>
-        <button type="submit">Add Node</button>
-      </form>
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h3 class="h5">Add Node</h3>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/add-node" class="row g-2">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <div class="col-12"><label class="form-label">node_id<input class="form-control form-control-sm" type="text" name="node_id"></label></div>
+          <div class="col-12"><label class="form-label">node_name<input class="form-control form-control-sm" type="text" name="node_name"></label></div>
+          <div class="col-12"><label class="form-label">node_type<input class="form-control form-control-sm" type="text" name="node_type"></label></div>
+          <div class="col-12"><label class="form-label">group<input class="form-control form-control-sm" type="text" name="group"></label></div>
+          <div class="col-12"><label class="form-label">advanced_yaml_fragment<textarea class="form-control form-control-sm font-monospace" rows="5" name="advanced_yaml_fragment"></textarea></label></div>
+          <div class="col-12"><button class="btn btn-primary btn-sm" type="submit">Add Node</button></div>
+        </form>
+      </div>
     </div>
 
     {% if editor.selected_node_editor %}
-    <div class="panel">
-      <h3>Node Inspector</h3>
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/update-node/{{ editor.selected_node_editor.node_id }}">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <label>node_id<input type="text" name="node_id" value="{{ editor.selected_node_editor.node_id }}"></label>
-        <label>node_name<input type="text" name="node_name" value="{{ editor.selected_node_editor.node_name }}"></label>
-        <label>node_type<input type="text" name="node_type" value="{{ editor.selected_node_editor.node_type }}"></label>
-        <label>group<input type="text" name="group" value="{{ editor.selected_node_editor.group or '' }}"></label>
-        <label>advanced_yaml_fragment<textarea name="advanced_yaml_fragment">{{ editor.selected_node_editor.advanced_yaml_fragment }}</textarea></label>
-        <button type="submit">Update Node</button>
-      </form>
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/delete-node/{{ editor.selected_node_editor.node_id }}" style="margin-top:8px;">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <button type="submit" {% if not editor.selected_node_editor.deletable %}disabled{% endif %}>Delete Node</button>
-      </form>
-      <div class="grid-two" style="margin-top:12px;">
-        <div>
-          <strong>incoming</strong>
-          <ul>{% for edge in editor.selected_node_editor.incoming_edges %}<li>{{ edge.from_node_id }} → {{ edge.to_node_id }}</li>{% endfor %}</ul>
-        </div>
-        <div>
-          <strong>outgoing</strong>
-          <ul>{% for edge in editor.selected_node_editor.outgoing_edges %}<li>{{ edge.from_node_id }} → {{ edge.to_node_id }}</li>{% endfor %}</ul>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="h5">Node Inspector</h3>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/update-node/{{ editor.selected_node_editor.node_id }}" class="row g-2">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <div class="col-12"><label class="form-label">node_id<input class="form-control form-control-sm" type="text" name="node_id" value="{{ editor.selected_node_editor.node_id }}"></label></div>
+          <div class="col-12"><label class="form-label">node_name<input class="form-control form-control-sm" type="text" name="node_name" value="{{ editor.selected_node_editor.node_name }}"></label></div>
+          <div class="col-12"><label class="form-label">node_type<input class="form-control form-control-sm" type="text" name="node_type" value="{{ editor.selected_node_editor.node_type }}"></label></div>
+          <div class="col-12"><label class="form-label">group<input class="form-control form-control-sm" type="text" name="group" value="{{ editor.selected_node_editor.group or '' }}"></label></div>
+          <div class="col-12"><label class="form-label">advanced_yaml_fragment<textarea class="form-control form-control-sm font-monospace" rows="5" name="advanced_yaml_fragment">{{ editor.selected_node_editor.advanced_yaml_fragment }}</textarea></label></div>
+          <div class="col-12 d-flex flex-wrap gap-2">
+            <button class="btn btn-primary btn-sm" type="submit">Update Node</button>
+          </div>
+        </form>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/delete-node/{{ editor.selected_node_editor.node_id }}" class="d-inline mt-2">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <button type="submit" class="btn btn-outline-danger btn-sm" {% if not editor.selected_node_editor.deletable %}disabled{% endif %}>Delete Node</button>
+        </form>
+        <div class="row mt-3">
+          <div class="col-12 col-md-6">
+            <h4 class="h6">incoming</h4>
+            <ul class="mb-0">{% for edge in editor.selected_node_editor.incoming_edges %}<li>{{ edge.from_node_id }} → {{ edge.to_node_id }}</li>{% endfor %}</ul>
+          </div>
+          <div class="col-12 col-md-6">
+            <h4 class="h6">outgoing</h4>
+            <ul class="mb-0">{% for edge in editor.selected_node_editor.outgoing_edges %}<li>{{ edge.from_node_id }} → {{ edge.to_node_id }}</li>{% endfor %}</ul>
+          </div>
         </div>
       </div>
     </div>
@@ -121,93 +114,113 @@
     {% endif %}
 
     {% if editor.selected_tab == 'edges' %}
-    <div class="panel">
-      <h2>Edges</h2>
-      <ul>
-        {% for edge in editor.edge_summaries %}
-          <li>
-            {{ edge.from_node_id }} → {{ edge.to_node_id }}{% if edge.label %} ({{ edge.label }}){% endif %}
-            <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/delete-edge" style="display:inline;">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h2 class="h5">Edges</h2>
+        <ul class="list-group list-group-flush">
+          {% for edge in editor.edge_summaries %}
+          <li class="list-group-item d-flex flex-wrap justify-content-between align-items-center gap-2">
+            <span>{{ edge.from_node_id }} → {{ edge.to_node_id }}{% if edge.label %} ({{ edge.label }}){% endif %}</span>
+            <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/delete-edge" class="d-inline">
               <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
               <input type="hidden" name="from_node_id" value="{{ edge.from_node_id }}">
               <input type="hidden" name="to_node_id" value="{{ edge.to_node_id }}">
-              <button type="submit">Delete</button>
+              <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
             </form>
           </li>
-        {% endfor %}
-      </ul>
+          {% endfor %}
+        </ul>
+      </div>
     </div>
-    <div class="panel">
-      <h3>Add Edge</h3>
-      <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/add-edge">
-        <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-        <label>from_node_id<input type="text" name="from_node_id"></label>
-        <label>to_node_id<input type="text" name="to_node_id"></label>
-        <label>label<input type="text" name="label"></label>
-        <label>advanced_yaml_fragment<textarea name="advanced_yaml_fragment"></textarea></label>
-        <button type="submit">Add Edge</button>
-      </form>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="h5">Add Edge</h3>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/add-edge" class="row g-2">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <div class="col-12"><label class="form-label">from_node_id<input class="form-control form-control-sm" type="text" name="from_node_id"></label></div>
+          <div class="col-12"><label class="form-label">to_node_id<input class="form-control form-control-sm" type="text" name="to_node_id"></label></div>
+          <div class="col-12"><label class="form-label">label<input class="form-control form-control-sm" type="text" name="label"></label></div>
+          <div class="col-12"><label class="form-label">advanced_yaml_fragment<textarea class="form-control form-control-sm font-monospace" rows="5" name="advanced_yaml_fragment"></textarea></label></div>
+          <div class="col-12"><button class="btn btn-primary btn-sm" type="submit">Add Edge</button></div>
+        </form>
+      </div>
     </div>
     {% endif %}
 
     {% if editor.selected_tab == 'yaml' %}
-    <div class="panel">
-      <h2>Raw YAML</h2>
-      <form method="post" action="/actions/workflow-definitions/validate">
-        <input type="hidden" name="selected_tab" value="yaml">
-        <textarea name="yaml_text">{{ editor.yaml_text }}</textarea>
-        <p>
-          <button type="submit">Validate</button>
-        </p>
-      </form>
-      <form method="post" action="{% if editor.workflow_id == 'new_workflow' or editor.workflow_id == 'unsaved_workflow' %}/actions/workflow-definitions/create{% else %}/actions/workflow-definitions/{{ editor.workflow_id }}/save{% endif %}">
-        <textarea name="yaml_text">{{ editor.yaml_text }}</textarea>
-        <button type="submit">Save</button>
-      </form>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5">Raw YAML</h2>
+        <form method="post" action="/actions/workflow-definitions/validate" class="mb-3">
+          <input type="hidden" name="selected_tab" value="yaml">
+          <textarea class="form-control font-monospace" rows="14" name="yaml_text">{{ editor.yaml_text }}</textarea>
+          <button class="btn btn-outline-secondary btn-sm mt-2" type="submit">Validate</button>
+        </form>
+        <form method="post" action="{% if editor.workflow_id == 'new_workflow' or editor.workflow_id == 'unsaved_workflow' %}/actions/workflow-definitions/create{% else %}/actions/workflow-definitions/{{ editor.workflow_id }}/save{% endif %}">
+          <textarea class="form-control font-monospace" rows="14" name="yaml_text">{{ editor.yaml_text }}</textarea>
+          <button class="btn btn-primary btn-sm mt-2" type="submit">Save</button>
+        </form>
+      </div>
     </div>
     {% endif %}
 
     {% if editor.selected_tab == 'validation' %}
-    <div class="panel">
-      <h2>Validation</h2>
-      {% if editor.parse_errors %}
-        <h3>parse errors</h3>
-        <ul>{% for item in editor.parse_errors %}<li>{{ item }}</li>{% endfor %}</ul>
-      {% endif %}
-      {% if editor.validation_errors %}
-        <h3>validation errors</h3>
-        <ul>{% for item in editor.validation_errors %}<li>{{ item }}</li>{% endfor %}</ul>
-      {% endif %}
-      {% if editor.validation_warnings %}
-        <h3>warnings</h3>
-        <ul>{% for item in editor.validation_warnings %}<li>{{ item }}</li>{% endfor %}</ul>
-      {% endif %}
-      {% if not editor.parse_errors and not editor.validation_errors and not editor.validation_warnings %}
-        <p>No issues.</p>
-      {% endif %}
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h2 class="h5">Validation</h2>
+        {% if editor.parse_errors %}
+          <h3 class="h6">parse errors</h3>
+          <ul>{% for item in editor.parse_errors %}<li>{{ item }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if editor.validation_errors %}
+          <h3 class="h6">validation errors</h3>
+          <ul>{% for item in editor.validation_errors %}<li>{{ item }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if editor.validation_warnings %}
+          <h3 class="h6">warnings</h3>
+          <ul>{% for item in editor.validation_warnings %}<li>{{ item }}</li>{% endfor %}</ul>
+        {% endif %}
+        {% if not editor.parse_errors and not editor.validation_errors and not editor.validation_warnings %}
+          <p class="text-muted mb-0">No issues.</p>
+        {% endif %}
+      </div>
     </div>
     {% endif %}
   </div>
 
-  <div class="right">
-    <h2>Mermaid Preview</h2>
-    <div class="mermaid-box">
-      <pre class="mermaid">{{ editor.mermaid_text }}</pre>
+  <div class="col-12 col-xl-7">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h2 class="h5">Mermaid Preview</h2>
+        <div class="border rounded-3 p-3 bg-white">
+          <pre class="mermaid">{{ editor.mermaid_text }}</pre>
+        </div>
+      </div>
     </div>
     {% if editor.selected_node_editor %}
-    <div class="panel">
-      <h3>Selected Node</h3>
-      <p><strong>{{ editor.selected_node_editor.node_id }}</strong> / {{ editor.selected_node_editor.node_name }} / {{ editor.selected_node_editor.node_type }}</p>
-      {% if editor.selected_node_editor.group %}<p>group: {{ editor.selected_node_editor.group }}</p>{% endif %}
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h3 class="h5">Selected Node</h3>
+        <p class="mb-1"><strong>{{ editor.selected_node_editor.node_id }}</strong> / {{ editor.selected_node_editor.node_name }} / {{ editor.selected_node_editor.node_type }}</p>
+        {% if editor.selected_node_editor.group %}<p class="mb-0">group: {{ editor.selected_node_editor.group }}</p>{% endif %}
+      </div>
     </div>
     {% endif %}
     {% if editor.parse_errors or editor.validation_errors %}
-    <div class="panel">
-      <h3>Preview Fallback</h3>
-      <pre>{{ editor.mermaid_text }}</pre>
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h3 class="h5">Preview Fallback</h3>
+        <pre class="code-block">{{ editor.mermaid_text }}</pre>
+      </div>
     </div>
     {% endif %}
   </div>
 </div>
-</body>
-</html>
+{% endblock %}
+
+{% block scripts %}
+<script type="module">
+  import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+  mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+</script>
+{% endblock %}
