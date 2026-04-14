@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Node List{% endblock %}
+{% block content %}
+<section class="page-header">
+  <div>
+    <h1>Node List</h1>
+    <p class="page-meta">{{ workflow_name }} / execution_id: {{ execution_id }}</p>
+  </div>
+  <div class="page-actions">
+    <a class="button-link secondary" href="/workflows/{{ workflow_id }}/graph">Graph View</a>
+  </div>
+</section>
+
+<section class="filter-panel">
+  <form method="get" class="filter-form" data-node-filter-form>
+    <label for="status-filter">Status Filter</label>
+    <select id="status-filter" name="status" data-status-filter>
+      <option value="">All</option>
+      {% for status in available_statuses %}
+      <option value="{{ status|lower }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>
+      {% endfor %}
+    </select>
+    <button type="submit">Apply</button>
+    {% if selected_status %}
+    <a class="button-link secondary" href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes">Clear</a>
+    {% endif %}
+  </form>
+  <p class="filter-summary">
+    Showing {{ visible_node_count }} / {{ total_node_count }} nodes
+    {% if selected_status %}
+      (filtered by {{ selected_status }})
+    {% endif %}
+  </p>
+</section>
+
+<section class="node-card-grid">
+  {% for card in node_cards %}
+    {% include "_node_card.html" %}
+  {% else %}
+    <div class="empty-state">
+      <p>No nodes matched the selected filter.</p>
+    </div>
+  {% endfor %}
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/node_list.js') }}"></script>
+{% endblock %}

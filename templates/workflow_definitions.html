@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <title>Workflow Definitions</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; margin: 24px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: left; }
+    .actions a, .actions button { margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h1>Workflow Definitions</h1>
+  <p><a href="/workflow-definitions/new">新規作成</a></p>
+  <form method="get" action="/workflow-definitions">
+    <label><input type="checkbox" name="include_archived" value="1" {% if include_archived %}checked{% endif %}> archived も表示</label>
+    <button type="submit">更新</button>
+  </form>
+  <table>
+    <thead>
+      <tr>
+        <th>workflow_id</th>
+        <th>name</th>
+        <th>version</th>
+        <th>updated</th>
+        <th>status</th>
+        <th>nodes</th>
+        <th>edges</th>
+        <th>actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for item in definition_summaries %}
+      <tr>
+        <td>{{ item.workflow_id }}</td>
+        <td>{{ item.workflow_name }}</td>
+        <td>{{ item.version or '-' }}</td>
+        <td>{{ item.updated_at or '-' }}</td>
+        <td>{{ item.validation_status or '-' }}{% if item.is_archived %} / archived{% endif %}</td>
+        <td>{{ item.node_count if item.node_count is not none else '-' }}</td>
+        <td>{{ item.edge_count if item.edge_count is not none else '-' }}</td>
+        <td class="actions">
+          <a href="/workflow-definitions/{{ item.workflow_id }}/graph-editor">graph editor</a>
+          <a href="/workflow-definitions/{{ item.workflow_id }}/edit?tab=yaml">raw YAML</a>
+          {% if not item.is_archived %}
+          <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/clone" style="display:inline;">
+            <button type="submit">clone</button>
+          </form>
+          <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/archive" style="display:inline;">
+            <button type="submit">archive</button>
+          </form>
+          {% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</body>
+</html>

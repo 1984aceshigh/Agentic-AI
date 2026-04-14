@@ -1,0 +1,9 @@
+<div class="card">
+  <h3>Memory Results</h3>
+  <div><strong>count:</strong> {{ node.memory_count }}</div>
+  {% if node.memory_records %}
+    <pre>{{ node.memory_records | tojson(indent=2) }}</pre>
+  {% else %}
+    <p>No memory records</p>
+  {% endif %}
+</div>

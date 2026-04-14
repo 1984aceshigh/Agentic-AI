@@ -1,0 +1,64 @@
+<article class="node-card status-{{ card.status|lower }}" data-node-status="{{ card.status }}">
+  <header class="node-card-header">
+    <div>
+      <h2 class="node-card-title">
+        <a href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}">{{ card.node_name }}</a>
+      </h2>
+      <p class="node-card-subtitle">{{ card.node_id }} / {{ card.node_type }}</p>
+    </div>
+    <span class="status-badge status-{{ card.status|lower }}">{{ card.status }}</span>
+  </header>
+
+  <dl class="node-card-meta">
+    <div>
+      <dt>Group</dt>
+      <dd>{{ card.group or '-' }}</dd>
+    </div>
+    <div>
+      <dt>Started</dt>
+      <dd>{{ card.started_at or '-' }}</dd>
+    </div>
+    <div>
+      <dt>Finished</dt>
+      <dd>{{ card.finished_at or '-' }}</dd>
+    </div>
+    <div>
+      <dt>Requires Human Action</dt>
+      <dd>{{ 'Yes' if card.requires_human_action else 'No' }}</dd>
+    </div>
+    <div>
+      <dt>Retryable</dt>
+      <dd>{{ 'Yes' if card.retryable else 'No' }}</dd>
+    </div>
+  </dl>
+
+  {% if card.error_message %}
+  <div class="message-box error-box">
+    <strong>Error</strong>
+    <p>{{ card.error_message }}</p>
+  </div>
+  {% endif %}
+
+  <div class="node-card-actions">
+    <a class="button-link secondary" href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}">Detail</a>
+
+    {% if card.requires_human_action or card.status == 'WAITING_HUMAN' %}
+    <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/approve" class="inline-form">
+      <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
+      <button type="submit">Approve</button>
+    </form>
+    <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/reject" class="inline-form reject-form">
+      <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
+      <button type="submit">Reject</button>
+    </form>
+    {% endif %}
+
+    {% if card.status == 'FAILED' %}
+    <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/rerun" class="inline-form">
+      <input type="hidden" name="from_node_id" value="{{ card.node_id }}">
+      <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=failed">
+      <button type="submit">Rerun</button>
+    </form>
+    {% endif %}
+  </div>
+</article>

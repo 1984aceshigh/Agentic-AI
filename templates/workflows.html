@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Workflows{% endblock %}
+{% block content %}
+<h1>Workflows</h1>
+{% for item in workflow_summaries %}
+  <div class="card">
+    <h2>{{ item.workflow_name }}</h2>
+    <div class="meta">workflow_id: {{ item.workflow_id }}</div>
+    <div>last_status: {{ item.last_status or "N/A" }}</div>
+    <div>waiting_human_count: {{ item.waiting_human_count }}</div>
+    <div>failed_count: {{ item.failed_count }}</div>
+    {% if item.last_execution_id %}
+      <p>
+        <a href="/workflows/{{ item.workflow_id }}/executions/{{ item.last_execution_id }}/nodes">Nodes</a>
+        <a href="/workflows/{{ item.workflow_id }}/graph">Graph</a>
+      </p>
+    {% else %}
+      <p><a href="/workflows/{{ item.workflow_id }}/graph">Graph</a></p>
+    {% endif %}
+  </div>
+{% else %}
+  <p>No workflows found.</p>
+{% endfor %}
+{% endblock %}

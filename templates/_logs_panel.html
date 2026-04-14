@@ -1,0 +1,13 @@
+<div class="card">
+  <h3>Logs / Error</h3>
+  <div><strong>error_message:</strong> {{ node.error_message or "-" }}</div>
+  {% if node.logs %}
+    <ul>
+      {% for log in node.logs %}
+        <li>{{ log }}</li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>No logs</p>
+  {% endif %}
+</div>

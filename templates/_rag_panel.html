@@ -1,0 +1,29 @@
+<div class="card">
+  <h3>RAG Results</h3>
+  <div><strong>query_text:</strong> {{ node.rag_query_text or "-" }}</div>
+  <div><strong>count:</strong> {{ node.rag_count }}</div>
+  {% if node.rag_hits %}
+    <table>
+      <thead>
+        <tr>
+          <th>text</th>
+          <th>score</th>
+          <th>metadata</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for hit in node.rag_hits %}
+          <tr>
+            <td><pre>{{ hit.text if hit.text is defined else hit.get('text') }}</pre></td>
+            <td>{{ hit.score if hit.score is defined else hit.get('score', '-') }}</td>
+            <td><pre>{{ hit.metadata if hit.metadata is defined else hit.get('metadata', {}) | tojson(indent=2) }}</pre></td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    <h4>Raw RAG Hits</h4>
+    <pre>{{ node.rag_hits | tojson(indent=2) }}</pre>
+  {% else %}
+    <p>No rag hits</p>
+  {% endif %}
+</div>
