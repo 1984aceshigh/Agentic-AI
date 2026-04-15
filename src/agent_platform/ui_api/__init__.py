@@ -1,4 +1,10 @@
-from .app import create_app
+try:
+    from .app import create_app
+except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency guard
+    def create_app(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError(
+            "create_app を利用するには Flask が必要です。環境に flask をインストールしてください。"
+        ) from exc
 from .definition_view_models import (
     EdgeEditorView,
     EdgeSummaryView,
@@ -7,16 +13,38 @@ from .definition_view_models import (
     NodeSummaryView,
     WorkflowDefinitionSummaryView,
 )
-from .dependencies import (
-    HumanGateService,
-    RerunService,
-    get_definition_editor_service,
-    get_definition_read_model_service,
-    get_definition_validation_service,
-    get_workflow_definition_service,
-    set_latest_execution_ids,
-    set_workflow_graphs,
-)
+try:
+    from .dependencies import (
+        HumanGateService,
+        RerunService,
+        get_definition_editor_service,
+        get_definition_read_model_service,
+        get_definition_validation_service,
+        get_workflow_definition_service,
+        set_latest_execution_ids,
+        set_workflow_graphs,
+    )
+except ModuleNotFoundError:  # pragma: no cover - optional dependency guard
+    HumanGateService = object  # type: ignore[assignment]
+    RerunService = object  # type: ignore[assignment]
+
+    def get_definition_editor_service(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
+
+    def get_definition_read_model_service(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
+
+    def get_definition_validation_service(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
+
+    def get_workflow_definition_service(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
+
+    def set_latest_execution_ids(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
+
+    def set_workflow_graphs(*args, **kwargs):  # type: ignore[no-redef]
+        raise ModuleNotFoundError("UI dependencies を利用するには Flask が必要です。")
 from .read_model_service import ReadModelService
 from .view_models import (
     ExecutionArtifactsView,

@@ -96,7 +96,28 @@
           <div class="col-12"><label class="form-label">group<input class="form-control form-control-sm" type="text" name="group" value="{{ editor.selected_node_editor.group or '' }}"></label></div>
           {% if editor.selected_node_editor.is_llm_node %}
           <div class="col-12"><label class="form-label">llm_prompt<textarea class="form-control form-control-sm" rows="3" name="llm_prompt">{{ editor.selected_node_editor.llm_prompt }}</textarea></label></div>
-          <div class="col-12"><label class="form-label">llm_input_definition<textarea class="form-control form-control-sm" rows="3" name="llm_input_definition">{{ editor.selected_node_editor.llm_input_definition }}</textarea></label></div>
+          <div class="col-12">
+            <label class="form-label">llm_input_definition
+              <textarea class="form-control form-control-sm" rows="3" name="llm_input_definition" id="llm-input-definition">{{ editor.selected_node_editor.llm_input_definition }}</textarea>
+            </label>
+            {% if editor.selected_node_editor.input_definition_candidates %}
+            <div class="mt-2">
+              <p class="small text-muted mb-1">前段ノード候補（クリックで input_definition に設定）</p>
+              <div class="d-flex flex-wrap gap-2">
+                {% for candidate in editor.selected_node_editor.input_definition_candidates %}
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm rounded-pill"
+                  data-input-ref="{{ candidate.ref_expression }}"
+                  title="{{ candidate.node_id }}.{{ candidate.output_key }}"
+                >
+                  {{ candidate.node_name }}
+                </button>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+          </div>
           <div class="col-12"><label class="form-label">llm_output_format<textarea class="form-control form-control-sm" rows="3" name="llm_output_format">{{ editor.selected_node_editor.llm_output_format }}</textarea></label></div>
           {% endif %}
           <div class="col-12"><label class="form-label">advanced_yaml_fragment<textarea class="form-control form-control-sm font-monospace" rows="5" name="advanced_yaml_fragment">{{ editor.selected_node_editor.advanced_yaml_fragment }}</textarea></label></div>
@@ -232,5 +253,18 @@
 <script type="module">
   import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
   mermaid.initialize({ startOnLoad: true, securityLevel: 'loose' });
+
+  const inputDefinition = document.getElementById('llm-input-definition');
+  if (inputDefinition) {
+    const chipButtons = document.querySelectorAll('[data-input-ref]');
+    chipButtons.forEach((button) => {
+      button.addEventListener('click', () => {
+        const ref = button.getAttribute('data-input-ref') || '';
+        inputDefinition.value = ref;
+        inputDefinition.dispatchEvent(new Event('input', { bubbles: true }));
+        inputDefinition.focus();
+      });
+    });
+  }
 </script>
 {% endblock %}
