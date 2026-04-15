@@ -100,7 +100,7 @@ class WorkflowExecutionService:
     def _make_node_fn(self, graph_node: Any):
         def _fn(state: dict[str, Any]) -> dict[str, Any]:
             if state.get("halted"):
-                return state
+                return {}
 
             execution_id = str(state.get("execution_id") or "")
             if not execution_id:
@@ -140,7 +140,8 @@ class WorkflowExecutionService:
             if result.status == NODE_STATUS_WAITING_HUMAN:
                 self._records_manager.mark_node_waiting_human(execution_id, node_id)
                 self._context_manager.update_node_state(execution_id, node_id, NODE_STATUS_WAITING_HUMAN)
-                state["halted"] = True
+                node_state = NODE_STATUS_WAITING_HUMAN
+                halted = True
             elif result.status == NODE_STATUS_SUCCEEDED:
                 self._context_manager.update_node_state(execution_id, node_id, NODE_STATUS_SUCCEEDED)
                 self._records_manager.complete_node_record(
@@ -151,6 +152,8 @@ class WorkflowExecutionService:
                         fallback_summary=result.summary or executor.summarize_output(result.output),
                     ),
                 )
+                node_state = NODE_STATUS_SUCCEEDED
+                halted = False
             else:
                 self._context_manager.update_node_state(execution_id, node_id, NODE_STATUS_FAILED)
                 self._records_manager.fail_node_record(
@@ -158,13 +161,18 @@ class WorkflowExecutionService:
                     node_id,
                     error_message=result.error_message or "executor failed",
                 )
-                state["halted"] = True
+                node_state = NODE_STATUS_FAILED
+                halted = True
 
-            context = self._context_manager.get_context(execution_id)
-            state["node_states"] = dict(context.node_states)
-            state["node_outputs"] = dict(context.node_outputs)
-            state["logs"] = list(context.metadata.get("logs", []) if isinstance(context.metadata, dict) else [])
-            return state
+            updated: dict[str, Any] = {
+                "node_states": {node_id: node_state},
+                "logs": [f"{node_id}: {log}" for log in result.logs],
+            }
+            if result.output:
+                updated["node_outputs"] = {node_id: result.output}
+            if halted:
+                updated["halted"] = True
+            return updated
 
         return _fn
 

@@ -1,7 +1,6 @@
 from __future__ import annotations
 
-from collections import Counter
-from typing import Any, Callable, TypeAlias
+from typing import Annotated, Any, Callable, TypeAlias
 
 from typing_extensions import TypedDict
 
@@ -13,12 +12,38 @@ except Exception:  # pragma: no cover
     from ._mini_langgraph import END, START, StateGraph
 
 
+def _merge_dicts(
+    left: dict[str, Any] | None,
+    right: dict[str, Any] | None,
+) -> dict[str, Any]:
+    merged: dict[str, Any] = dict(left or {})
+    merged.update(right or {})
+    return merged
+
+
+def _concat_lists(left: list[str] | None, right: list[str] | None) -> list[str]:
+    left_list = list(left or [])
+    right_list = list(right or [])
+
+    # 互換性維持: ノード関数が「差分」ではなく「全量スナップショット」
+    # (old_logs + [new]) を返す実装でも重複しないようにする。
+    if len(right_list) >= len(left_list) and right_list[: len(left_list)] == left_list:
+        return right_list
+
+    return left_list + right_list
+
+
+def _or_bool(left: bool | None, right: bool | None) -> bool:
+    return bool(left) or bool(right)
+
+
 class Phase1LangGraphState(TypedDict, total=False):
     execution_id: str
     workflow_id: str
-    node_states: dict[str, str]
-    node_outputs: dict[str, dict[str, Any]]
-    logs: list[str]
+    node_states: Annotated[dict[str, str], _merge_dicts]
+    node_outputs: Annotated[dict[str, dict[str, Any]], _merge_dicts]
+    logs: Annotated[list[str], _concat_lists]
+    halted: Annotated[bool, _or_bool]
 
 
 NodeFnFactory: TypeAlias = Callable[
@@ -39,33 +64,16 @@ def _resolve_node_type_value(node: GraphNode) -> str:
 
 def make_dummy_node_fn(node: GraphNode) -> Callable[[Phase1LangGraphState], Phase1LangGraphState]:
     def _fn(state: Phase1LangGraphState) -> Phase1LangGraphState:
-        old_states = dict(state.get("node_states") or {})
-        old_outputs = dict(state.get("node_outputs") or {})
-        old_logs = list(state.get("logs") or [])
-
-        old_states[node.id] = "RUNNING"
-
         output = {
             "result": f"dummy output from {node.id}",
             "node_type": _resolve_node_type_value(node),
         }
 
-        old_outputs[node.id] = output
-        old_states[node.id] = "SUCCEEDED"
-
-        updated: Phase1LangGraphState = {
-            "node_states": old_states,
-            "node_outputs": old_outputs,
-            "logs": old_logs + [f"executed:{node.id}"],
+        return {
+            "node_states": {node.id: "SUCCEEDED"},
+            "node_outputs": {node.id: output},
+            "logs": [f"executed:{node.id}"],
         }
-
-        # 実 LangGraph でも最終結果に残るよう、Phase 1 の固定キーを明示的に返す
-        if "execution_id" in state:
-            updated["execution_id"] = state["execution_id"]
-        if "workflow_id" in state:
-            updated["workflow_id"] = state["workflow_id"]
-
-        return updated
 
     return _fn
 
@@ -131,15 +139,4 @@ def _validate_graph_for_phase1(graph: GraphModel) -> None:
         if edge.to_node not in node_ids:
             raise LangGraphCompileError(
                 f"edge.to_node does not exist in graph.nodes: {edge.to_node}"
-            )
-
-    _check_branching_not_present(graph.edges)
-
-
-def _check_branching_not_present(edges: list[GraphEdge]) -> None:
-    counts = Counter(edge.from_node for edge in edges)
-    for node_id, count in counts.items():
-        if count >= 2:
-            raise LangGraphCompileError(
-                f"Branching is not supported in Phase 1 minimal compiler: node={node_id}"
             )

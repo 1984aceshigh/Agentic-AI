@@ -136,11 +136,12 @@ def test_edge_to_node_missing_raises() -> None:
         compile_langgraph(graph)
 
 
-def test_branching_is_rejected_in_phase1() -> None:
+def test_branching_is_allowed_in_phase1_minimal_compiler() -> None:
     graph = make_branching_graph_model()
 
-    with pytest.raises(LangGraphCompileError):
-        compile_langgraph(graph)
+    compiled = compile_langgraph(graph)
+
+    assert compiled is not None
 
 
 def test_nodes_empty_raises() -> None:
