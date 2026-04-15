@@ -327,7 +327,23 @@ def test_phase4_flask_ui_flow_graph_view_displays_mermaid_and_node_list_link() -
     assert b"Graph View" in response.data
     assert b"Sample Workflow" in response.data
     assert b"flowchart TD" in response.data
+    assert b"/actions/workflows/sample_workflow/run" in response.data
+    assert b">Run<" in response.data
     assert (
         f"/workflows/sample_workflow/executions/{execution_id}/nodes".encode()
         in response.data
     )
+
+
+def test_phase4_flask_ui_flow_run_redirects_to_new_execution_node_list() -> None:
+    client, _, _, _ = build_integration_client()
+
+    response = client.post(
+        "/actions/workflows/sample_workflow/run",
+        data={"next": "/workflows/sample_workflow/executions/{execution_id}/nodes"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "/workflows/sample_workflow/executions/" in response.headers["Location"]
+    assert response.headers["Location"].endswith("/nodes")

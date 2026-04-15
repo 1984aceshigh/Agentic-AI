@@ -43,6 +43,23 @@ class RerunService(Protocol):
     ) -> None: ...
 
 
+class ExecutionService(Protocol):
+    def run_workflow(
+        self,
+        workflow_id: str,
+        *,
+        global_inputs: dict[str, object] | None = None,
+    ) -> str: ...
+
+    def rerun_from_node(
+        self,
+        *,
+        workflow_id: str,
+        execution_id: str,
+        from_node_id: str,
+    ) -> str: ...
+
+
 class UIDependencyContainer(dict):
     pass
 
@@ -52,6 +69,7 @@ def register_ui_dependencies(
     read_model_service: ReadModelService,
     human_gate_service: HumanGateService,
     rerun_service: RerunService,
+    execution_service: ExecutionService | None = None,
     *,
     workflow_graphs: MutableMapping[str, GraphModel] | None = None,
     latest_execution_ids: MutableMapping[str, str | None] | None = None,
@@ -64,6 +82,7 @@ def register_ui_dependencies(
         read_model_service=read_model_service,
         human_gate_service=human_gate_service,
         rerun_service=rerun_service,
+        execution_service=execution_service,
         workflow_graphs=workflow_graphs if workflow_graphs is not None else {},
         latest_execution_ids=latest_execution_ids if latest_execution_ids is not None else {},
         workflow_definition_service=workflow_definition_service,
@@ -90,6 +109,13 @@ def get_human_gate_service() -> HumanGateService:
 
 def get_rerun_service() -> RerunService:
     return cast(RerunService, get_dependency_container()['rerun_service'])
+
+
+def get_execution_service() -> ExecutionService:
+    service = get_dependency_container().get('execution_service')
+    if service is None:
+        raise RuntimeError('ExecutionService is not registered.')
+    return cast(ExecutionService, service)
 
 
 def get_workflow_graphs() -> MutableMapping[str, GraphModel]:
@@ -130,9 +156,19 @@ def get_definition_read_model_service() -> DefinitionReadModelService:
 
 def set_workflow_graphs(app: Flask, workflow_graphs: Mapping[str, GraphModel]) -> None:
     container = cast(UIDependencyContainer, app.extensions[_UI_DEPENDENCY_KEY])
+    current = container.get('workflow_graphs')
+    if isinstance(current, MutableMapping):
+        current.clear()
+        current.update(dict(workflow_graphs))
+        return
     container['workflow_graphs'] = dict(workflow_graphs)
 
 
 def set_latest_execution_ids(app: Flask, latest_execution_ids: Mapping[str, str | None]) -> None:
     container = cast(UIDependencyContainer, app.extensions[_UI_DEPENDENCY_KEY])
+    current = container.get('latest_execution_ids')
+    if isinstance(current, MutableMapping):
+        current.clear()
+        current.update(dict(latest_execution_ids))
+        return
     container['latest_execution_ids'] = dict(latest_execution_ids)

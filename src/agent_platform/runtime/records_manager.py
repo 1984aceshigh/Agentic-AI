@@ -192,6 +192,16 @@ class ExecutionRecordsManager:
         record.logs.append(message)
         return record
 
+    def set_node_input_preview(
+        self,
+        execution_id: str,
+        node_id: str,
+        input_preview: str | None,
+    ) -> NodeExecutionRecord:
+        record = self.get_node_record(execution_id, node_id)
+        record.input_preview = input_preview
+        return record
+
     def set_node_adapter_info(
         self,
         execution_id: str,

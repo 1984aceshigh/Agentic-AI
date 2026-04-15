@@ -14,6 +14,7 @@ from .definition_view_models import (
     EdgeEditorView,
     EdgeSummaryView,
     GraphEditorView,
+    InputDefinitionCandidateView,
     NodeEditorView,
     NodeSummaryView,
     WorkflowDefinitionSummaryView,
@@ -142,6 +143,10 @@ class DefinitionReadModelService:
         node_data = _find_node_payload(parsed, selected_node_id)
         if node_data is None:
             return None
+        input_definition_candidates = _collect_input_definition_candidates(parsed, selected_node_id)
+        config = node_data.get('config') if isinstance(node_data.get('config'), dict) else {}
+        node_type = str(node_data.get('type') or node_data.get('node_type') or '')
+        is_llm_node = node_type in {'llm_generate', 'llm_review'}
         basic_keys = {'id', 'node_id', 'name', 'display_name', 'type', 'node_type', 'group'}
         advanced = {k: v for k, v in node_data.items() if k not in basic_keys}
         incoming = [edge for edge in edge_summaries if edge.to_node_id == selected_node_id]
@@ -149,8 +154,13 @@ class DefinitionReadModelService:
         return NodeEditorView(
             node_id=selected_node_id,
             node_name=str(node_data.get('name') or node_data.get('display_name') or selected_node_id),
-            node_type=str(node_data.get('type') or node_data.get('node_type') or ''),
+            node_type=node_type,
             group=(str(node_data['group']) if node_data.get('group') is not None else None),
+            is_llm_node=is_llm_node,
+            llm_prompt=str(config.get('prompt') or ''),
+            llm_input_definition=str(config.get('input_definition') or ''),
+            llm_output_format=str(config.get('output_format') or ''),
+            input_definition_candidates=input_definition_candidates,
             advanced_yaml_fragment=yaml.safe_dump(advanced, allow_unicode=True, sort_keys=False).strip() if advanced else '',
             incoming_edges=incoming,
             outgoing_edges=outgoing,
@@ -173,3 +183,68 @@ def _find_node_payload(parsed: dict[str, Any], node_id: str) -> dict[str, Any] |
             result.setdefault('id', node_id)
             return result
     return None
+
+
+def _collect_input_definition_candidates(
+    parsed: dict[str, Any],
+    selected_node_id: str,
+) -> list[InputDefinitionCandidateView]:
+    ordered_nodes = _ordered_node_payloads(parsed)
+    selected_index = next(
+        (index for index, node in enumerate(ordered_nodes) if node['node_id'] == selected_node_id),
+        -1,
+    )
+    if selected_index <= 0:
+        return []
+
+    candidates: list[InputDefinitionCandidateView] = []
+    for node in ordered_nodes[:selected_index]:
+        output_key = 'result'
+        output_payload = node.get('output')
+        if isinstance(output_payload, dict) and isinstance(output_payload.get('key'), str):
+            normalized = str(output_payload.get('key')).strip()
+            if normalized:
+                output_key = normalized
+
+        candidates.append(
+            InputDefinitionCandidateView(
+                node_id=node['node_id'],
+                node_name=node['node_name'],
+                output_key=output_key,
+                ref_expression=f"ref: {node['node_id']}.{output_key}",
+            )
+        )
+    return candidates
+
+
+def _ordered_node_payloads(parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    nodes = parsed.get('nodes')
+    ordered: list[dict[str, Any]] = []
+    if isinstance(nodes, list):
+        for item in nodes:
+            if not isinstance(item, dict):
+                continue
+            node_id = str(item.get('id') or item.get('node_id') or '').strip()
+            if not node_id:
+                continue
+            ordered.append(
+                {
+                    'node_id': node_id,
+                    'node_name': str(item.get('name') or item.get('display_name') or node_id),
+                    'output': item.get('output'),
+                }
+            )
+        return ordered
+
+    if isinstance(nodes, dict):
+        for node_id, payload in nodes.items():
+            if not isinstance(payload, dict):
+                continue
+            ordered.append(
+                {
+                    'node_id': str(node_id),
+                    'node_name': str(payload.get('name') or payload.get('display_name') or node_id),
+                    'output': payload.get('output'),
+                }
+            )
+    return ordered

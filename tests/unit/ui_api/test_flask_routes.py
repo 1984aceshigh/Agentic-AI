@@ -183,6 +183,8 @@ def test_get_workflows_returns_200() -> None:
     assert response.status_code == 200
     assert b"Workflows" in response.data
     assert b"Sample Workflow" in response.data
+    assert b"/actions/workflows/sample_workflow/run" in response.data
+    assert b">Run<" in response.data
 
 
 def test_get_node_list_returns_200() -> None:
@@ -266,6 +268,8 @@ def test_get_graph_view_returns_200() -> None:
         f"/workflows/sample_workflow/executions/{execution_id}/nodes".encode()
         in response.data
     )
+    assert b"/actions/workflows/sample_workflow/run" in response.data
+    assert b">Run<" in response.data
     assert b"mermaid_init.js" in response.data
 
 
@@ -347,6 +351,37 @@ def test_post_rerun_returns_200_and_json() -> None:
         "from_node_id": "step3",
     }
     assert rerun_service.calls[0]["from_node_id"] == "step3"
+
+
+def test_post_run_returns_200_and_json() -> None:
+    client, _, _, _ = build_test_client()
+
+    response = client.post(
+        "/actions/workflows/sample_workflow/run",
+        json={"global_inputs": {"topic": "qa"}},
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["status"] == "ok"
+    assert payload["action"] == "run"
+    assert payload["workflow_id"] == "sample_workflow"
+    assert isinstance(payload["execution_id"], str)
+    assert payload["execution_id"]
+
+
+def test_form_post_run_redirects_to_new_execution_node_list() -> None:
+    client, _, _, _ = build_test_client()
+
+    response = client.post(
+        "/actions/workflows/sample_workflow/run",
+        data={"next": "/workflows/sample_workflow/executions/{execution_id}/nodes"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert "/workflows/sample_workflow/executions/" in response.headers["Location"]
+    assert response.headers["Location"].endswith("/nodes")
 
 
 def test_form_post_can_redirect_back_to_node_list() -> None:

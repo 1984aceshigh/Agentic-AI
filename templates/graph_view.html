@@ -7,7 +7,11 @@
     <h1 class="h3 mb-1">Graph View</h1>
     <p class="text-muted mb-0">{{ graph_view.workflow_name }} ({{ graph_view.workflow_id }})</p>
   </div>
-  <div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <form method="post" action="/actions/workflows/{{ workflow_id }}/run" class="d-inline">
+      <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{execution_id}/nodes">
+      <button type="submit" class="btn btn-success">Run</button>
+    </form>
     {% if latest_execution_id %}
       <a class="btn btn-primary" href="/workflows/{{ workflow_id }}/executions/{{ latest_execution_id }}/nodes">
         View Node List

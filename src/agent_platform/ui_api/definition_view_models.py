@@ -32,11 +32,23 @@ class EdgeSummaryView(_BaseViewModel):
     label: str | None = None
 
 
+class InputDefinitionCandidateView(_BaseViewModel):
+    node_id: str
+    node_name: str
+    output_key: str
+    ref_expression: str
+
+
 class NodeEditorView(_BaseViewModel):
     node_id: str = ''
     node_name: str = ''
     node_type: str = ''
     group: str | None = None
+    is_llm_node: bool = False
+    llm_prompt: str = ''
+    llm_input_definition: str = ''
+    llm_output_format: str = ''
+    input_definition_candidates: list[InputDefinitionCandidateView] = Field(default_factory=list)
     advanced_yaml_fragment: str = ''
     incoming_edges: list[EdgeSummaryView] = Field(default_factory=list)
     outgoing_edges: list[EdgeSummaryView] = Field(default_factory=list)

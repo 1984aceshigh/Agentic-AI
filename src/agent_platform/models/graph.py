@@ -15,6 +15,7 @@ class GraphNode(BaseModel):
     name: str
     description: str | None = None
     config: dict[str, Any] = Field(default_factory=dict)
+    input: dict[str, Any] = Field(default_factory=dict)
     group: str | None = None
 
 

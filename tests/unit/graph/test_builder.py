@@ -109,6 +109,7 @@ def test_build_graph_node_reflects_group_and_copies_config() -> None:
         name="Step 1",
         description=None,
         config={"llm_profile": "default_llm", "temperature": 0.2},
+        input={},
         group="analysis",
     )
     assert graph_node.config is not node.config
@@ -142,6 +143,7 @@ def test_dump_graph_model_returns_json_friendly_dict() -> None:
                 "description": None,
                 "group": None,
                 "config": {"llm_profile": "default_llm", "prompt": "hello"},
+                "input": {},
             },
             "step2": {
                 "id": "step2",
@@ -150,6 +152,7 @@ def test_dump_graph_model_returns_json_friendly_dict() -> None:
                 "description": None,
                 "group": "review",
                 "config": {},
+                "input": {},
             },
         },
         "edges": [{"from_node": "step1", "to_node": "step2"}],

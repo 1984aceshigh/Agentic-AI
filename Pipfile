@@ -12,6 +12,7 @@ langgraph = "*"
 ruff = "*"
 black = "*"
 flask = "*"
+openai = "*"
 
 [dev-packages]
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
+from collections.abc import MutableMapping
 
 from flask import Flask, jsonify, render_template_string, request
 from werkzeug.exceptions import HTTPException
@@ -11,6 +12,8 @@ from agent_platform.workflow_definitions import (
     FileWorkflowDefinitionRepository,
     WorkflowDefinitionService,
 )
+from agent_platform.runtime.execution_service import WorkflowExecutionService
+from agent_platform.models import GraphModel
 
 from .action_routes import action_bp
 from .api_routes import api_bp
@@ -18,7 +21,7 @@ from .definition_action_routes import definition_action_bp
 from .definition_api_routes import definition_api_bp
 from .definition_read_model_service import DefinitionReadModelService
 from .definition_web_routes import definition_web_bp
-from .dependencies import HumanGateService, RerunService, register_ui_dependencies
+from .dependencies import ExecutionService, HumanGateService, RerunService, register_ui_dependencies
 from .read_model_service import ReadModelService
 from .web_routes import web_bp
 
@@ -27,11 +30,14 @@ def create_app(
     read_model_service: ReadModelService,
     human_gate_service: HumanGateService,
     rerun_service: RerunService,
+    execution_service: ExecutionService | None = None,
     *,
     workflow_definition_service: WorkflowDefinitionService | None = None,
     definition_editor_service: DefinitionEditorService | None = None,
     definition_validation_service: DefinitionValidationService | None = None,
     definition_read_model_service: DefinitionReadModelService | None = None,
+    workflow_graphs: MutableMapping[str, GraphModel] | None = None,
+    latest_execution_ids: MutableMapping[str, str | None] | None = None,
 ) -> Flask:
     project_root = Path(__file__).resolve().parents[3]
     template_folder = project_root / 'templates'
@@ -42,8 +48,8 @@ def create_app(
         static_folder=str(static_folder),
     )
 
-    workflow_graphs: dict[str, object] = {}
-    latest_execution_ids: dict[str, str | None] = {}
+    workflow_graphs = workflow_graphs if workflow_graphs is not None else {}
+    latest_execution_ids = latest_execution_ids if latest_execution_ids is not None else {}
     definition_validation_service = definition_validation_service or DefinitionValidationService()
     definition_editor_service = definition_editor_service or DefinitionEditorService()
     workflow_definition_service = workflow_definition_service or WorkflowDefinitionService(
@@ -57,11 +63,23 @@ def create_app(
         definition_validation_service,
     )
 
+    if execution_service is None:
+        context_manager = getattr(read_model_service, "_context_manager", None)
+        records_manager = getattr(read_model_service, "_records_manager", None)
+        if context_manager is not None and records_manager is not None:
+            execution_service = WorkflowExecutionService(
+                context_manager=context_manager,
+                records_manager=records_manager,
+                workflow_graphs=workflow_graphs,
+                latest_execution_ids=latest_execution_ids,
+            )
+
     register_ui_dependencies(
         app,
         read_model_service=read_model_service,
         human_gate_service=human_gate_service,
         rerun_service=rerun_service,
+        execution_service=execution_service,
         workflow_graphs=workflow_graphs,
         latest_execution_ids=latest_execution_ids,
         workflow_definition_service=workflow_definition_service,

@@ -16,6 +16,7 @@ class ExecutorResult:
     status: str
     output: dict[str, Any] = field(default_factory=dict)
     summary: str | None = None
+    input_preview: str | None = None
     logs: list[str] = field(default_factory=list)
     error_message: str | None = None
     requires_human_action: bool = False
@@ -90,6 +91,7 @@ class BaseNodeExecutor(ABC):
             "node_config": dict(node_config) if isinstance(node_config, dict) else {},
             "node_input": dict(node_input) if isinstance(node_input, dict) else {},
             "global_inputs": dict(global_inputs) if isinstance(global_inputs, dict) else {},
+            "node_outputs": dict(node_outputs) if isinstance(node_outputs, dict) else {},
             "resolved_inputs": resolved_inputs,
         }
 

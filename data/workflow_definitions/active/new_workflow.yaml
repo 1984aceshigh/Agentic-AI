@@ -1,0 +1,22 @@
+workflow_id: new_workflow
+workflow_name: new_workflow
+version: 0.1.0
+nodes:
+- id: start_node
+  name: Start Node
+  type: llm_generate
+  config:
+    prompt: こんにちは！
+- config:
+    prompt: 中国の故事成語からためになるものを一つ取り上げて説明してください。
+  id: hello_node
+  name: Hello Node
+  type: llm_generate
+- id: end_node
+  name: End Node
+  type: deterministic_transform
+edges:
+- from: start_node
+  to: hello_node
+- from: hello_node
+  to: end_node

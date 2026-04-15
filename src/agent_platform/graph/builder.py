@@ -46,6 +46,7 @@ def build_graph_node(node: NodeSpec) -> GraphNode:
         name=node.name,
         description=node.description,
         config=dict(node.config),
+        input=node.input.model_dump(by_alias=True) if node.input is not None else {},
         group=node.display.group if node.display is not None else None,
     )
 
@@ -74,6 +75,7 @@ def dump_graph_model(graph: GraphModel) -> dict[str, Any]:
                 "description": node.description,
                 "group": node.group,
                 "config": dict(node.config),
+                "input": dict(node.input),
             }
             for node_id, node in graph.nodes.items()
         },

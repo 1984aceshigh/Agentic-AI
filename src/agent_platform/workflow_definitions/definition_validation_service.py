@@ -5,6 +5,8 @@ from typing import Any, Callable
 
 import yaml
 
+from agent_platform.models import GraphEdge, GraphModel, GraphNode, NodeType
+
 
 @dataclass(slots=True)
 class WorkflowDefinitionValidationResult:
@@ -50,11 +52,12 @@ class DefinitionValidationService:
             try:
                 loaded_spec = self._loader(yaml_text)
             except Exception as exc:  # pragma: no cover - depends on project loader
-                parsed_result.validation_errors.append(str(exc))
-                parsed_result.is_valid = False
-                return parsed_result
+                parsed_result.warnings.append(
+                    f"Structured workflow loader failed, fallback mode is used: {exc}"
+                )
+                loaded_spec = None
 
-        if self._validator is not None:
+        if self._validator is not None and loaded_spec is not None:
             try:
                 validation_result = self._validator(loaded_spec)
                 if isinstance(validation_result, list):
@@ -65,17 +68,113 @@ class DefinitionValidationService:
         parsed_result.validation_errors.extend(self._fallback_validate(parsed_result.parsed_data))
         parsed_result.is_valid = not parsed_result.parse_errors and not parsed_result.validation_errors
 
-        if self._graph_builder is not None and parsed_result.is_valid:
+        if self._graph_builder is not None and parsed_result.is_valid and loaded_spec is not None:
             try:
                 parsed_result.graph = self._graph_builder(loaded_spec)
             except Exception as exc:  # pragma: no cover
-                parsed_result.validation_errors.append(str(exc))
+                parsed_result.warnings.append(
+                    f"Structured graph build failed, fallback graph mode is used: {exc}"
+                )
+
+        if parsed_result.graph is None and parsed_result.is_valid:
+            fallback_graph = self._build_fallback_graph(parsed_result)
+            if fallback_graph is None:
+                parsed_result.validation_errors.append(
+                    'Failed to build runtime graph from workflow definition.'
+                )
                 parsed_result.is_valid = False
+            else:
+                parsed_result.graph = fallback_graph
 
         if parsed_result.is_valid:
             parsed_result.mermaid_text = self._build_mermaid(parsed_result)
 
         return parsed_result
+
+    def _build_fallback_graph(self, result: WorkflowDefinitionValidationResult) -> GraphModel | None:
+        parsed = result.parsed_data
+        node_map: dict[str, GraphNode] = {}
+        for node in result.node_summaries:
+            node_id = str(node.get('node_id') or '').strip()
+            node_type_raw = str(node.get('node_type') or '').strip()
+            node_name = str(node.get('node_name') or node_id).strip() or node_id
+            if not node_id or not node_type_raw:
+                return None
+            try:
+                node_type = NodeType(node_type_raw)
+            except ValueError:
+                return None
+            node_payload = _find_node_payload(parsed, node_id)
+            node_config = node_payload.get('config') if isinstance(node_payload.get('config'), dict) else {}
+            node_input = node_payload.get('input') if isinstance(node_payload.get('input'), dict) else {}
+            node_map[node_id] = GraphNode(
+                id=node_id,
+                type=node_type,
+                name=node_name,
+                config=dict(node_config),
+                input=dict(node_input),
+                group=str(node.get('group')) if node.get('group') is not None else None,
+            )
+
+        if not node_map:
+            return None
+
+        edges: list[GraphEdge] = []
+        outgoing_counts: dict[str, int] = {node_id: 0 for node_id in node_map.keys()}
+        for edge in result.edge_summaries:
+            from_node_id = str(edge.get('from_node_id') or '').strip()
+            to_node_id = str(edge.get('to_node_id') or '').strip()
+            if not from_node_id or not to_node_id:
+                return None
+            if from_node_id not in node_map or to_node_id not in node_map:
+                return None
+            edges.append(GraphEdge(from_node=from_node_id, to_node=to_node_id))
+            outgoing_counts[from_node_id] = outgoing_counts.get(from_node_id, 0) + 1
+
+        workflow_id = (result.workflow_id or '').strip()
+        workflow_name = (result.workflow_name or workflow_id).strip() or workflow_id
+        if not workflow_id:
+            return None
+
+        start_node = str(parsed.get('start_node') or '').strip()
+        if not start_node:
+            runtime = parsed.get('runtime')
+            if isinstance(runtime, dict):
+                start_node = str(runtime.get('start_node') or '').strip()
+        if not start_node:
+            start_node = next(iter(node_map.keys()))
+        if start_node not in node_map:
+            return None
+
+        end_nodes: list[str] = []
+        runtime = parsed.get('runtime')
+        if isinstance(runtime, dict):
+            runtime_end_nodes = runtime.get('end_nodes')
+            if isinstance(runtime_end_nodes, list):
+                end_nodes = [str(node_id).strip() for node_id in runtime_end_nodes if str(node_id).strip() in node_map]
+        if not end_nodes:
+            end_nodes = [node_id for node_id, out_count in outgoing_counts.items() if out_count == 0]
+        if not end_nodes:
+            end_nodes = [next(reversed(node_map.keys()))]
+
+        direction = 'TD'
+        display = parsed.get('display')
+        if isinstance(display, dict):
+            mermaid = display.get('mermaid')
+            if isinstance(mermaid, dict) and mermaid.get('direction'):
+                direction = str(mermaid.get('direction'))
+        if not direction.strip():
+            direction = 'TD'
+
+        return GraphModel(
+            workflow_id=workflow_id,
+            workflow_name=workflow_name,
+            start_node=start_node,
+            end_nodes=end_nodes,
+            nodes=node_map,
+            edges=edges,
+            direction=direction,
+        )
 
     def _parse_yaml(self, yaml_text: str) -> WorkflowDefinitionValidationResult:
         try:
@@ -237,3 +336,20 @@ class DefinitionValidationService:
         if isinstance(workflow, dict) and isinstance(workflow.get('description'), str):
             return str(workflow['description'])
         return None
+
+
+def _find_node_payload(parsed: dict[str, Any], node_id: str) -> dict[str, Any]:
+    nodes = parsed.get('nodes')
+    if isinstance(nodes, list):
+        for item in nodes:
+            if not isinstance(item, dict):
+                continue
+            if str(item.get('id') or item.get('node_id') or '') == node_id:
+                return dict(item)
+    elif isinstance(nodes, dict):
+        payload = nodes.get(node_id)
+        if isinstance(payload, dict):
+            result = dict(payload)
+            result.setdefault('id', node_id)
+            return result
+    return {}

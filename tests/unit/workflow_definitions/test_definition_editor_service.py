@@ -1,4 +1,5 @@
 from agent_platform.workflow_definitions import DefinitionEditorService
+import yaml
 
 
 SAMPLE_YAML = """
@@ -41,3 +42,25 @@ def test_delete_node_with_edge_raises():
         assert 'connected edges' in str(exc)
     else:
         raise AssertionError('Expected ValueError')
+
+
+def test_add_llm_node_fields_are_saved_into_config():
+    service = DefinitionEditorService()
+
+    updated = service.add_node(
+        SAMPLE_YAML,
+        {
+            'node_id': 'writer',
+            'node_name': 'Writer',
+            'node_type': 'llm_generate',
+            'llm_prompt': 'Write a short answer',
+            'llm_input_definition': 'topic: string',
+            'llm_output_format': 'json: {"answer": string}',
+        },
+    )
+
+    parsed = yaml.safe_load(updated)
+    writer = next(node for node in parsed['nodes'] if node.get('id') == 'writer')
+    assert writer['config']['prompt'] == 'Write a short answer'
+    assert writer['config']['input_definition'] == 'topic: string'
+    assert writer['config']['output_format'] == 'json: {"answer": string}'

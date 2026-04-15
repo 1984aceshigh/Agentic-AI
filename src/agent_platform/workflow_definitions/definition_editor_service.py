@@ -131,11 +131,35 @@ class DefinitionEditorService:
         node[id_key] = node_id
         node[name_key] = node_name
         node[type_key] = node_type
+
+        if self._is_llm_node_type(node_type):
+            config = node.get('config')
+            if not isinstance(config, dict):
+                config = {}
+            self._apply_optional_config_text(config, 'prompt', node_payload.get('llm_prompt'))
+            self._apply_optional_config_text(config, 'input_definition', node_payload.get('llm_input_definition'))
+            self._apply_optional_config_text(config, 'output_format', node_payload.get('llm_output_format'))
+            if config:
+                node['config'] = config
+
         if group is not None:
             node['group'] = group
         elif existing is not None and 'group' in current:
             node['group'] = current['group']
         return node
+
+    def _is_llm_node_type(self, node_type: str) -> bool:
+        lowered = str(node_type).strip().lower()
+        return lowered in {'llm_generate', 'llm_review'}
+
+    def _apply_optional_config_text(self, config: dict[str, Any], key: str, raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config.pop(key, None)
+            return
+        config[key] = normalized
 
     def _parse(self, yaml_text: str) -> dict[str, Any]:
         parsed = yaml.safe_load(yaml_text) or {}

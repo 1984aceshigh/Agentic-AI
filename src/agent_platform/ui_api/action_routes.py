@@ -6,6 +6,7 @@ from urllib.parse import urlparse
 from flask import Blueprint, abort, jsonify, redirect, request
 
 from .dependencies import (
+    get_execution_service,
     get_human_gate_service,
     get_rerun_service,
     get_workflow_graphs,
@@ -22,7 +23,10 @@ def approve_node(workflow_id: str, execution_id: str, node_id: str):
 
     human_gate_service = get_human_gate_service()
     try:
-        human_gate_service.approve_node(execution_id=execution_id, node_id=node_id, comment=comment)
+        if hasattr(human_gate_service, "approve_node"):
+            human_gate_service.approve_node(execution_id=execution_id, node_id=node_id, comment=comment)
+        else:
+            human_gate_service.approve(execution_id=execution_id, node_id=node_id, comment=comment)
     except KeyError as exc:
         raise abort(404, description=str(exc)) from exc
 
@@ -42,12 +46,20 @@ def reject_node(workflow_id: str, execution_id: str, node_id: str):
 
     human_gate_service = get_human_gate_service()
     try:
-        human_gate_service.reject_node(
-            execution_id=execution_id,
-            node_id=node_id,
-            fallback_node_id=fallback_node_id,
-            comment=comment,
-        )
+        if hasattr(human_gate_service, "reject_node"):
+            human_gate_service.reject_node(
+                execution_id=execution_id,
+                node_id=node_id,
+                fallback_node_id=fallback_node_id,
+                comment=comment,
+            )
+        else:
+            human_gate_service.reject(
+                execution_id=execution_id,
+                node_id=node_id,
+                fallback_node_id=fallback_node_id,
+                comment=comment,
+            )
     except KeyError as exc:
         raise abort(404, description=str(exc)) from exc
 
@@ -73,9 +85,17 @@ def rerun_workflow(workflow_id: str, execution_id: str):
     if not from_node_id:
         abort(400, description="from_node_id is required.")
 
-    rerun_service = get_rerun_service()
     try:
-        rerun_service.rerun_from_node(execution_id=execution_id, from_node_id=from_node_id)
+        rerun_service = get_rerun_service()
+        if hasattr(rerun_service, "rerun_from_node"):
+            rerun_service.rerun_from_node(execution_id=execution_id, from_node_id=from_node_id)
+        else:
+            execution_service = get_execution_service()
+            execution_service.rerun_from_node(
+                workflow_id=workflow_id,
+                execution_id=execution_id,
+                from_node_id=from_node_id,
+            )
     except KeyError as exc:
         raise abort(404, description=str(exc)) from exc
 
@@ -88,6 +108,39 @@ def rerun_workflow(workflow_id: str, execution_id: str):
             "status": "ok",
             "action": "rerun",
             "from_node_id": from_node_id,
+        }
+    )
+
+
+@action_bp.post("/workflows/<workflow_id>/run")
+def run_workflow(workflow_id: str):
+    _ensure_workflow_exists(workflow_id)
+    payload = _get_payload()
+    global_inputs = payload.get("global_inputs")
+    if not isinstance(global_inputs, dict):
+        global_inputs = None
+
+    execution_service = get_execution_service()
+    execution_id = execution_service.run_workflow(workflow_id, global_inputs=global_inputs)
+
+    next_url = _optional_str(payload.get("next"))
+    if next_url is not None and "{execution_id}" in next_url:
+        payload = dict(payload)
+        payload["next"] = next_url.replace("{execution_id}", execution_id)
+
+    redirect_response = _maybe_redirect(payload)
+    if redirect_response is not None:
+        return redirect_response
+
+    if not request.is_json:
+        return redirect(f"/workflows/{workflow_id}/executions/{execution_id}/nodes")
+
+    return jsonify(
+        {
+            "status": "ok",
+            "action": "run",
+            "workflow_id": workflow_id,
+            "execution_id": execution_id,
         }
     )
 

@@ -1,35 +1,22 @@
-from datetime import datetime, timezone
+from __future__ import annotations
 
-from agent_platform.models import ExecutionEvent, GraphEdge, GraphModel, GraphNode
+from pathlib import Path
+
+from agent_platform.graph.builder import build_graph_model
+from agent_platform.graph.mermaid import build_mermaid
+from agent_platform.models import GraphEdge, GraphModel, GraphNode, IssueSeverity
 from agent_platform.runtime.context_manager import ExecutionContextManager
+from agent_platform.runtime.app_config import load_runtime_llm_config
+from agent_platform.runtime.execution_service import WorkflowExecutionService
+from agent_platform.runtime.human_gate_service import HumanGateService
 from agent_platform.runtime.records_manager import ExecutionRecordsManager
 from agent_platform.ui_api import (
     ReadModelService,
     create_app,
-    set_latest_execution_ids,
-    set_workflow_graphs,
 )
-
-UTC = timezone.utc
-
-
-class FakeHumanGateService:
-    def approve_node(self, execution_id: str, node_id: str, comment: str | None = None) -> None:
-        pass
-
-    def reject_node(
-        self,
-        execution_id: str,
-        node_id: str,
-        fallback_node_id: str | None = None,
-        comment: str | None = None,
-    ) -> None:
-        pass
-
-
-class FakeRerunService:
-    def rerun_from_node(self, execution_id: str, from_node_id: str) -> None:
-        pass
+from agent_platform.validators import has_errors, validate_workflow_spec
+from agent_platform.workflow_definitions import DefinitionValidationService, FileWorkflowDefinitionRepository
+from agent_platform.yaml_io.loader import load_workflow_yaml_text
 
 
 def make_graph_model() -> GraphModel:
@@ -51,8 +38,90 @@ def make_graph_model() -> GraphModel:
     )
 
 
+def _build_definition_validation_service() -> DefinitionValidationService:
+    def _validate(spec: object) -> list[str]:
+        issues = validate_workflow_spec(spec)
+        if not has_errors(issues):
+            return []
+        return [str(issue.message) for issue in issues if issue.severity is IssueSeverity.ERROR]
+
+    return DefinitionValidationService(
+        loader=load_workflow_yaml_text,
+        validator=_validate,
+        graph_builder=build_graph_model,
+        mermaid_builder=build_mermaid,
+    )
+
+
+def _load_active_graphs(definition_root: Path) -> dict[str, GraphModel]:
+    repository = FileWorkflowDefinitionRepository(definition_root)
+    graphs: dict[str, GraphModel] = {}
+    validation_service = _build_definition_validation_service()
+
+    for meta in repository.list_active():
+        document = repository.get(meta.workflow_id)
+        validation = validation_service.validate_yaml_text(document.yaml_text)
+        if not validation.is_valid or validation.graph is None:
+            continue
+
+        # pydantic model generated from graph builder
+        graph = validation.graph
+        graphs[str(graph.workflow_id)] = graph
+
+    return graphs
+
+
+class UIHumanGateServiceAdapter:
+    def __init__(self, service: HumanGateService) -> None:
+        self._service = service
+
+    def approve_node(self, execution_id: str, node_id: str, comment: str | None = None) -> None:
+        self._service.approve(execution_id=execution_id, node_id=node_id, comment=comment)
+
+    def reject_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        fallback_node_id: str | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self._service.reject(
+            execution_id=execution_id,
+            node_id=node_id,
+            fallback_node_id=fallback_node_id,
+            comment=comment,
+        )
+
+
+class UIRerunServiceAdapter:
+    """UI route adapter that delegates rerun requests to execution service."""
+
+    def __init__(self, execution_service: WorkflowExecutionService, records_manager: ExecutionRecordsManager) -> None:
+        self._execution_service = execution_service
+        self._records_manager = records_manager
+
+    def rerun_from_node(self, execution_id: str, from_node_id: str) -> None:
+        workflow_record = self._records_manager.get_workflow_record(execution_id)
+        workflow_id = workflow_record.workflow_id
+
+        self._execution_service.rerun_from_node(
+            workflow_id=workflow_id,
+            execution_id=execution_id,
+            from_node_id=from_node_id,
+        )
+
+
 def build_app():
-    graph = make_graph_model()
+    project_root = Path(__file__).resolve().parents[1]
+    definitions_root = project_root / "data" / "workflow_definitions"
+    runtime_config_path = project_root / "config" / "runtime.yaml"
+    runtime_llm_config = load_runtime_llm_config(runtime_config_path)
+
+    workflow_graphs = _load_active_graphs(definitions_root)
+    if not workflow_graphs:
+        graph = make_graph_model()
+        workflow_graphs = {graph.workflow_id: graph}
+
     context_manager = ExecutionContextManager()
     records_manager = ExecutionRecordsManager()
     read_model_service = ReadModelService(
@@ -60,31 +129,29 @@ def build_app():
         records_manager=records_manager,
     )
 
-    context = context_manager.create_context(workflow_id=graph.workflow_id)
-    execution_id = context.execution_id
-    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    human_gate_core = HumanGateService(records_manager=records_manager, context_manager=context_manager)
 
-    records_manager.start_node_record(execution_id, "step1", "llm_generate")
-    records_manager.complete_node_record(execution_id, "step1", output_preview="draft output")
-
-    records_manager.start_node_record(execution_id, "step2", "human_gate")
-    records_manager.mark_node_waiting_human(execution_id, "step2")
-
-    records_manager.start_node_record(execution_id, "step3", "rag_retrieve")
-    records_manager.fail_node_record(execution_id, "step3", error_message="retrieval failed")
-
-    context_manager.update_node_state(execution_id, "step1", "SUCCEEDED")
-    context_manager.update_node_state(execution_id, "step2", "WAITING_HUMAN")
-    context_manager.update_node_state(execution_id, "step3", "FAILED")
-    records_manager.set_workflow_status(execution_id, "FAILED")
+    latest_execution_ids: dict[str, str | None] = {}
+    execution_service = WorkflowExecutionService(
+        context_manager=context_manager,
+        records_manager=records_manager,
+        workflow_graphs=workflow_graphs,
+        latest_execution_ids=latest_execution_ids,
+        openai_api_key=runtime_llm_config.openai_api_key,
+        openai_model=runtime_llm_config.openai_model,
+        llm_default_provider=runtime_llm_config.provider,
+    )
+    human_gate_service = UIHumanGateServiceAdapter(human_gate_core)
+    rerun_service = UIRerunServiceAdapter(execution_service, records_manager)
 
     app = create_app(
         read_model_service=read_model_service,
-        human_gate_service=FakeHumanGateService(),
-        rerun_service=FakeRerunService(),
+        human_gate_service=human_gate_service,
+        rerun_service=rerun_service,
+        execution_service=execution_service,
+        workflow_graphs=workflow_graphs,
+        latest_execution_ids=latest_execution_ids,
     )
-    set_workflow_graphs(app, {graph.workflow_id: graph})
-    set_latest_execution_ids(app, {graph.workflow_id: execution_id})
     return app
 
 

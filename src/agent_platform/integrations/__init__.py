@@ -10,6 +10,13 @@ from agent_platform.integrations.memory_contracts import (
     MemoryStore,
     MemoryWriteRequest,
 )
+from agent_platform.integrations.llm_adapters import (
+    DummyEchoLLMAdapter,
+    LLMCompletionAdapter,
+    LLMCompletionRequest,
+    LLMCompletionResponse,
+    OpenAIChatCompletionAdapter,
+)
 
 __all__ = [
     "ProfileResolver",
@@ -20,4 +27,9 @@ __all__ = [
     "MemoryWriteRequest",
     "MemoryStore",
     "InMemoryMemoryStore",
+    "LLMCompletionAdapter",
+    "LLMCompletionRequest",
+    "LLMCompletionResponse",
+    "DummyEchoLLMAdapter",
+    "OpenAIChatCompletionAdapter",
 ]

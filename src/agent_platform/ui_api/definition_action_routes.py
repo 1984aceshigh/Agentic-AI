@@ -109,9 +109,21 @@ def add_node(workflow_id: str):
             'node_name': payload.get('node_name'),
             'node_type': payload.get('node_type'),
             'group': payload.get('group'),
+            'llm_prompt': payload.get('llm_prompt'),
+            'llm_input_definition': payload.get('llm_input_definition'),
+            'llm_output_format': payload.get('llm_output_format'),
             'advanced_yaml_fragment': payload.get('advanced_yaml_fragment'),
         },
     )
+    if _is_truthy(payload.get('save_after_update')):
+        get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
+        if request.is_json:
+            return jsonify({'status': 'ok', 'action': 'add_node_and_save', 'workflow_id': workflow_id})
+        selected_node_id = _optional_str(payload.get('node_id'))
+        next_url = f'/workflow-definitions/{workflow_id}/graph-editor?tab=nodes'
+        if selected_node_id:
+            next_url += f'&selected_node_id={selected_node_id}'
+        return redirect(next_url)
     return _render_editor_response(
         workflow_id=workflow_id,
         yaml_text=updated_yaml,
@@ -131,10 +143,19 @@ def update_node(workflow_id: str, node_id: str):
             'node_name': payload.get('node_name'),
             'node_type': payload.get('node_type'),
             'group': payload.get('group'),
+            'llm_prompt': payload.get('llm_prompt'),
+            'llm_input_definition': payload.get('llm_input_definition'),
+            'llm_output_format': payload.get('llm_output_format'),
             'advanced_yaml_fragment': payload.get('advanced_yaml_fragment'),
         },
     )
     selected_node_id = _optional_str(payload.get('node_id')) or node_id
+    if _is_truthy(payload.get('save_after_update')):
+        get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
+        if request.is_json:
+            return jsonify({'status': 'ok', 'action': 'update_node_and_save', 'workflow_id': workflow_id, 'node_id': selected_node_id})
+        next_url = f'/workflow-definitions/{workflow_id}/graph-editor?tab=nodes&selected_node_id={selected_node_id}'
+        return redirect(next_url)
     return _render_editor_response(
         workflow_id=workflow_id,
         yaml_text=updated_yaml,
@@ -239,6 +260,10 @@ def _optional_str(value: Any) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+def _is_truthy(value: Any) -> bool:
+    return str(value or '').strip().lower() in {'1', 'true', 'yes', 'on'}
 
 
 def _maybe_redirect(payload: dict[str, Any]):
