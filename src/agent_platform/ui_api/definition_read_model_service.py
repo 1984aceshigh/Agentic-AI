@@ -11,6 +11,7 @@ from agent_platform.workflow_definitions import (
 )
 
 from .definition_view_models import (
+    EdgeConnectionNodeView,
     EdgeEditorView,
     EdgeSummaryView,
     GraphEditorView,
@@ -56,7 +57,7 @@ class DefinitionReadModelService:
         *,
         workflow_id: str | None = None,
         selected_node_id: str | None = None,
-        selected_tab: str = 'overview',
+        selected_tab: str = 'nodes',
         yaml_text: str | None = None,
         include_archived: bool = False,
         is_dirty: bool = False,
@@ -151,6 +152,12 @@ class DefinitionReadModelService:
         advanced = {k: v for k, v in node_data.items() if k not in basic_keys}
         incoming = [edge for edge in edge_summaries if edge.to_node_id == selected_node_id]
         outgoing = [edge for edge in edge_summaries if edge.from_node_id == selected_node_id]
+        edge_connection_candidates = _collect_edge_connection_candidates(parsed, selected_node_id)
+        selected_outgoing_connections = [
+            item
+            for item in edge_connection_candidates
+            if any(edge.to_node_id == item.node_id for edge in outgoing)
+        ]
         return NodeEditorView(
             node_id=selected_node_id,
             node_name=str(node_data.get('name') or node_data.get('display_name') or selected_node_id),
@@ -161,6 +168,8 @@ class DefinitionReadModelService:
             llm_input_definition=str(config.get('input_definition') or ''),
             llm_output_format=str(config.get('output_format') or ''),
             input_definition_candidates=input_definition_candidates,
+            edge_connection_candidates=edge_connection_candidates,
+            selected_outgoing_connections=selected_outgoing_connections,
             advanced_yaml_fragment=yaml.safe_dump(advanced, allow_unicode=True, sort_keys=False).strip() if advanced else '',
             incoming_edges=incoming,
             outgoing_edges=outgoing,
@@ -245,6 +254,54 @@ def _ordered_node_payloads(parsed: dict[str, Any]) -> list[dict[str, Any]]:
                     'node_id': str(node_id),
                     'node_name': str(payload.get('name') or payload.get('display_name') or node_id),
                     'output': payload.get('output'),
+                }
+            )
+    return ordered
+
+
+def _collect_edge_connection_candidates(
+    parsed: dict[str, Any],
+    selected_node_id: str,
+) -> list[EdgeConnectionNodeView]:
+    return [
+        EdgeConnectionNodeView(
+            node_id=node['node_id'],
+            node_name=node['node_name'],
+            node_type=str(node.get('node_type') or ''),
+        )
+        for node in _ordered_node_payloads_with_type(parsed)
+        if node['node_id'] != selected_node_id
+    ]
+
+
+def _ordered_node_payloads_with_type(parsed: dict[str, Any]) -> list[dict[str, Any]]:
+    nodes = parsed.get('nodes')
+    ordered: list[dict[str, Any]] = []
+    if isinstance(nodes, list):
+        for item in nodes:
+            if not isinstance(item, dict):
+                continue
+            node_id = str(item.get('id') or item.get('node_id') or '').strip()
+            if not node_id:
+                continue
+            ordered.append(
+                {
+                    'node_id': node_id,
+                    'node_name': str(item.get('name') or item.get('display_name') or node_id),
+                    'node_type': str(item.get('type') or item.get('node_type') or ''),
+                }
+            )
+        return ordered
+
+    if isinstance(nodes, dict):
+        for node_id, payload in nodes.items():
+            if not isinstance(payload, dict):
+                continue
+            ordered.append(
+                {
+                    'node_id': str(node_id),
+                    'node_name': str(payload.get('name') or payload.get('display_name') or node_id),
+                    'node_type': str(payload.get('type') or payload.get('node_type') or ''),
                 }
             )
     return ordered

@@ -79,3 +79,34 @@ edges:
 
     assert view.selected_node_editor is not None
     assert view.selected_node_editor.input_definition_candidates == []
+
+
+def test_build_graph_editor_view_collects_edge_connection_candidates_and_selected_outgoing() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: draft
+    name: Draft
+    type: llm_generate
+  - id: review
+    name: Review
+    type: llm_review
+  - id: publish
+    name: Publish
+    type: deterministic_transform
+edges:
+  - from: review
+    to: publish
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='review',
+    )
+
+    assert view.selected_node_editor is not None
+    assert [item.node_id for item in view.selected_node_editor.edge_connection_candidates] == ['draft', 'publish']
+    assert [item.node_id for item in view.selected_node_editor.selected_outgoing_connections] == ['publish']

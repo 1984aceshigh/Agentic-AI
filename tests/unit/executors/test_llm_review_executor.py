@@ -58,3 +58,28 @@ def test_llm_review_executor_resolves_input_definition_from_node_output() -> Non
     assert result.status == "SUCCEEDED"
     assert isinstance(result.input_preview, str)
     assert "Input definition:\nresult: string" in result.input_preview
+
+
+def test_llm_review_executor_resolves_multi_node_reference_block() -> None:
+    executor = LLMReviewExecutor()
+    context = DummyContext(
+        node_outputs={
+            "planner": {"schema": "result: string"},
+            "writer": {"result": "draft content"},
+        }
+    )
+    node = DummyNode(
+        id="final_review",
+        config={
+            "prompt": "Review",
+            "input_definition": "notes\n\n[参照ノード: planner.schema, writer.result]",
+        },
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == "SUCCEEDED"
+    assert isinstance(result.input_preview, str)
+    assert "[参照ノード]" in result.input_preview
+    assert "- planner.schema: result: string" in result.input_preview
+    assert "- writer.result: draft content" in result.input_preview

@@ -39,6 +39,12 @@ class InputDefinitionCandidateView(_BaseViewModel):
     ref_expression: str
 
 
+class EdgeConnectionNodeView(_BaseViewModel):
+    node_id: str
+    node_name: str
+    node_type: str
+
+
 class NodeEditorView(_BaseViewModel):
     node_id: str = ''
     node_name: str = ''
@@ -49,6 +55,8 @@ class NodeEditorView(_BaseViewModel):
     llm_input_definition: str = ''
     llm_output_format: str = ''
     input_definition_candidates: list[InputDefinitionCandidateView] = Field(default_factory=list)
+    edge_connection_candidates: list[EdgeConnectionNodeView] = Field(default_factory=list)
+    selected_outgoing_connections: list[EdgeConnectionNodeView] = Field(default_factory=list)
     advanced_yaml_fragment: str = ''
     incoming_edges: list[EdgeSummaryView] = Field(default_factory=list)
     outgoing_edges: list[EdgeSummaryView] = Field(default_factory=list)
@@ -69,7 +77,7 @@ class GraphEditorView(_BaseViewModel):
     description: str | None = None
     is_archived: bool = False
     selected_node_id: str | None = None
-    selected_tab: str = 'overview'
+    selected_tab: str = 'nodes'
     yaml_text: str
     mermaid_text: str = 'graph TD\n'
     node_summaries: list[NodeSummaryView] = Field(default_factory=list)

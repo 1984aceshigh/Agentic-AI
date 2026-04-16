@@ -99,7 +99,7 @@ def test_nodes_in_same_group_are_wrapped_in_subgraph() -> None:
 
     mermaid = build_mermaid(graph)
 
-    assert "    subgraph review" in mermaid
+    assert '    subgraph group_1["review"]' in mermaid
     assert "        step1[\"Step 1\\n(llm_generate)\"]" in mermaid
     assert "        step2[\"Step 2\\n(human_gate)\"]" in mermaid
     assert "    end" in mermaid
@@ -115,7 +115,7 @@ def test_grouped_and_ungrouped_nodes_can_coexist() -> None:
 
     assert "    step1[\"Step 1\\n(llm_generate)\"]" in mermaid
     assert "    step2[\"Step 2\\n(human_gate)\"]" in mermaid
-    assert "    subgraph review" in mermaid
+    assert '    subgraph group_1["review"]' in mermaid
     assert "        step3[\"Step 3\\n(llm_generate)\"]" in mermaid
 
 
@@ -140,7 +140,7 @@ def test_node_output_order_is_deterministic() -> None:
 
     assert lines[1] == '    a["A\\n(llm_generate)"]'
     assert lines[2] == '    c["C\\n(llm_generate)"]'
-    assert lines[3] == "    subgraph g1"
+    assert lines[3] == '    subgraph group_1["g1"]'
     assert lines[4] == '        b["B\\n(llm_generate)"]'
 
 

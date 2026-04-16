@@ -6,7 +6,7 @@ from .dependencies import get_definition_read_model_service
 
 
 definition_web_bp = Blueprint('definition_web_routes', __name__)
-_ALLOWED_TABS = {'overview', 'nodes', 'edges', 'yaml', 'validation'}
+_ALLOWED_TABS = {'nodes', 'yaml', 'validation'}
 
 
 @definition_web_bp.get('/workflow-definitions')
@@ -57,9 +57,9 @@ def graph_editor(workflow_id: str) -> str:
 
 
 def _normalize_tab(value: str | None) -> str:
-    candidate = (value or 'overview').strip().lower()
+    candidate = (value or 'nodes').strip().lower()
     if candidate not in _ALLOWED_TABS:
-        return 'overview'
+        return 'nodes'
     return candidate
 
 

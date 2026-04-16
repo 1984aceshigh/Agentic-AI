@@ -82,3 +82,32 @@ def test_definition_service_save_updates_runtime_graphs_for_editor_yaml(tmp_path
     assert graph.workflow_id == "new_workflow"
     assert set(graph.nodes.keys()) == {"start_node", "end_node"}
     assert latest_execution_ids["new_workflow"] is None
+
+
+def test_validation_service_uses_unified_mermaid_builder_when_not_injected() -> None:
+    service = DefinitionValidationService()
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: draft
+    name: Draft
+    type: llm_generate
+    group: review
+  - id: check
+    name: Check
+    type: llm_review
+    group: review
+edges:
+  - from: draft
+    to: check
+"""
+
+    result = service.validate_yaml_text(yaml_text)
+
+    assert result.is_valid is True
+    assert result.mermaid_text is not None
+    assert "flowchart TD" in result.mermaid_text
+    assert 'subgraph group_1["review"]' in result.mermaid_text
+    assert "(llm_generate)" in result.mermaid_text
+    assert "(llm_review)" in result.mermaid_text

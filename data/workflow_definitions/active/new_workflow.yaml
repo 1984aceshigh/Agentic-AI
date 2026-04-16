@@ -8,23 +8,23 @@ nodes:
   id: start_node
   name: Start Node
   type: llm_generate
+  group: A
 - config:
     prompt: 指定の故事成語について、歴史や意味を解説してください。
-    input_definition: 'ref: start_node.result'
+    input_definition: '[参照ノード: start_node.result]'
   id: first_node
   name: First Node
   type: llm_generate
-- id: second_node
+  group: A
+- config:
+    prompt: 与えられた故事成語に最も意味が近い別の故事成語を出力してください
+    input_definition: '[参照ノード: start_node.result]'
+    output_format: 故事成語以外のテキストは不要
+  id: second_node
   name: Second Node
   type: llm_generate
-  config:
-    prompt: 与えられた故事成語に最も意味が近い別の故事成語を出力してください
-    input_definition: 'ref: start_node.result'
-    output_format: 故事成語以外のテキストは不要
-
 edges:
 - from: start_node
   to: first_node
-
 - from: start_node
   to: second_node

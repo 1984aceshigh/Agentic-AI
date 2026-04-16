@@ -23,8 +23,10 @@ def build_mermaid(graph: GraphModel) -> str:
     for node in _sorted_nodes(ungrouped_nodes):
         lines.append(f"    {build_mermaid_node_line(node)}")
 
-    for group_name in sorted(grouped_nodes):
-        lines.append(f"    subgraph {group_name}")
+    for index, group_name in enumerate(sorted(grouped_nodes), start=1):
+        group_id = f"group_{index}"
+        group_label = escape_mermaid_label(group_name)
+        lines.append(f'    subgraph {group_id}["{group_label}"]')
         for node in _sorted_nodes(grouped_nodes[group_name]):
             lines.append(f"        {build_mermaid_node_line(node)}")
         lines.append("    end")

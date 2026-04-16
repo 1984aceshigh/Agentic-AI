@@ -46,7 +46,7 @@ def create_definition():
         editor = get_definition_read_model_service().build_graph_editor_view(
             yaml_text=yaml_text,
             selected_node_id=_optional_str(payload.get('selected_node_id')),
-            selected_tab='overview',
+            selected_tab='nodes',
             is_dirty=True,
         )
         if request.is_json:
@@ -193,17 +193,48 @@ def delete_node(workflow_id: str, node_id: str):
 @definition_action_bp.post('/<workflow_id>/graph/add-edge')
 def add_edge(workflow_id: str):
     payload = _get_payload()
-    updated_yaml = get_definition_editor_service().add_edge(
-        _required_str(payload.get('yaml_text'), 'yaml_text'),
-        _required_str(payload.get('from_node_id'), 'from_node_id'),
-        _required_str(payload.get('to_node_id'), 'to_node_id'),
-        {'label': payload.get('label'), 'advanced_yaml_fragment': payload.get('advanced_yaml_fragment')},
-    )
+    yaml_text = _required_str(payload.get('yaml_text'), 'yaml_text')
+    from_node_id = _required_str(payload.get('from_node_id'), 'from_node_id')
+    edge_mode = _optional_str(payload.get('edge_mode'))
+    to_node_ids: list[str] = []
+    if request.is_json:
+        raw_targets = payload.get('to_node_ids')
+        if isinstance(raw_targets, list):
+            to_node_ids = [str(item).strip() for item in raw_targets if str(item).strip()]
+    else:
+        to_node_ids = [item.strip() for item in request.form.getlist('to_node_ids') if item.strip()]
+
+    if edge_mode == 'set_outgoing' or to_node_ids:
+        updated_yaml = get_definition_editor_service().set_outgoing_edges(
+            yaml_text,
+            from_node_id,
+            to_node_ids,
+        )
+    else:
+        updated_yaml = get_definition_editor_service().add_edge(
+            yaml_text,
+            from_node_id,
+            _required_str(payload.get('to_node_id'), 'to_node_id'),
+            {'label': payload.get('label'), 'advanced_yaml_fragment': payload.get('advanced_yaml_fragment')},
+        )
+
+    selected_tab = _optional_str(payload.get('selected_tab')) or 'nodes'
+    selected_node_id = _optional_str(payload.get('selected_node_id'))
+
+    if _is_truthy(payload.get('save_after_update')):
+        get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
+        if request.is_json:
+            return jsonify({'status': 'ok', 'action': 'add_edge_and_save', 'workflow_id': workflow_id})
+        next_url = f'/workflow-definitions/{workflow_id}/graph-editor?tab={selected_tab}'
+        if selected_node_id:
+            next_url += f'&selected_node_id={selected_node_id}'
+        return redirect(next_url)
+
     return _render_editor_response(
         workflow_id=workflow_id,
         yaml_text=updated_yaml,
-        selected_node_id=_optional_str(payload.get('selected_node_id')),
-        selected_tab='edges',
+        selected_node_id=selected_node_id,
+        selected_tab=selected_tab,
     )
 
 
@@ -219,7 +250,7 @@ def delete_edge(workflow_id: str):
         workflow_id=workflow_id,
         yaml_text=updated_yaml,
         selected_node_id=_optional_str(payload.get('selected_node_id')),
-        selected_tab='edges',
+        selected_tab='nodes',
     )
 
 

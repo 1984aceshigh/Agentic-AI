@@ -237,8 +237,17 @@ class DefinitionValidationService:
         return errors
 
     def _build_mermaid(self, result: WorkflowDefinitionValidationResult) -> str:
-        if result.graph is not None and self._mermaid_builder is not None:
-            return self._mermaid_builder(result.graph)
+        if result.graph is not None:
+            if self._mermaid_builder is not None:
+                return self._mermaid_builder(result.graph)
+            try:
+                from agent_platform.graph import build_mermaid as unified_mermaid_builder
+
+                return unified_mermaid_builder(result.graph)
+            except Exception as exc:
+                result.warnings.append(
+                    f"Unified Mermaid build failed, fallback Mermaid mode is used: {exc}"
+                )
         lines = ['graph TD']
         for node in result.node_summaries:
             node_id = str(node.get('node_id'))

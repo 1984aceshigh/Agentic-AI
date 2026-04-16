@@ -62,7 +62,7 @@ def validate_definition():
 @definition_api_bp.get('/<workflow_id>/graph-editor-state')
 def graph_editor_state(workflow_id: str):
     selected_node_id = request.args.get('selected_node_id') or None
-    selected_tab = request.args.get('tab') or 'overview'
+    selected_tab = request.args.get('tab') or 'nodes'
     editor = get_definition_read_model_service().build_graph_editor_view(
         workflow_id=workflow_id,
         selected_node_id=selected_node_id,

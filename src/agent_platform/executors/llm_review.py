@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import json
+import re
+import textwrap
 from collections.abc import Mapping
 from typing import Any
 
@@ -108,26 +110,79 @@ class LLMReviewExecutor(BaseNodeExecutor):
         if definition_text is None:
             return None
 
-        if not definition_text.startswith("ref:"):
+        if definition_text.startswith("ref:"):
+            return self._resolve_single_reference_definition(definition_text, prepared)
+
+        resolved_multi_refs = self._resolve_multi_reference_definition(definition_text, prepared)
+        if resolved_multi_refs is not None:
+            return resolved_multi_refs
+
+        return definition_text
+
+    def _resolve_single_reference_definition(self, definition_text: str, prepared: dict[str, Any]) -> str:
+        ref_text = definition_text[len("ref:") :].strip()
+        resolved_value = self._resolve_reference_value(ref_text=ref_text, prepared=prepared)
+        if resolved_value is None:
+            return ""
+        return resolved_value
+
+    def _resolve_multi_reference_definition(
+        self,
+        definition_text: str,
+        prepared: dict[str, Any],
+    ) -> str | None:
+        pattern = re.compile(r"\[(?P<title>参照ノード)\s*:\s*(?P<refs>[^\]]*)\]")
+        match = pattern.search(definition_text)
+        if match is None:
+            return None
+
+        refs = [
+            item.strip()
+            for item in str(match.group("refs") or "").split(",")
+            if item.strip()
+        ]
+        if not refs:
             return definition_text
 
-        ref_text = definition_text[len("ref:") :].strip()
+        formatted_refs: list[str] = []
+        for ref in refs:
+            normalized_ref = re.sub(r"^ref:\s*", "", ref, flags=re.IGNORECASE).strip()
+            resolved = self._resolve_reference_value(ref_text=normalized_ref, prepared=prepared)
+            rendered = resolved if resolved is not None else "(not found)"
+            if "\n" in rendered:
+                formatted_refs.append(f"- {normalized_ref}:\n{textwrap.indent(rendered, '  ')}")
+            else:
+                formatted_refs.append(f"- {normalized_ref}: {rendered}")
+
+        resolved_block = "\n".join([f"[{match.group('title')}]", *formatted_refs])
+        prefix = definition_text[: match.start()].strip()
+        suffix = definition_text[match.end() :].strip()
+
+        sections: list[str] = []
+        if prefix:
+            sections.append(prefix)
+        sections.append(resolved_block)
+        if suffix:
+            sections.append(suffix)
+        return "\n\n".join(sections)
+
+    def _resolve_reference_value(self, *, ref_text: str, prepared: dict[str, Any]) -> str | None:
         if "." not in ref_text:
-            return definition_text
+            return None
 
         source_node_id, output_key = ref_text.split(".", 1)
         source_node_id = source_node_id.strip()
         output_key = output_key.strip()
         if not source_node_id or not output_key:
-            return definition_text
+            return None
 
         node_outputs = prepared.get("node_outputs") or {}
         source_output = node_outputs.get(source_node_id)
         if not isinstance(source_output, dict):
-            return ""
+            return None
         value = source_output.get(output_key)
         if value is None:
-            return ""
+            return None
         if isinstance(value, (dict, list)):
             return json.dumps(value, ensure_ascii=False, indent=2, default=str)
         return str(value)

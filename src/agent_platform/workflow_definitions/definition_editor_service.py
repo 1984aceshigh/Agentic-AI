@@ -86,6 +86,39 @@ class DefinitionEditorService:
         edges.append(edge)
         return self._dump(parsed)
 
+    def set_outgoing_edges(self, yaml_text: str, from_node_id: str, to_node_ids: list[str]) -> str:
+        parsed = self._parse(yaml_text)
+        self._ensure_node_exists(parsed, from_node_id)
+        edges = parsed.setdefault('edges', [])
+        if not isinstance(edges, list):
+            raise ValueError('edges must be a list.')
+
+        normalized_targets: list[str] = []
+        for node_id in to_node_ids:
+            target_id = self._optional_text(node_id)
+            if target_id is None or target_id == from_node_id:
+                continue
+            if target_id in normalized_targets:
+                continue
+            self._ensure_node_exists(parsed, target_id)
+            normalized_targets.append(target_id)
+
+        remaining_edges: list[Any] = []
+        for edge in edges:
+            if not isinstance(edge, dict):
+                remaining_edges.append(edge)
+                continue
+            source = str(edge.get('from') or edge.get('source') or '')
+            if source == from_node_id:
+                continue
+            remaining_edges.append(edge)
+
+        for target_id in normalized_targets:
+            remaining_edges.append({'from': from_node_id, 'to': target_id})
+
+        parsed['edges'] = remaining_edges
+        return self._dump(parsed)
+
     def delete_edge(self, yaml_text: str, from_node_id: str, to_node_id: str) -> str:
         parsed = self._parse(yaml_text)
         edges = parsed.get('edges')
@@ -114,6 +147,7 @@ class DefinitionEditorService:
         node_id = self._require_str(node_payload.get('node_id') or current.get('node_id') or current.get('id'), 'node_id')
         node_name = self._require_str(node_payload.get('node_name') or current.get('name') or current.get('display_name') or node_id, 'node_name')
         node_type = self._require_str(node_payload.get('node_type') or current.get('node_type') or current.get('type'), 'node_type')
+        has_group_field = 'group' in node_payload
         group = self._optional_text(node_payload.get('group'))
 
         preserved = {
@@ -142,8 +176,11 @@ class DefinitionEditorService:
             if config:
                 node['config'] = config
 
-        if group is not None:
-            node['group'] = group
+        if has_group_field:
+            if group is not None:
+                node['group'] = group
+            else:
+                node.pop('group', None)
         elif existing is not None and 'group' in current:
             node['group'] = current['group']
         return node
