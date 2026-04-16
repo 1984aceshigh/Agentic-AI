@@ -185,6 +185,8 @@ def test_get_workflows_returns_200() -> None:
     assert b"Sample Workflow" in response.data
     assert b"/actions/workflows/sample_workflow/run" in response.data
     assert b">Run<" in response.data
+    assert b"/workflows/sample_workflow/nodes" in response.data
+    assert b">Nodes<" in response.data
 
 
 def test_get_node_list_returns_200() -> None:
@@ -195,6 +197,39 @@ def test_get_node_list_returns_200() -> None:
     assert response.status_code == 200
     assert b"Node List" in response.data
     assert b"Human Review" in response.data
+    assert b"2026-04-12T02:01:00+00:00" in response.data
+    assert b"Output" in response.data
+    assert b"awaiting approval" in response.data
+
+
+def test_get_node_list_latest_without_execution_returns_pending_cards() -> None:
+    graph = make_graph_model()
+    context_manager = ExecutionContextManager()
+    records_manager = ExecutionRecordsManager()
+    read_model_service = ReadModelService(
+        context_manager=context_manager,
+        records_manager=records_manager,
+    )
+
+    app = create_app(
+        read_model_service=read_model_service,
+        human_gate_service=FakeHumanGateService(),
+        rerun_service=FakeRerunService(),
+    )
+    app.testing = True
+    set_workflow_graphs(app, {graph.workflow_id: graph})
+    set_latest_execution_ids(app, {graph.workflow_id: None})
+    client = app.test_client()
+
+    workflow_response = client.get("/workflows")
+    assert workflow_response.status_code == 200
+    assert b"/workflows/sample_workflow/nodes" in workflow_response.data
+
+    node_list_response = client.get("/workflows/sample_workflow/nodes")
+    assert node_list_response.status_code == 200
+    assert b"execution_id: N/A" in node_list_response.data
+    assert b">PENDING<" in node_list_response.data
+    assert b"disabled>Detail<" in node_list_response.data
 
 
 def test_node_list_includes_waiting_human_and_failed_action_forms() -> None:

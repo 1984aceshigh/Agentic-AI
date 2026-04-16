@@ -28,6 +28,17 @@ def workflows() -> str:
 
 @web_bp.get("/workflows/<workflow_id>/executions/<execution_id>/nodes")
 def node_list(workflow_id: str, execution_id: str) -> str:
+    return _render_node_list(workflow_id=workflow_id, execution_id=execution_id)
+
+
+@web_bp.get("/workflows/<workflow_id>/nodes")
+def node_list_latest(workflow_id: str) -> str:
+    latest_execution_ids = get_latest_execution_ids()
+    execution_id = latest_execution_ids.get(workflow_id)
+    return _render_node_list(workflow_id=workflow_id, execution_id=execution_id)
+
+
+def _render_node_list(workflow_id: str, execution_id: str | None) -> str:
     graph = _get_graph_or_404(workflow_id)
     read_model_service = get_read_model_service()
     try:
@@ -42,6 +53,8 @@ def node_list(workflow_id: str, execution_id: str) -> str:
         "node_list.html",
         workflow_id=workflow_id,
         execution_id=execution_id,
+        has_execution=execution_id is not None,
+        node_list_path=_build_node_list_path(workflow_id, execution_id),
         workflow_name=graph.workflow_name,
         node_cards=visible_node_cards,
         total_node_count=len(node_cards),
@@ -64,6 +77,7 @@ def node_detail(workflow_id: str, execution_id: str, node_id: str) -> str:
         "node_detail.html",
         workflow_id=workflow_id,
         execution_id=execution_id,
+        node_list_path=_build_node_list_path(workflow_id, execution_id),
         workflow_name=graph.workflow_name,
         node=node_detail_view,
     )
@@ -106,3 +120,9 @@ def _filter_node_cards(node_cards, selected_status: str | None):
     if selected_status is None:
         return node_cards
     return [card for card in node_cards if card.status == selected_status]
+
+
+def _build_node_list_path(workflow_id: str, execution_id: str | None) -> str:
+    if execution_id is None:
+        return f"/workflows/{workflow_id}/nodes"
+    return f"/workflows/{workflow_id}/executions/{execution_id}/nodes"

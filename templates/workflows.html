@@ -23,9 +23,7 @@
             <input type="hidden" name="next" value="/workflows/{{ item.workflow_id }}/executions/{execution_id}/nodes">
             <button type="submit" class="btn btn-sm btn-success">Run</button>
           </form>
-          {% if item.last_execution_id %}
-          <a class="btn btn-sm btn-primary" href="/workflows/{{ item.workflow_id }}/executions/{{ item.last_execution_id }}/nodes">Nodes</a>
-          {% endif %}
+          <a class="btn btn-sm btn-primary" href="/workflows/{{ item.workflow_id }}/nodes">Nodes</a>
           <a class="btn btn-sm btn-outline-primary" href="/workflows/{{ item.workflow_id }}/graph">Graph</a>
         </div>
       </div>

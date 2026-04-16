@@ -53,3 +53,23 @@ pre {
   background: #d1e7dd;
   color: #0f5132;
 }
+
+.node-output-preview {
+  min-height: 3em;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  color: #212529;
+}
+
+.node-detail-page .code-block,
+.node-detail-page pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  overflow-x: visible;
+}

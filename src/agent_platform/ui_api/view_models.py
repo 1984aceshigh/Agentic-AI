@@ -30,6 +30,7 @@ class NodeCardView(_BaseViewModel):
     requires_human_action: bool = False
     retryable: bool = False
     error_message: str | None = None
+    output_preview: str | None = None
 
 
 class NodeDetailView(_BaseViewModel):

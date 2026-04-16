@@ -149,11 +149,29 @@ def test_build_node_cards_returns_flat_ui_friendly_models() -> None:
     assert cards[0].group == "analysis"
     assert cards[0].status == "SUCCEEDED"
     assert cards[0].retryable is True
+    assert cards[0].started_at == "2026-04-12T01:00:00+00:00"
+    assert cards[0].finished_at == "2026-04-12T01:01:00+00:00"
+    assert cards[0].output_preview == "drafted"
     assert cards[1].status == "WAITING_HUMAN"
     assert cards[1].requires_human_action is True
+    assert cards[1].started_at == "2026-04-12T01:02:00+00:00"
+    assert cards[1].finished_at is None
+    assert cards[1].output_preview is None
     assert cards[2].status == "FAILED"
     assert cards[2].retryable is True
     assert cards[2].error_message == "retrieval failed"
+
+
+def test_build_node_cards_without_execution_returns_pending_nodes() -> None:
+    service, _, _ = build_service()
+    graph = make_graph_model()
+
+    cards = service.build_node_cards(graph, execution_id=None)
+
+    assert [card.node_id for card in cards] == ["step1", "step2", "step3"]
+    assert all(card.status == "PENDING" for card in cards)
+    assert all(card.started_at is None for card in cards)
+    assert all(card.finished_at is None for card in cards)
 
 
 

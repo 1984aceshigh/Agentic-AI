@@ -69,16 +69,21 @@ class ReadModelService:
     def build_node_cards(
         self,
         graph: GraphModel,
-        execution_id: str,
+        execution_id: str | None,
     ) -> list[NodeCardView]:
-        workflow_record = self._records_manager.get_workflow_record(execution_id)
-        context = self._context_manager.get_context(execution_id)
-        node_record_map = self._build_node_record_map(workflow_record)
+        node_record_map: dict[str, NodeExecutionRecord] = {}
+        node_states: dict[str, str] = {}
+
+        if execution_id is not None:
+            workflow_record = self._records_manager.get_workflow_record(execution_id)
+            context = self._context_manager.get_context(execution_id)
+            node_record_map = self._build_node_record_map(workflow_record)
+            node_states = context.node_states
 
         cards: list[NodeCardView] = []
         for node_id, graph_node in graph.nodes.items():
             node_record = node_record_map.get(node_id)
-            status = self._resolve_node_status(node_id, node_record, context.node_states)
+            status = self._resolve_node_status(node_id, node_record, node_states)
             cards.append(
                 NodeCardView(
                     node_id=node_id,
@@ -91,6 +96,7 @@ class ReadModelService:
                     requires_human_action=self._resolve_requires_human_action(node_record, status),
                     retryable=self._is_retryable(status),
                     error_message=getattr(node_record, "error_message", None),
+                    output_preview=getattr(node_record, "output_preview", None),
                 )
             )
         return cards
@@ -235,7 +241,7 @@ class ReadModelService:
     def _format_datetime(self, value: datetime | None) -> str | None:
         if value is None:
             return None
-        return value.isoformat()
+        return value.isoformat(timespec="seconds")
 
     def _json_friendly_dict(self, value: Any) -> Any:
         if hasattr(value, "model_dump"):

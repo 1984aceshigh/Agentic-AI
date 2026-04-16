@@ -4,7 +4,7 @@
 <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
   <div>
     <h1 class="h3 mb-1">Node List</h1>
-    <p class="text-muted mb-0">{{ workflow_name }} / execution_id: {{ execution_id }}</p>
+    <p class="text-muted mb-0">{{ workflow_name }} / execution_id: {{ execution_id or 'N/A' }}</p>
   </div>
   <div>
     <a class="btn btn-outline-primary" href="/workflows/{{ workflow_id }}/graph">Graph View</a>
@@ -23,7 +23,7 @@
       </select>
       <button type="submit" class="btn btn-sm btn-primary">Apply</button>
       {% if selected_status %}
-      <a class="btn btn-sm btn-outline-secondary" href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes">Clear</a>
+      <a class="btn btn-sm btn-outline-secondary" href="{{ node_list_path }}">Clear</a>
       {% endif %}
     </form>
     <p class="text-muted mb-0">
