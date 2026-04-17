@@ -3,5 +3,9 @@
     "start_node": "test_document_1",
     "second_node": "fsa",
     "node_04": "fsa"
+  },
+  "sample_workflow": {
+    "node_04": "fsa",
+    "review": "fsa"
   }
 }

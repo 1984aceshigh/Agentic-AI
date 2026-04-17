@@ -46,7 +46,7 @@ class LLMExecutor(BaseNodeExecutor):
         prepared_input: dict[str, Any],
     ) -> ExecutorResult:
         config = prepared_input.get("node_config", {})
-        task = str(config.get("task") or "generate").strip().lower()
+        task = self._normalize_task(config.get("task"))
 
         try:
             profile = self._resolve_llm_profile(spec=spec, config=config)
@@ -66,18 +66,16 @@ class LLMExecutor(BaseNodeExecutor):
                     prompt=prompt,
                     system_prompt=self._optional_str(config.get("system_prompt")),
                     model=self._optional_str(config.get("model") or _get_attr_or_key(profile, "model")),
-                    temperature=self._optional_float(config.get("temperature") or _get_attr_or_key(profile, "temperature")),
+                    temperature=self._resolve_temperature(task=task, config=config, profile=profile),
                     max_tokens=self._optional_int(config.get("max_tokens") or _get_attr_or_key(profile, "max_tokens")),
                 )
             )
 
-            output_key = "review" if task == "review" else "result"
-            output: dict[str, Any] = {
-                output_key: response.text,
-                "task": task,
-            }
-            if task == "review":
-                output.setdefault("score", 80)
+            output = self._build_task_output(
+                task=task,
+                config=config,
+                response_text=response.text,
+            )
             if rag_hits:
                 output["rag"] = {"hits": rag_hits, "count": len(rag_hits)}
             if memory_records:
@@ -121,6 +119,9 @@ class LLMExecutor(BaseNodeExecutor):
             prepared_input=prepared_input,
         )
         output_format = self._optional_str(config.get("output_format"))
+        assessment_options = _string_list(config.get("assessment_options"))
+        extract_fields = _string_list(config.get("extract_fields"))
+        extract_output_format = self._optional_str(config.get("extract_output_format"))
         sections = [prompt]
         if input_definition:
             sections.append(f"Input definition:\n{input_definition}")
@@ -128,11 +129,134 @@ class LLMExecutor(BaseNodeExecutor):
             sections.append("Resolved inputs:\n" + json.dumps(resolved_inputs, ensure_ascii=False, indent=2, default=str))
         if output_format:
             sections.append(f"Output format:\n{output_format}")
+        if task == "assessment" and assessment_options:
+            sections.append(
+                "Assessment options:\n"
+                + "\n".join(f"- {option}" for option in assessment_options)
+                + "\n\nReturn one option as selected_option."
+            )
+        if task == "extract" and extract_fields:
+            sections.append("Extract fields:\n" + "\n".join(f"- {field_name}" for field_name in extract_fields))
+            sections.append(f"Extract output format: {extract_output_format or 'json'}")
         if memory_records:
             sections.append("Memory context:\n" + json.dumps(memory_records, ensure_ascii=False, indent=2, default=str))
         if rag_hits:
             sections.append("RAG context:\n" + json.dumps(rag_hits, ensure_ascii=False, indent=2, default=str))
         return "\n\n".join(sections)
+
+    def _build_task_output(
+        self,
+        *,
+        task: str,
+        config: Mapping[str, Any],
+        response_text: str,
+    ) -> dict[str, Any]:
+        if task == "assessment":
+            options = _string_list(config.get("assessment_options"))
+            selected_option = self._select_assessment_option(response_text=response_text, options=options)
+            output: dict[str, Any] = {
+                "review": response_text,
+                "task": task,
+                "selected_option": selected_option,
+                "assessment_options": options,
+                "score": 80,
+            }
+            routes = config.get("assessment_routes")
+            if isinstance(routes, Mapping) and selected_option:
+                next_node = self._resolve_assessment_route(routes=routes, selected_option=selected_option)
+                if isinstance(next_node, str) and next_node.strip():
+                    output["next_node"] = next_node.strip()
+            return output
+
+        if task == "extract":
+            extract_fields = _string_list(config.get("extract_fields"))
+            extracted = self._extract_structured_fields(fields=extract_fields, text=response_text)
+            output_format = self._normalize_extract_output_format(config.get("extract_output_format"))
+            rendered = self._render_extract_output(extracted=extracted, output_format=output_format)
+            return {
+                "result": rendered,
+                "task": task,
+                "extracted": extracted,
+                "extract_output_format": output_format,
+            }
+
+        return {
+            "result": response_text,
+            "task": task,
+        }
+
+    def _select_assessment_option(self, *, response_text: str, options: list[str]) -> str | None:
+        if not options:
+            return None
+        lowered_response = response_text.lower()
+        matched: list[tuple[int, str]] = []
+        for option in options:
+            option_lower = option.lower()
+            idx = lowered_response.find(option_lower)
+            if idx >= 0:
+                matched.append((idx, option))
+        if matched:
+            matched.sort(key=lambda item: item[0])
+            return matched[0][1]
+        return options[0]
+
+    def _resolve_assessment_route(self, *, routes: Mapping[Any, Any], selected_option: str) -> Any:
+        direct = routes.get(selected_option)
+        if direct is not None:
+            return direct
+
+        normalized_selected = str(selected_option).strip().lower()
+        for key, value in routes.items():
+            if str(key).strip().lower() == normalized_selected:
+                return value
+        return None
+
+    def _extract_structured_fields(self, *, fields: list[str], text: str) -> dict[str, Any]:
+        if not fields:
+            return {"text": text}
+        extracted: dict[str, Any] = {}
+        for field_name in fields:
+            pattern = re.compile(rf"{re.escape(field_name)}\s*[:：]\s*(?P<value>.+)", re.IGNORECASE)
+            match = pattern.search(text)
+            extracted[field_name] = str(match.group("value")).strip() if match is not None else ""
+        return extracted
+
+    def _normalize_extract_output_format(self, raw_value: Any) -> str:
+        normalized = str(raw_value or "json").strip().lower()
+        if normalized == "plain text":
+            normalized = "plain_text"
+        if normalized in {"json", "yaml", "markdown", "plain_text"}:
+            return normalized
+        return "json"
+
+    def _render_extract_output(self, *, extracted: Mapping[str, Any], output_format: str) -> str:
+        if output_format == "yaml":
+            try:
+                import yaml
+
+                return yaml.safe_dump(dict(extracted), allow_unicode=True, sort_keys=False).strip()
+            except Exception:
+                return json.dumps(extracted, ensure_ascii=False, indent=2, default=str)
+        if output_format == "markdown":
+            return "\n".join(f"- **{key}**: {value}" for key, value in extracted.items())
+        if output_format == "plain_text":
+            return "\n".join(f"{key}: {value}" for key, value in extracted.items())
+        return json.dumps(extracted, ensure_ascii=False, indent=2, default=str)
+
+    def _resolve_temperature(self, *, task: str, config: Mapping[str, Any], profile: Any | None) -> float | None:
+        explicit = self._optional_float(config.get("temperature"))
+        if explicit is not None:
+            return explicit
+
+        if task in {"assessment", "extract"}:
+            # 判定・抽出は揺らぎを抑えるため既定を 0 とする
+            return 0.0
+
+        profile_temperature = self._optional_float(_get_attr_or_key(profile, "temperature"))
+        if profile_temperature is not None:
+            return profile_temperature
+
+        return 0.0
 
     def _resolve_input_definition(
         self,
@@ -382,6 +506,14 @@ class LLMExecutor(BaseNodeExecutor):
         if value in (None, ""):
             return None
         return int(value)
+
+    def _normalize_task(self, raw_task: Any) -> str:
+        normalized = str(raw_task or "generate").strip().lower()
+        if normalized in {"generate", "assessment", "extract"}:
+            return normalized
+        if normalized in {"review", "classify", "judge"}:
+            return "assessment"
+        return "generate"
 
 
 def _get_attr_or_key(obj: Any, field_name: str) -> Any:

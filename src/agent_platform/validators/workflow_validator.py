@@ -9,7 +9,8 @@ from agent_platform.models import IssueSeverity, NodeType, ValidationIssue, Work
 from .adapter_validator import validate_profile_contracts
 
 SUPPORTED_SCHEMA_VERSION = "0.1"
-SUPPORTED_LLM_TASKS = {"generate", "review", "classify", "summarize", "extract", "judge", "transform"}
+SUPPORTED_LLM_TASKS = {"generate", "assessment", "extract"}
+SUPPORTED_EXTRACT_OUTPUT_FORMATS = {"json", "yaml", "markdown", "plain_text"}
 
 
 def validate_workflow_spec(spec: WorkflowSpec) -> list[ValidationIssue]:
@@ -335,6 +336,111 @@ def _validate_node_configs(spec: WorkflowSpec) -> list[ValidationIssue]:
                         related_node_id=node.id,
                     )
                 )
+            normalized_task = task if isinstance(task, str) else "generate"
+
+            temperature = node.config.get("temperature")
+            if temperature is not None:
+                try:
+                    float(temperature)
+                except (TypeError, ValueError):
+                    issues.append(
+                        _issue(
+                            code="invalid_temperature",
+                            message=f"Node '{node.id}' config.temperature must be numeric.",
+                            severity=IssueSeverity.WARNING,
+                            location=f"{location_prefix}.temperature",
+                            related_node_id=node.id,
+                        )
+                    )
+
+            if normalized_task == "assessment":
+                options = node.config.get("assessment_options")
+                if options is not None and not isinstance(options, list):
+                    issues.append(
+                        _issue(
+                            code="invalid_assessment_options",
+                            message=f"Node '{node.id}' config.assessment_options must be an array.",
+                            severity=IssueSeverity.WARNING,
+                            location=f"{location_prefix}.assessment_options",
+                            related_node_id=node.id,
+                        )
+                    )
+                routes = node.config.get("assessment_routes")
+                if routes is not None:
+                    if not isinstance(routes, dict):
+                        issues.append(
+                            _issue(
+                                code="invalid_assessment_routes",
+                                message=f"Node '{node.id}' config.assessment_routes must be an object.",
+                                severity=IssueSeverity.ERROR,
+                                location=f"{location_prefix}.assessment_routes",
+                                related_node_id=node.id,
+                            )
+                        )
+                    else:
+                        for option, target_node_id in routes.items():
+                            if not isinstance(option, str) or not option.strip():
+                                issues.append(
+                                    _issue(
+                                        code="invalid_assessment_routes",
+                                        message=f"Node '{node.id}' has empty option key in config.assessment_routes.",
+                                        severity=IssueSeverity.ERROR,
+                                        location=f"{location_prefix}.assessment_routes",
+                                        related_node_id=node.id,
+                                    )
+                                )
+                                continue
+                            if not isinstance(target_node_id, str) or not target_node_id.strip():
+                                issues.append(
+                                    _issue(
+                                        code="invalid_assessment_routes",
+                                        message=f"Node '{node.id}' route '{option}' must map to non-empty node id.",
+                                        severity=IssueSeverity.ERROR,
+                                        location=f"{location_prefix}.assessment_routes.{option}",
+                                        related_node_id=node.id,
+                                    )
+                                )
+                                continue
+                            if not any(candidate.id == target_node_id for candidate in spec.nodes):
+                                issues.append(
+                                    _issue(
+                                        code="invalid_assessment_route_ref",
+                                        message=f"Node '{node.id}' route '{option}' references unknown node '{target_node_id}'.",
+                                        severity=IssueSeverity.ERROR,
+                                        location=f"{location_prefix}.assessment_routes.{option}",
+                                        related_node_id=node.id,
+                                    )
+                                )
+
+            if normalized_task == "extract":
+                extract_fields = node.config.get("extract_fields")
+                if extract_fields is not None and not isinstance(extract_fields, list):
+                    issues.append(
+                        _issue(
+                            code="invalid_extract_fields",
+                            message=f"Node '{node.id}' config.extract_fields must be an array.",
+                            severity=IssueSeverity.WARNING,
+                            location=f"{location_prefix}.extract_fields",
+                            related_node_id=node.id,
+                        )
+                    )
+                extract_output_format = node.config.get("extract_output_format")
+                if extract_output_format is not None and (
+                    not isinstance(extract_output_format, str)
+                    or extract_output_format not in SUPPORTED_EXTRACT_OUTPUT_FORMATS
+                ):
+                    issues.append(
+                        _issue(
+                            code="invalid_extract_output_format",
+                            message=(
+                                f"Node '{node.id}' has invalid config.extract_output_format "
+                                f"'{extract_output_format}'."
+                            ),
+                            severity=IssueSeverity.WARNING,
+                            location=f"{location_prefix}.extract_output_format",
+                            related_node_id=node.id,
+                        )
+                    )
 
             memory = node.config.get("memory")
             if memory is not None and not isinstance(memory, dict):

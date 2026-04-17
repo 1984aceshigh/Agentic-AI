@@ -6,6 +6,10 @@ from typing import Any
 import yaml
 
 
+LLM_TASK_CHOICES = {'generate', 'assessment', 'extract'}
+EXTRACT_OUTPUT_FORMAT_CHOICES = {'json', 'yaml', 'markdown', 'plain_text'}
+
+
 class DefinitionEditorService:
     def add_node(self, yaml_text: str, node_payload: dict[str, Any]) -> str:
         parsed = self._parse(yaml_text)
@@ -170,9 +174,27 @@ class DefinitionEditorService:
             config = node.get('config')
             if not isinstance(config, dict):
                 config = {}
+            if 'llm_task' in node_payload:
+                self._apply_llm_task(config, node_payload.get('llm_task'))
+            elif 'task' in config:
+                config['task'] = self._normalize_llm_task(config.get('task'))
+            else:
+                config['task'] = 'generate'
             self._apply_optional_config_text(config, 'prompt', node_payload.get('llm_prompt'))
             self._apply_optional_config_text(config, 'input_definition', node_payload.get('llm_input_definition'))
             self._apply_optional_config_text(config, 'output_format', node_payload.get('llm_output_format'))
+            self._apply_optional_config_float(config, 'temperature', node_payload.get('llm_temperature'))
+            self._apply_optional_assessment_options(config, node_payload.get('llm_assessment_options'))
+            self._apply_optional_assessment_routes(config, node_payload.get('llm_assessment_routes'))
+            self._apply_optional_extract_fields(config, node_payload.get('llm_extract_fields'))
+            self._apply_optional_extract_output_format(config, node_payload.get('llm_extract_output_format'))
+
+            current_task = self._normalize_llm_task(config.get('task'))
+            if current_task in {'assessment', 'extract'} and node_payload.get('llm_temperature') is None:
+                config['temperature'] = 0.0
+            if current_task == 'extract' and 'extract_output_format' not in config:
+                config['extract_output_format'] = 'json'
+
             if config:
                 node['config'] = config
 
@@ -197,6 +219,95 @@ class DefinitionEditorService:
             config.pop(key, None)
             return
         config[key] = normalized
+
+    def _apply_llm_task(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config['task'] = 'generate'
+            return
+        config['task'] = self._normalize_llm_task(normalized)
+
+    def _apply_optional_config_float(self, config: dict[str, Any], key: str, raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config.pop(key, None)
+            return
+        config[key] = float(normalized)
+
+    def _apply_optional_assessment_options(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config.pop('assessment_options', None)
+            return
+        options = [item.strip() for item in normalized.replace(',', '\n').splitlines() if item.strip()]
+        if options:
+            config['assessment_options'] = options
+        else:
+            config.pop('assessment_options', None)
+
+    def _apply_optional_assessment_routes(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config.pop('assessment_routes', None)
+            return
+        loaded = yaml.safe_load(normalized)
+        if loaded is None:
+            config.pop('assessment_routes', None)
+            return
+        if not isinstance(loaded, dict):
+            raise ValueError('llm_assessment_routes must be a YAML mapping.')
+        routes: dict[str, str] = {}
+        for option, node_id in loaded.items():
+            option_text = str(option).strip()
+            node_id_text = str(node_id).strip()
+            if option_text and node_id_text:
+                routes[option_text] = node_id_text
+        if routes:
+            config['assessment_routes'] = routes
+        else:
+            config.pop('assessment_routes', None)
+
+    def _apply_optional_extract_fields(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._optional_text(raw_value)
+        if normalized is None:
+            config.pop('extract_fields', None)
+            return
+        fields = [item.strip() for item in normalized.replace(',', '\n').splitlines() if item.strip()]
+        if fields:
+            config['extract_fields'] = fields
+        else:
+            config.pop('extract_fields', None)
+
+    def _apply_optional_extract_output_format(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = str(raw_value or '').strip().lower()
+        if not normalized:
+            config.pop('extract_output_format', None)
+            return
+        if normalized == 'plain text':
+            normalized = 'plain_text'
+        if normalized not in EXTRACT_OUTPUT_FORMAT_CHOICES:
+            raise ValueError('llm_extract_output_format must be one of json/yaml/markdown/plain_text.')
+        config['extract_output_format'] = normalized
+
+    def _normalize_llm_task(self, raw_task: Any) -> str:
+        normalized = str(raw_task or '').strip().lower()
+        if normalized in LLM_TASK_CHOICES:
+            return normalized
+        if normalized in {'review', 'classify', 'judge'}:
+            return 'assessment'
+        return 'generate'
 
     def _parse(self, yaml_text: str) -> dict[str, Any]:
         parsed = yaml.safe_load(yaml_text) or {}

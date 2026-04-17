@@ -178,6 +178,69 @@ edges: []
     assert view.selected_node_editor.selected_rag_dataset_id == 'kb-1'
 
 
+def test_build_graph_editor_view_exposes_llm_task_for_llm_node() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: review
+    name: Review
+    type: llm
+    config:
+      task: assessment
+edges: []
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='review',
+    )
+
+    assert view.selected_node_editor is not None
+    assert view.selected_node_editor.llm_task == 'assessment'
+
+
+def test_build_graph_editor_view_exposes_extended_llm_config_fields() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: extractor
+    name: Extractor
+    type: llm
+    config:
+      task: extract
+      temperature: 0.4
+      assessment_options:
+        - pass
+        - rework
+      assessment_routes:
+        pass: publish
+        rework: rewrite
+      extract_fields:
+        - company_name
+        - invoice_no
+      extract_output_format: markdown
+edges: []
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='extractor',
+    )
+
+    assert view.selected_node_editor is not None
+    assert view.selected_node_editor.llm_temperature == '0.4'
+    assert view.selected_node_editor.llm_assessment_options == 'pass\nrework'
+    assert 'pass: publish' in view.selected_node_editor.llm_assessment_routes
+    assert view.selected_node_editor.llm_extract_fields == 'company_name\ninvoice_no'
+    assert view.selected_node_editor.llm_extract_output_format == 'markdown'
+
+
 def test_build_definition_summaries_formats_updated_at_as_yyyy_mm_dd_hh_mm_ss() -> None:
     yaml_text = """
 workflow_id: sample_workflow

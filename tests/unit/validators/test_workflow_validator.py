@@ -232,3 +232,12 @@ def test_invalid_on_reject_ref_returns_error() -> None:
     issues = validate_workflow_spec(spec)
 
     assert any(issue.code == "invalid_on_reject_ref" for issue in issues)
+
+
+def test_invalid_llm_task_returns_warning() -> None:
+    spec = make_spec()
+    spec.nodes[0].config["task"] = "review"
+
+    issues = validate_workflow_spec(spec)
+
+    assert any(issue.code == "invalid_llm_task" for issue in issues)

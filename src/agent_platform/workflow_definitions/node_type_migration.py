@@ -57,7 +57,7 @@ def _normalize_node_payload(node: dict[str, Any], warnings: list[str]) -> None:
     )
 
     if raw_type in {"llm_generate", "llm_review"}:
-        config.setdefault("task", "review" if raw_type == "llm_review" else "generate")
+        config.setdefault("task", "assessment" if raw_type == "llm_review" else "generate")
         return
 
     if raw_type == "rag_retrieve":

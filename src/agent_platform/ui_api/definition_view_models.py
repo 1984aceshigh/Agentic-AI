@@ -59,9 +59,15 @@ class NodeEditorView(_BaseViewModel):
     node_type: str = ''
     group: str | None = None
     is_llm_node: bool = False
+    llm_task: str = 'generate'
+    llm_temperature: str = ''
     llm_prompt: str = ''
     llm_input_definition: str = ''
     llm_output_format: str = ''
+    llm_assessment_options: str = ''
+    llm_assessment_routes: str = ''
+    llm_extract_fields: str = ''
+    llm_extract_output_format: str = 'json'
     input_definition_candidates: list[InputDefinitionCandidateView] = Field(default_factory=list)
     edge_connection_candidates: list[EdgeConnectionNodeView] = Field(default_factory=list)
     selected_outgoing_connections: list[EdgeConnectionNodeView] = Field(default_factory=list)

@@ -187,9 +187,15 @@ class DefinitionReadModelService:
             node_type=node_type,
             group=(str(node_data['group']) if node_data.get('group') is not None else None),
             is_llm_node=is_llm_node,
+            llm_task=_normalize_llm_task(config.get('task')),
+            llm_temperature=_stringify_scalar(config.get('temperature')),
             llm_prompt=str(config.get('prompt') or ''),
             llm_input_definition=str(config.get('input_definition') or ''),
             llm_output_format=str(config.get('output_format') or ''),
+            llm_assessment_options='\n'.join(_string_list(config.get('assessment_options'))),
+            llm_assessment_routes=_dump_yaml_mapping(config.get('assessment_routes')),
+            llm_extract_fields='\n'.join(_string_list(config.get('extract_fields'))),
+            llm_extract_output_format=_normalize_extract_output_format(config.get('extract_output_format')),
             input_definition_candidates=input_definition_candidates,
             edge_connection_candidates=edge_connection_candidates,
             selected_outgoing_connections=selected_outgoing_connections,
@@ -377,3 +383,39 @@ def _format_datetime_text(value: str | None) -> str | None:
     except ValueError:
         return text
     return parsed.strftime('%Y-%m-%d %H:%M:%S')
+
+
+def _normalize_llm_task(raw_task: Any) -> str:
+    normalized = str(raw_task or 'generate').strip().lower()
+    if normalized in {'assessment', 'extract', 'generate'}:
+        return normalized
+    if normalized in {'review', 'classify', 'judge'}:
+        return 'assessment'
+    return 'generate'
+
+
+def _normalize_extract_output_format(raw_value: Any) -> str:
+    normalized = str(raw_value or 'json').strip().lower()
+    if normalized == 'plain text':
+        normalized = 'plain_text'
+    if normalized not in {'json', 'yaml', 'markdown', 'plain_text'}:
+        return 'json'
+    return normalized
+
+
+def _stringify_scalar(value: Any) -> str:
+    if value is None:
+        return ''
+    return str(value)
+
+
+def _string_list(value: Any) -> list[str]:
+    if not isinstance(value, list):
+        return []
+    return [str(item) for item in value if str(item).strip()]
+
+
+def _dump_yaml_mapping(value: Any) -> str:
+    if not isinstance(value, dict) or not value:
+        return ''
+    return yaml.safe_dump(value, allow_unicode=True, sort_keys=False).strip()

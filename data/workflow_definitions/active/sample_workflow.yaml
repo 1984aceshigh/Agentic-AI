@@ -6,6 +6,7 @@ nodes:
     prompt: 中国の故事成語を1つ出力してください。
     task: generate
     output_format: 故事成語以外のテキストは出力厳禁
+    extract_output_format: json
   id: start_node
   name: Start Node
   type: llm
@@ -27,9 +28,42 @@ nodes:
   type: llm
 - config:
     prompt: 「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて
+    task: generate
+    extract_output_format: json
   id: node_04
   name: node_04
   type: llm
+- config:
+    task: assessment
+    prompt: 入力されたテキストの内容が合っているか確認してください。
+    temperature: 0.7
+    extract_output_format: markdown
+    input_definition: '[参照ノード: second_node.result]'
+    assessment_options:
+    - 'True'
+    - 'False'
+    assessment_routes:
+      'True': extract
+      'False': node_05
+  id: review
+  name: Review
+  type: llm
+- config:
+    task: extract
+    input_definition: '[参照ノード: node_04.result]'
+    temperature: 0.0
+    extract_output_format: markdown
+  id: extract
+  name: Extract
+  type: llm
+- id: node_05
+  name: node_05
+  type: llm
+  config:
+    task: generate
+    prompt: 何か勇気づけられることわざを一つ教えてください
+    temperature: 0.0
+    extract_output_format: json
 edges:
 - from: start_node
   to: first_node
@@ -37,3 +71,9 @@ edges:
   to: second_node
 - from: start_node
   to: node_04
+- from: second_node
+  to: review
+- from: review
+  to: extract
+- from: review
+  to: node_05

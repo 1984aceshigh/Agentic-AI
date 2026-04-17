@@ -42,6 +42,7 @@ class Phase1LangGraphState(TypedDict, total=False):
     workflow_id: str
     node_states: Annotated[dict[str, str], _merge_dicts]
     node_outputs: Annotated[dict[str, dict[str, Any]], _merge_dicts]
+    next_node_overrides: Annotated[dict[str, str], _merge_dicts]
     logs: Annotated[list[str], _concat_lists]
     halted: Annotated[bool, _or_bool]
 
@@ -97,8 +98,40 @@ def build_state_graph(
 
     builder.add_edge(START, graph.start_node)
 
+    outgoing_by_node: dict[str, list[str]] = {}
     for edge in graph.edges:
-        builder.add_edge(edge.from_node, edge.to_node)
+        outgoing_by_node.setdefault(edge.from_node, []).append(edge.to_node)
+
+    for from_node, to_nodes in outgoing_by_node.items():
+        from_node_model = graph.nodes.get(from_node)
+        from_config = getattr(from_node_model, "config", {}) if from_node_model is not None else {}
+        is_assessment_router = (
+            isinstance(from_config, dict)
+            and str(from_config.get("task") or "").strip().lower() == "assessment"
+            and isinstance(from_config.get("assessment_routes"), dict)
+            and bool(from_config.get("assessment_routes"))
+        )
+
+        if len(to_nodes) <= 1 or not is_assessment_router:
+            for to_node in to_nodes:
+                builder.add_edge(from_node, to_node)
+            continue
+
+        path_map = {node_id: node_id for node_id in to_nodes}
+
+        def _route(state: Phase1LangGraphState, *, _from_node: str = from_node, _to_nodes: list[str] = to_nodes) -> str:
+            overrides = state.get("next_node_overrides")
+            if isinstance(overrides, dict):
+                override_target = overrides.get(_from_node)
+                if isinstance(override_target, str) and override_target in _to_nodes:
+                    return override_target
+            return _to_nodes[0]
+
+        if hasattr(builder, "add_conditional_edges"):
+            builder.add_conditional_edges(from_node, _route, path_map)
+        else:
+            # Fallback safety: conditional API が無い実装では先頭エッジを採用。
+            builder.add_edge(from_node, to_nodes[0])
 
     for end_node in graph.end_nodes:
         builder.add_edge(end_node, END)

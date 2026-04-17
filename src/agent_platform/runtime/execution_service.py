@@ -96,6 +96,7 @@ class WorkflowExecutionService:
             "workflow_id": graph.workflow_id,
             "node_states": dict(context.node_states),
             "node_outputs": dict(context.node_outputs),
+            "next_node_overrides": {},
             "logs": list(context.metadata.get("logs", []) if isinstance(context.metadata, dict) else []),
             "halted": False,
         }
@@ -178,6 +179,9 @@ class WorkflowExecutionService:
             }
             if result.output:
                 updated["node_outputs"] = {node_id: result.output}
+                next_node = result.output.get("next_node")
+                if isinstance(next_node, str) and next_node.strip():
+                    updated["next_node_overrides"] = {node_id: next_node.strip()}
             if halted:
                 updated["halted"] = True
             return updated

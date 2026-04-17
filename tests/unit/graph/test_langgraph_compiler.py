@@ -144,6 +144,65 @@ def test_branching_is_allowed_in_phase1_minimal_compiler() -> None:
     assert compiled is not None
 
 
+def test_branching_follows_next_node_override_only() -> None:
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="step1",
+        end_nodes=["step2", "step3"],
+        direction="TD",
+        nodes={
+            "step1": GraphNode(
+                id="step1",
+                type="llm",
+                name="Step 1",
+                config={
+                    "task": "assessment",
+                    "assessment_routes": {"pass": "step2", "rework": "step3"},
+                },
+            ),
+            "step2": GraphNode(id="step2", type="llm", name="Step 2"),
+            "step3": GraphNode(id="step3", type="human_gate", name="Step 3"),
+        },
+        edges=[
+            GraphEdge(from_node="step1", to_node="step2"),
+            GraphEdge(from_node="step1", to_node="step3"),
+        ],
+    )
+
+    def factory(node: GraphNode) -> Callable[[dict[str, Any]], dict[str, Any]]:
+        def _fn(state: dict[str, Any]) -> dict[str, Any]:
+            states = dict(state.get("node_states") or {})
+            outputs = dict(state.get("node_outputs") or {})
+            logs = list(state.get("logs") or [])
+            states[node.id] = "SUCCEEDED"
+            outputs[node.id] = {"result": node.id}
+            delta: dict[str, Any] = {"node_states": states, "node_outputs": outputs, "logs": logs + [node.id]}
+            if node.id == "step1":
+                delta["next_node_overrides"] = {"step1": "step3"}
+            return delta
+
+        return _fn
+
+    compiled = compile_langgraph(graph, node_fn_factory=factory)
+
+    result = compiled.invoke(make_initial_state(graph))
+
+    assert result["node_states"]["step1"] == "SUCCEEDED"
+    assert result["node_states"].get("step3") == "SUCCEEDED"
+    assert "step2" not in result["node_states"]
+
+
+def test_branching_without_assessment_router_runs_all_paths() -> None:
+    graph = make_branching_graph_model()
+    compiled = compile_langgraph(graph)
+
+    result = compiled.invoke(make_initial_state(graph))
+
+    assert result["node_states"].get("step2") == "SUCCEEDED"
+    assert result["node_states"].get("step3") == "SUCCEEDED"
+
+
 def test_nodes_empty_raises() -> None:
     graph = make_linear_graph_model().model_copy(deep=True)
     graph.nodes = {}
