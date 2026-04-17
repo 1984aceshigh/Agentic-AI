@@ -19,6 +19,25 @@
   <div class="col-12 col-xl-5">
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body">
+        <h2 class="h5">Workflow Metadata</h2>
+        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/update-metadata" class="row g-2 mb-3">
+          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+          <input type="hidden" name="selected_tab" value="{{ editor.selected_tab }}">
+          <input type="hidden" name="selected_node_id" value="{{ editor.selected_node_id or '' }}">
+          <input type="hidden" name="save_after_update" value="1">
+          <div class="col-12">
+            <label class="form-label">workflow_id</label>
+            <input class="form-control form-control-sm" type="text" name="workflow_id" value="{{ editor.workflow_id }}">
+          </div>
+          <div class="col-12">
+            <label class="form-label">workflow_name</label>
+            <input class="form-control form-control-sm" type="text" name="workflow_name" value="{{ editor.workflow_name }}">
+          </div>
+          <div class="col-12 d-grid">
+            <button class="btn btn-outline-primary btn-sm" type="submit">Save Metadata</button>
+          </div>
+        </form>
+
         <div class="nav nav-pills flex-wrap gap-2">
           {% for tab in ['nodes', 'yaml', 'validation'] %}
           <a href="?tab={{ tab }}{% if editor.selected_node_id %}&selected_node_id={{ editor.selected_node_id }}{% endif %}" class="btn btn-sm {% if editor.selected_tab == tab %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ tab }}</a>

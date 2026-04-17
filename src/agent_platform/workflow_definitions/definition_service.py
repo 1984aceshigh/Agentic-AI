@@ -65,7 +65,7 @@ class WorkflowDefinitionService:
         validation = self._validation_service.validate_yaml_text(yaml_text)
         if not validation.is_valid:
             raise ValueError('Cannot save invalid workflow definition.')
-        resolved_workflow_id = workflow_id or validation.workflow_id
+        resolved_workflow_id = validation.workflow_id or workflow_id
         if not resolved_workflow_id:
             raise ValueError('workflow_id could not be determined.')
         document = WorkflowDefinitionDocument(
@@ -79,6 +79,10 @@ class WorkflowDefinitionService:
             source_path=None,
         )
         saved = self._repository.save(document)
+        if workflow_id and workflow_id != resolved_workflow_id:
+            self._repository.delete(workflow_id)
+            self._workflow_graphs.pop(workflow_id, None)
+            self._latest_execution_ids.pop(workflow_id, None)
         if validation.graph is not None:
             self._workflow_graphs[resolved_workflow_id] = validation.graph
         self._latest_execution_ids.setdefault(resolved_workflow_id, None)
@@ -97,3 +101,10 @@ class WorkflowDefinitionService:
         self._workflow_graphs.pop(workflow_id, None)
         self._latest_execution_ids.pop(workflow_id, None)
         return archived
+
+    def delete_definition(self, workflow_id: str, *, include_archived: bool = False) -> bool:
+        deleted = self._repository.delete(workflow_id, include_archived=include_archived)
+        if deleted:
+            self._workflow_graphs.pop(workflow_id, None)
+            self._latest_execution_ids.pop(workflow_id, None)
+        return deleted

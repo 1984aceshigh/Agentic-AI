@@ -149,12 +149,12 @@ def test_build_node_cards_returns_flat_ui_friendly_models() -> None:
     assert cards[0].group == "analysis"
     assert cards[0].status == "SUCCEEDED"
     assert cards[0].retryable is True
-    assert cards[0].started_at == "2026-04-12T01:00:00+00:00"
-    assert cards[0].finished_at == "2026-04-12T01:01:00+00:00"
+    assert cards[0].started_at == "2026-04-12 01:00:00"
+    assert cards[0].finished_at == "2026-04-12 01:01:00"
     assert cards[0].output_preview == "drafted"
     assert cards[1].status == "WAITING_HUMAN"
     assert cards[1].requires_human_action is True
-    assert cards[1].started_at == "2026-04-12T01:02:00+00:00"
+    assert cards[1].started_at == "2026-04-12 01:02:00"
     assert cards[1].finished_at is None
     assert cards[1].output_preview is None
     assert cards[2].status == "FAILED"
@@ -198,7 +198,7 @@ def test_build_node_detail_extracts_memory_records_and_event_history() -> None:
     assert detail.event_history == [
         {
             "event_type": "node_waiting_human",
-            "timestamp": "2026-04-12T01:02:30+00:00",
+            "timestamp": "2026-04-12 01:02:30",
             "execution_id": execution_id,
             "node_id": "step2",
             "message": "approval required",

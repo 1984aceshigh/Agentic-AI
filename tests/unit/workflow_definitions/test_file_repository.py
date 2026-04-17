@@ -49,3 +49,44 @@ def test_archive_moves_document(tmp_path: Path):
     archived = repo.archive('sample_workflow')
     assert archived.is_archived is True
     assert repo.list_active() == []
+
+
+def test_delete_removes_active_document(tmp_path: Path):
+    repo = FileWorkflowDefinitionRepository(tmp_path / 'workflow_definitions')
+    document = WorkflowDefinitionDocument(
+        workflow_id='sample_workflow',
+        workflow_name='Sample Workflow',
+        version='0.1.0',
+        description=None,
+        yaml_text=SAMPLE_YAML,
+        updated_at=None,
+        is_archived=False,
+        source_path=None,
+    )
+    repo.save(document)
+
+    deleted = repo.delete('sample_workflow')
+
+    assert deleted is True
+    assert repo.list_active() == []
+
+
+def test_delete_with_include_archived_removes_archived_document(tmp_path: Path):
+    repo = FileWorkflowDefinitionRepository(tmp_path / 'workflow_definitions')
+    document = WorkflowDefinitionDocument(
+        workflow_id='sample_workflow',
+        workflow_name='Sample Workflow',
+        version='0.1.0',
+        description=None,
+        yaml_text=SAMPLE_YAML,
+        updated_at=None,
+        is_archived=False,
+        source_path=None,
+    )
+    repo.save(document)
+    repo.archive('sample_workflow')
+
+    deleted = repo.delete('sample_workflow', include_archived=True)
+
+    assert deleted is True
+    assert repo.list_archived() == []

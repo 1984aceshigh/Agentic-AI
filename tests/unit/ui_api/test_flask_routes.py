@@ -197,7 +197,7 @@ def test_get_node_list_returns_200() -> None:
     assert response.status_code == 200
     assert b"Node List" in response.data
     assert b"Human Review" in response.data
-    assert b"2026-04-12T02:01:00+00:00" in response.data
+    assert b"2026-04-12 02:01:00" in response.data
     assert b"Output" in response.data
     assert b"awaiting approval" in response.data
 

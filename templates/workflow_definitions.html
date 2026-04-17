@@ -52,13 +52,18 @@
           <td>
             <div class="d-flex flex-wrap gap-2">
               <a class="btn btn-sm btn-outline-primary" href="/workflow-definitions/{{ item.workflow_id }}/graph-editor">graph editor</a>
-              <a class="btn btn-sm btn-outline-secondary" href="/workflow-definitions/{{ item.workflow_id }}/edit?tab=yaml">raw YAML</a>
+              <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/delete" class="d-inline" onsubmit="return confirm('Delete workflow {{ item.workflow_id }}?');">
+                {% if item.is_archived %}
+                <input type="hidden" name="include_archived" value="1">
+                {% endif %}
+                <button type="submit" class="btn btn-sm btn-outline-danger">delete</button>
+              </form>
               {% if not item.is_archived %}
               <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/clone" class="d-inline">
                 <button type="submit" class="btn btn-sm btn-outline-info">clone</button>
               </form>
               <form method="post" action="/actions/workflow-definitions/{{ item.workflow_id }}/archive" class="d-inline">
-                <button type="submit" class="btn btn-sm btn-outline-danger">archive</button>
+                <button type="submit" class="btn btn-sm btn-outline-secondary">archive</button>
               </form>
               {% endif %}
             </div>

@@ -110,3 +110,28 @@ edges:
     assert "flowchart TD" in result.mermaid_text
     assert 'subgraph group_1["review"]' in result.mermaid_text
     assert "(llm)" in result.mermaid_text
+
+
+def test_definition_service_save_renames_workflow_and_cleans_old_runtime_entries(tmp_path) -> None:
+    workflow_graphs: dict[str, object] = {"old_workflow": object()}
+    latest_execution_ids: dict[str, str | None] = {"old_workflow": "exec-1"}
+    validation_service = _build_definition_validation_service()
+    repository = FileWorkflowDefinitionRepository(tmp_path / "workflow_definitions")
+    service = WorkflowDefinitionService(
+        repository,
+        validation_service,
+        workflow_graphs=workflow_graphs,
+        latest_execution_ids=latest_execution_ids,
+    )
+    renamed_yaml = MINIMAL_EDITOR_YAML.replace("new_workflow", "renamed_workflow").replace(
+        "New Workflow", "Renamed Workflow"
+    )
+
+    saved, validation = service.save_definition(renamed_yaml, workflow_id="old_workflow")
+
+    assert saved.workflow_id == "renamed_workflow"
+    assert validation.workflow_id == "renamed_workflow"
+    assert "old_workflow" not in workflow_graphs
+    assert "old_workflow" not in latest_execution_ids
+    assert "renamed_workflow" in workflow_graphs
+    assert latest_execution_ids["renamed_workflow"] is None

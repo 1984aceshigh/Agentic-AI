@@ -241,7 +241,7 @@ class ReadModelService:
     def _format_datetime(self, value: datetime | None) -> str | None:
         if value is None:
             return None
-        return value.isoformat(timespec="seconds")
+        return value.strftime("%Y-%m-%d %H:%M:%S")
 
     def _json_friendly_dict(self, value: Any) -> Any:
         if hasattr(value, "model_dump"):
@@ -254,7 +254,7 @@ class ReadModelService:
         if isinstance(value, tuple):
             return [self._json_friendly_dict(item) for item in value]
         if isinstance(value, datetime):
-            return value.isoformat()
+            return self._format_datetime(value)
         if isinstance(value, Enum):
             return self._to_text(value)
         return deepcopy(value)

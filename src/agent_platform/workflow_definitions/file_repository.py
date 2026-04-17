@@ -66,6 +66,21 @@ class FileWorkflowDefinitionRepository(WorkflowDefinitionRepository):
         )
         return self.save(document)
 
+    def delete(self, workflow_id: str, *, include_archived: bool = False) -> bool:
+        deleted = False
+        active_path = self._active_dir / f'{workflow_id}.yaml'
+        if active_path.exists():
+            active_path.unlink()
+            deleted = True
+
+        if include_archived:
+            archived_matches = list(self._archived_dir.glob(f'{workflow_id}__*.yaml'))
+            for path in archived_matches:
+                path.unlink()
+                deleted = True
+
+        return deleted
+
     def _list_from_dir(self, directory: Path, *, is_archived: bool) -> list[WorkflowDefinitionMeta]:
         items: list[WorkflowDefinitionMeta] = []
         for path in sorted(directory.glob('*.yaml')):

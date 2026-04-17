@@ -9,6 +9,43 @@ class _UnusedDefinitionService:
     pass
 
 
+class _FakeDefinitionService:
+    def __init__(self, yaml_text: str, updated_at: str) -> None:
+        self._yaml_text = yaml_text
+        self._updated_at = updated_at
+
+    def list_definitions(self, *, include_archived: bool = False):
+        return [
+            type(
+                "Meta",
+                (),
+                {
+                    "workflow_id": "sample_workflow",
+                    "workflow_name": "Sample Workflow",
+                    "version": "0.1.0",
+                    "updated_at": self._updated_at,
+                    "is_archived": False,
+                },
+            )()
+        ]
+
+    def get_definition(self, workflow_id: str, *, include_archived: bool = False):
+        return type(
+            "Doc",
+            (),
+            {
+                "workflow_id": workflow_id,
+                "workflow_name": "Sample Workflow",
+                "version": "0.1.0",
+                "description": None,
+                "yaml_text": self._yaml_text,
+                "updated_at": self._updated_at,
+                "is_archived": False,
+                "source_path": None,
+            },
+        )()
+
+
 def _build_service() -> DefinitionReadModelService:
     return DefinitionReadModelService(
         definition_service=_UnusedDefinitionService(),
@@ -139,3 +176,23 @@ edges: []
 
     assert view.selected_node_editor is not None
     assert view.selected_node_editor.selected_rag_dataset_id == 'kb-1'
+
+
+def test_build_definition_summaries_formats_updated_at_as_yyyy_mm_dd_hh_mm_ss() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: start
+    name: Start
+    type: llm_generate
+edges: []
+"""
+    service = DefinitionReadModelService(
+        definition_service=_FakeDefinitionService(yaml_text, "2026-04-17T10:23:45+00:00"),
+        validation_service=DefinitionValidationService(),
+    )
+
+    summaries = service.build_definition_summaries()
+
+    assert summaries[0].updated_at == "2026-04-17 10:23:45"

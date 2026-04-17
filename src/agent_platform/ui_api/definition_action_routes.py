@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import Any
 from urllib.parse import urlparse
 
+import yaml
 from flask import Blueprint, abort, jsonify, redirect, render_template, request
 
 from .dependencies import (
@@ -99,6 +100,43 @@ def archive_definition(workflow_id: str):
     if request.is_json:
         return jsonify({'status': 'ok', 'workflow_id': archived.workflow_id, 'action': 'archive'})
     return redirect('/workflow-definitions')
+
+
+@definition_action_bp.post('/<workflow_id>/delete')
+def delete_definition(workflow_id: str):
+    payload = _get_payload()
+    include_archived = _is_truthy(payload.get('include_archived'))
+    deleted = get_workflow_definition_service().delete_definition(workflow_id, include_archived=include_archived)
+    if request.is_json:
+        return jsonify({'status': 'ok', 'workflow_id': workflow_id, 'action': 'delete', 'deleted': bool(deleted)})
+    return redirect('/workflow-definitions')
+
+
+@definition_action_bp.post('/<workflow_id>/update-metadata')
+def update_workflow_metadata(workflow_id: str):
+    payload = _get_payload()
+    yaml_text = _required_str(payload.get('yaml_text'), 'yaml_text')
+    updated_yaml = _update_workflow_metadata_yaml(
+        yaml_text,
+        workflow_id=_optional_str(payload.get('workflow_id')),
+        workflow_name=_optional_str(payload.get('workflow_name')),
+    )
+    selected_tab = _optional_str(payload.get('selected_tab')) or 'nodes'
+    selected_node_id = _optional_str(payload.get('selected_node_id'))
+    if _is_truthy(payload.get('save_after_update')):
+        saved, _ = get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
+        if request.is_json:
+            return jsonify({'status': 'ok', 'action': 'update_metadata_and_save', 'workflow_id': saved.workflow_id})
+        next_url = f'/workflow-definitions/{saved.workflow_id}/graph-editor?tab={selected_tab}'
+        if selected_node_id:
+            next_url += f'&selected_node_id={selected_node_id}'
+        return redirect(next_url)
+    return _render_editor_response(
+        workflow_id=workflow_id,
+        yaml_text=updated_yaml,
+        selected_node_id=selected_node_id,
+        selected_tab=selected_tab,
+    )
 
 
 @definition_action_bp.post('/<workflow_id>/graph/add-node')
@@ -392,3 +430,31 @@ def _validate_relative_path(next_url: str) -> str:
     if not next_url.startswith('/'):
         abort(400, description="next must start with '/'.")
     return next_url
+
+
+def _update_workflow_metadata_yaml(
+    yaml_text: str,
+    *,
+    workflow_id: str | None,
+    workflow_name: str | None,
+) -> str:
+    parsed = yaml.safe_load(yaml_text) or {}
+    if not isinstance(parsed, dict):
+        abort(400, description='Workflow YAML must be a mapping at the top level.')
+
+    updated = dict(parsed)
+    if workflow_id is not None:
+        updated['workflow_id'] = workflow_id
+    if workflow_name is not None:
+        updated['workflow_name'] = workflow_name
+
+    workflow = updated.get('workflow')
+    if isinstance(workflow, dict):
+        workflow_updated = dict(workflow)
+        if workflow_id is not None:
+            workflow_updated['id'] = workflow_id
+        if workflow_name is not None:
+            workflow_updated['name'] = workflow_name
+        updated['workflow'] = workflow_updated
+
+    return yaml.safe_dump(updated, allow_unicode=True, sort_keys=False)

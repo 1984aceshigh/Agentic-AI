@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
 import yaml
@@ -50,7 +51,7 @@ class DefinitionReadModelService:
                     workflow_id=item.workflow_id,
                     workflow_name=item.workflow_name,
                     version=item.version,
-                    updated_at=item.updated_at,
+                    updated_at=_format_datetime_text(item.updated_at),
                     is_archived=item.is_archived,
                     validation_status='valid' if validation.is_valid else 'invalid',
                     node_count=validation.node_count,
@@ -363,3 +364,16 @@ def _ordered_node_payloads_with_type(parsed: dict[str, Any]) -> list[dict[str, A
                 }
             )
     return ordered
+
+
+def _format_datetime_text(value: str | None) -> str | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        parsed = datetime.fromisoformat(text)
+    except ValueError:
+        return text
+    return parsed.strftime('%Y-%m-%d %H:%M:%S')
