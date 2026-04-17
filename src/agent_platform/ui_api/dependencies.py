@@ -5,6 +5,7 @@ from typing import Protocol, cast
 
 from flask import Flask, current_app
 
+from agent_platform.integrations import RAGDatasetService, RAGNodeBindingService
 from agent_platform.models import GraphModel
 from agent_platform.workflow_definitions import (
     DefinitionEditorService,
@@ -77,6 +78,8 @@ def register_ui_dependencies(
     definition_editor_service: DefinitionEditorService | None = None,
     definition_validation_service: DefinitionValidationService | None = None,
     definition_read_model_service: DefinitionReadModelService | None = None,
+    rag_dataset_service: RAGDatasetService | None = None,
+    rag_node_binding_service: RAGNodeBindingService | None = None,
 ) -> None:
     app.extensions[_UI_DEPENDENCY_KEY] = UIDependencyContainer(
         read_model_service=read_model_service,
@@ -89,6 +92,8 @@ def register_ui_dependencies(
         definition_editor_service=definition_editor_service,
         definition_validation_service=definition_validation_service,
         definition_read_model_service=definition_read_model_service,
+        rag_dataset_service=rag_dataset_service,
+        rag_node_binding_service=rag_node_binding_service,
     )
 
 
@@ -152,6 +157,20 @@ def get_definition_read_model_service() -> DefinitionReadModelService:
     if service is None:
         raise RuntimeError('DefinitionReadModelService is not registered.')
     return cast(DefinitionReadModelService, service)
+
+
+def get_rag_dataset_service() -> RAGDatasetService:
+    service = get_dependency_container().get('rag_dataset_service')
+    if service is None:
+        raise RuntimeError('RAGDatasetService is not registered.')
+    return cast(RAGDatasetService, service)
+
+
+def get_rag_node_binding_service() -> RAGNodeBindingService:
+    service = get_dependency_container().get('rag_node_binding_service')
+    if service is None:
+        raise RuntimeError('RAGNodeBindingService is not registered.')
+    return cast(RAGNodeBindingService, service)
 
 
 def set_workflow_graphs(app: Flask, workflow_graphs: Mapping[str, GraphModel]) -> None:

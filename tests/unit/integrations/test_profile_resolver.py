@@ -92,14 +92,35 @@ def test_unknown_profile_raises_error(
 @pytest.mark.parametrize(
     ("node_type", "config", "expected_contract"),
     [
-        ("llm_generate", {"llm_profile": "default_llm"}, "llm_completion"),
-        ("llm_review", {"llm_profile": "default_llm"}, "llm_completion"),
-        ("memory_read", {"memory_profile": "default_memory"}, "memory_store"),
-        ("memory_write", {"memory_profile": "default_memory"}, "memory_store"),
-        ("rag_retrieve", {"rag_profile": "default_rag"}, "vector_retriever"),
-        ("tool_invoke", {"tool_profile": "corp_tools"}, "tool_invocation"),
-        ("file_read", {"tool_profile": "local_files"}, "file_access"),
-        ("file_write", {"tool_profile": "local_files"}, "file_access"),
+        ("llm", {"llm_profile": "default_llm"}, "llm_completion"),
+        (
+            "llm",
+            {
+                "llm_profile": "default_llm",
+                "memory": {"read": {"profile": "default_memory"}},
+            },
+            "llm_completion",
+        ),
+        (
+            "llm",
+            {
+                "llm_profile": "default_llm",
+                "memory": {"write": {"profile": "default_memory"}},
+            },
+            "llm_completion",
+        ),
+        (
+            "llm",
+            {
+                "llm_profile": "default_llm",
+                "rag": {"profile": "default_rag"},
+            },
+            "llm_completion",
+        ),
+        ("api", {"tool_profile": "corp_tools"}, "tool_invocation"),
+        ("api", {"tool_profile": "local_files"}, "file_access"),
+        ("mcp", {"tool_profile": "corp_tools"}, "tool_invocation"),
+        ("mcp", {"tool_profile": "local_files"}, "file_access"),
     ],
 )
 def test_resolve_profile_for_node_returns_expected_profile(
@@ -120,14 +141,9 @@ def test_resolve_profile_for_node_returns_expected_profile(
 @pytest.mark.parametrize(
     ("node_type", "config"),
     [
-        ("llm_generate", {}),
-        ("llm_review", {}),
-        ("memory_read", {}),
-        ("memory_write", {}),
-        ("rag_retrieve", {}),
-        ("tool_invoke", {}),
-        ("file_read", {}),
-        ("file_write", {}),
+        ("llm", {}),
+        ("api", {}),
+        ("mcp", {}),
     ],
 )
 def test_resolve_profile_for_node_missing_profile_name_raises(
@@ -144,7 +160,7 @@ def test_resolve_profile_for_node_missing_profile_name_raises(
 
 @pytest.mark.parametrize(
     "node_type",
-    ["deterministic_transform", "human_gate", "unknown_type"],
+    ["deterministic_transform", "human_gate", "unknown_type", "llm_generate"],
 )
 def test_resolve_profile_for_unsupported_node_type_returns_none(
     resolver: ProfileResolver,
@@ -160,17 +176,17 @@ def test_resolve_profile_for_node_unknown_profile_reference_raises(
     resolver: ProfileResolver,
     workflow_spec: SimpleNamespace,
 ) -> None:
-    node = make_node("rag_retrieve", {"rag_profile": "unknown_rag"})
+    node = make_node("llm", {"llm_profile": "default_llm", "rag": {"profile": "unknown_rag"}})
 
     with pytest.raises(ProfileResolutionError):
         resolver.resolve_profile_for_node(workflow_spec, node)
 
 
-def test_resolve_profile_for_node_contract_mismatch_raises(
+def test_resolve_profile_for_node_api_accepts_tool_or_file_contract(
     resolver: ProfileResolver,
     workflow_spec: SimpleNamespace,
 ) -> None:
-    node = make_node("file_read", {"tool_profile": "corp_tools"})
-
-    with pytest.raises(ProfileResolutionError):
-        resolver.resolve_profile_for_node(workflow_spec, node)
+    node = make_node("api", {"tool_profile": "corp_tools"})
+    profile = resolver.resolve_profile_for_node(workflow_spec, node)
+    assert profile is not None
+    assert profile.contract == "tool_invocation"

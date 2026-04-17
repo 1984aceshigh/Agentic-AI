@@ -6,6 +6,7 @@ from typing import Any, Callable
 import yaml
 
 from agent_platform.models import GraphEdge, GraphModel, GraphNode, NodeType
+from agent_platform.workflow_definitions.node_type_migration import normalize_workflow_node_types
 
 
 @dataclass(slots=True)
@@ -178,7 +179,7 @@ class DefinitionValidationService:
 
     def _parse_yaml(self, yaml_text: str) -> WorkflowDefinitionValidationResult:
         try:
-            parsed = yaml.safe_load(yaml_text) or {}
+            raw_parsed = yaml.safe_load(yaml_text) or {}
         except yaml.YAMLError as exc:
             return WorkflowDefinitionValidationResult(
                 is_valid=False,
@@ -186,12 +187,14 @@ class DefinitionValidationService:
                 parse_errors=[str(exc)],
             )
 
-        if not isinstance(parsed, dict):
+        if not isinstance(raw_parsed, dict):
             return WorkflowDefinitionValidationResult(
                 is_valid=False,
                 yaml_text=yaml_text,
                 parse_errors=['Workflow YAML must be a mapping at the top level.'],
             )
+
+        parsed, migration_warnings = normalize_workflow_node_types(raw_parsed)
 
         node_summaries = self._normalize_nodes(parsed)
         edge_summaries = self._normalize_edges(parsed)
@@ -207,6 +210,7 @@ class DefinitionValidationService:
             node_summaries=node_summaries,
             edge_summaries=edge_summaries,
             parsed_data=parsed,
+            warnings=migration_warnings,
         )
 
     def _fallback_validate(self, parsed: dict[str, Any]) -> list[str]:

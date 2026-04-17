@@ -1,0 +1,6 @@
+{
+  "new_workflow": {
+    "start_node": "test_document_1",
+    "second_node": "fsa"
+  }
+}

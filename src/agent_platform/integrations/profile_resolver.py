@@ -10,12 +10,9 @@ except Exception:  # pragma: no cover - keeps this module importable in isolatio
     NodeSpec = Any  # type: ignore[misc,assignment]
 
 
-LLM_NODE_TYPES: Final[set[str]] = {"llm_generate", "llm_review"}
-MEMORY_NODE_TYPES: Final[set[str]] = {"memory_read", "memory_write"}
-RAG_NODE_TYPES: Final[set[str]] = {"rag_retrieve"}
-TOOL_NODE_TYPES: Final[set[str]] = {"tool_invoke"}
-FILE_NODE_TYPES: Final[set[str]] = {"file_read", "file_write"}
-TOOL_LIKE_NODE_TYPES: Final[set[str]] = TOOL_NODE_TYPES | FILE_NODE_TYPES
+LLM_NODE_TYPES: Final[set[str]] = {"llm"}
+API_NODE_TYPES: Final[set[str]] = {"api"}
+MCP_NODE_TYPES: Final[set[str]] = {"mcp"}
 
 
 class ProfileResolutionError(ValueError):
@@ -84,6 +81,22 @@ class ProfileResolver:
         config = self._node_config(node)
 
         if node_type in LLM_NODE_TYPES:
+            memory = self._get_attr_or_key(config, "memory")
+            if isinstance(memory, Mapping):
+                read_cfg = self._get_attr_or_key(memory, "read")
+                if isinstance(read_cfg, Mapping) and self._get_attr_or_key(read_cfg, "profile"):
+                    profile_name = self._required_config_value(config=read_cfg, field_name="profile", node=node)
+                    self.resolve_memory_profile(spec, profile_name)
+                write_cfg = self._get_attr_or_key(memory, "write")
+                if isinstance(write_cfg, Mapping) and self._get_attr_or_key(write_cfg, "profile"):
+                    profile_name = self._required_config_value(config=write_cfg, field_name="profile", node=node)
+                    self.resolve_memory_profile(spec, profile_name)
+
+            rag = self._get_attr_or_key(config, "rag")
+            if isinstance(rag, Mapping) and self._get_attr_or_key(rag, "profile"):
+                profile_name = self._required_config_value(config=rag, field_name="profile", node=node)
+                self.resolve_rag_profile(spec, profile_name)
+
             profile_name = self._required_config_value(
                 config=config,
                 field_name="llm_profile",
@@ -91,34 +104,14 @@ class ProfileResolver:
             )
             return self.resolve_llm_profile(spec, profile_name)
 
-        if node_type in MEMORY_NODE_TYPES:
-            profile_name = self._required_config_value(
-                config=config,
-                field_name="memory_profile",
-                node=node,
-            )
-            return self.resolve_memory_profile(spec, profile_name)
-
-        if node_type in RAG_NODE_TYPES:
-            profile_name = self._required_config_value(
-                config=config,
-                field_name="rag_profile",
-                node=node,
-            )
-            return self.resolve_rag_profile(spec, profile_name)
-
-        if node_type in TOOL_LIKE_NODE_TYPES:
+        if node_type in API_NODE_TYPES | MCP_NODE_TYPES:
             profile_name = self._required_config_value(
                 config=config,
                 field_name="tool_profile",
                 node=node,
             )
             profile = self.resolve_tool_profile(spec, profile_name)
-            expected_contracts = (
-                {"tool_invocation"}
-                if node_type in TOOL_NODE_TYPES
-                else {"file_access"}
-            )
+            expected_contracts = {"tool_invocation", "file_access"}
             self._validate_contract(
                 profile=profile,
                 expected_contracts=expected_contracts,
@@ -201,7 +194,10 @@ class ProfileResolver:
 
     def _node_type(self, node: NodeSpec) -> str:
         node_type = self._get_attr_or_key(node, "type")
-        return str(node_type) if node_type is not None else ""
+        if node_type is None:
+            return ""
+        value = getattr(node_type, "value", node_type)
+        return str(value)
 
     def _node_config(self, node: NodeSpec) -> Any:
         return self._get_attr_or_key(node, "config")

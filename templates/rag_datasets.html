@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block title %}RAG Datasets{% endblock %}
+
+{% block content %}
+<section class="mb-4">
+  <h1 class="h3 mb-1">RAG Datasets</h1>
+  <p class="text-muted mb-0">ファイルアップロード→テキスト抽出→チャンク化→ベクトル格納</p>
+</section>
+
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h2 class="h5">Upload</h2>
+    <form method="post" action="/actions/workflow-definitions/rag-datasets/upload" enctype="multipart/form-data" class="row g-3">
+      <div class="col-12 col-md-4">
+        <label class="form-label">dataset_name</label>
+        <input class="form-control" type="text" name="dataset_name" placeholder="例: 社内FAQ">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">dataset_id (optional)</label>
+        <input class="form-control" type="text" name="dataset_id" placeholder="例: company-faq">
+      </div>
+      <div class="col-12 col-md-4">
+        <label class="form-label">file</label>
+        <input class="form-control" type="file" name="file" required>
+      </div>
+      <div class="col-12 d-grid d-md-block">
+        <button type="submit" class="btn btn-primary">Upload & Index</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="card border-0 shadow-sm">
+  <div class="card-body">
+    <h2 class="h5">Datasets</h2>
+    {% if datasets %}
+    <div class="table-responsive">
+      <table class="table table-sm align-middle">
+        <thead>
+          <tr>
+            <th>dataset_id</th>
+            <th>name</th>
+            <th>source</th>
+            <th>type</th>
+            <th>chunks</th>
+            <th>created_at</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in datasets %}
+          <tr>
+            <td><code>{{ item.dataset_id }}</code></td>
+            <td>{{ item.name }}</td>
+            <td>{{ item.source_filename }}</td>
+            <td>{{ item.source_type }}</td>
+            <td>{{ item.chunk_count }}</td>
+            <td>{{ item.created_at }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p class="text-muted mb-0">No datasets yet.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

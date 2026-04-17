@@ -1,10 +1,12 @@
 try:
     from .app import create_app
 except ModuleNotFoundError as exc:  # pragma: no cover - optional dependency guard
+    _create_app_import_error = exc
+
     def create_app(*args, **kwargs):  # type: ignore[no-redef]
         raise ModuleNotFoundError(
             "create_app を利用するには Flask が必要です。環境に flask をインストールしてください。"
-        ) from exc
+        ) from _create_app_import_error
 from .definition_view_models import (
     EdgeEditorView,
     EdgeSummaryView,

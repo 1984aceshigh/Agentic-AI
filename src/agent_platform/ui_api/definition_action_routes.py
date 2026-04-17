@@ -8,6 +8,8 @@ from flask import Blueprint, abort, jsonify, redirect, render_template, request
 from .dependencies import (
     get_definition_editor_service,
     get_definition_read_model_service,
+    get_rag_dataset_service,
+    get_rag_node_binding_service,
     get_workflow_definition_service,
 )
 
@@ -115,11 +117,17 @@ def add_node(workflow_id: str):
             'advanced_yaml_fragment': payload.get('advanced_yaml_fragment'),
         },
     )
+    created_node_id = _optional_str(payload.get('node_id'))
+    _set_rag_binding_if_available(
+        workflow_id=workflow_id,
+        node_id=created_node_id,
+        rag_dataset_id=_optional_str(payload.get('rag_dataset_id')),
+    )
     if _is_truthy(payload.get('save_after_update')):
         get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
         if request.is_json:
             return jsonify({'status': 'ok', 'action': 'add_node_and_save', 'workflow_id': workflow_id})
-        selected_node_id = _optional_str(payload.get('node_id'))
+        selected_node_id = created_node_id
         next_url = f'/workflow-definitions/{workflow_id}/graph-editor?tab=nodes'
         if selected_node_id:
             next_url += f'&selected_node_id={selected_node_id}'
@@ -150,6 +158,16 @@ def update_node(workflow_id: str, node_id: str):
         },
     )
     selected_node_id = _optional_str(payload.get('node_id')) or node_id
+    if 'rag_dataset_id' in payload:
+        rag_dataset_id = _optional_str(payload.get('rag_dataset_id'))
+    else:
+        rag_dataset_id = _get_rag_binding_if_available(workflow_id=workflow_id, node_id=node_id)
+    _move_rag_binding_if_available(
+        workflow_id=workflow_id,
+        old_node_id=node_id,
+        new_node_id=selected_node_id,
+        rag_dataset_id=rag_dataset_id,
+    )
     if _is_truthy(payload.get('save_after_update')):
         get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
         if request.is_json:
@@ -170,6 +188,7 @@ def delete_node(workflow_id: str, node_id: str):
     yaml_text = _required_str(payload.get('yaml_text'), 'yaml_text')
     try:
         updated_yaml = get_definition_editor_service().delete_node(yaml_text, node_id)
+        _set_rag_binding_if_available(workflow_id=workflow_id, node_id=node_id, rag_dataset_id=None)
     except ValueError as exc:
         editor = get_definition_read_model_service().build_graph_editor_view(
             yaml_text=yaml_text,
@@ -188,6 +207,26 @@ def delete_node(workflow_id: str, node_id: str):
         selected_node_id=None,
         selected_tab='nodes',
     )
+
+
+@definition_action_bp.post('/rag-datasets/upload')
+def upload_rag_dataset():
+    dataset_name = _optional_str(request.form.get('dataset_name'))
+    dataset_id = _optional_str(request.form.get('dataset_id'))
+    upload = request.files.get('file')
+    if upload is None or not upload.filename:
+        abort(400, description='file is required.')
+
+    resolved_name = dataset_name or upload.filename
+    summary = get_rag_dataset_service().ingest_uploaded_file(
+        dataset_name=resolved_name,
+        dataset_id=dataset_id,
+        source_filename=upload.filename,
+        file_bytes=upload.read(),
+    )
+    if request.is_json:
+        return jsonify({'status': 'ok', 'dataset': summary.__dict__})
+    return redirect('/rag-datasets')
 
 
 @definition_action_bp.post('/<workflow_id>/graph/add-edge')
@@ -295,6 +334,40 @@ def _optional_str(value: Any) -> str | None:
 
 def _is_truthy(value: Any) -> bool:
     return str(value or '').strip().lower() in {'1', 'true', 'yes', 'on'}
+
+
+def _set_rag_binding_if_available(*, workflow_id: str, node_id: str | None, rag_dataset_id: str | None) -> None:
+    if not node_id:
+        return
+    try:
+        service = get_rag_node_binding_service()
+    except RuntimeError:
+        return
+    service.set_dataset_id(workflow_id=workflow_id, node_id=node_id, dataset_id=rag_dataset_id)
+
+
+def _move_rag_binding_if_available(
+    *,
+    workflow_id: str,
+    old_node_id: str,
+    new_node_id: str,
+    rag_dataset_id: str | None,
+) -> None:
+    try:
+        service = get_rag_node_binding_service()
+    except RuntimeError:
+        return
+    if old_node_id != new_node_id:
+        service.set_dataset_id(workflow_id=workflow_id, node_id=old_node_id, dataset_id=None)
+    service.set_dataset_id(workflow_id=workflow_id, node_id=new_node_id, dataset_id=rag_dataset_id)
+
+
+def _get_rag_binding_if_available(*, workflow_id: str, node_id: str) -> str | None:
+    try:
+        service = get_rag_node_binding_service()
+    except RuntimeError:
+        return None
+    return service.get_dataset_id(workflow_id=workflow_id, node_id=node_id)
 
 
 def _maybe_redirect(payload: dict[str, Any]):

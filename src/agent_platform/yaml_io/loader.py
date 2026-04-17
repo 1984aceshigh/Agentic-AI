@@ -7,6 +7,7 @@ import yaml
 from pydantic import ValidationError
 
 from agent_platform.models import WorkflowSpec
+from agent_platform.workflow_definitions.node_type_migration import normalize_workflow_node_types
 
 
 class WorkflowLoaderError(Exception):
@@ -103,8 +104,9 @@ def load_workflow_yaml_text(text: str) -> WorkflowSpec:
 
 
 def load_workflow_dict(data: dict[str, Any]) -> WorkflowSpec:
+    normalized_data, _ = normalize_workflow_node_types(data)
     try:
-        return WorkflowSpec.model_validate(data)
+        return WorkflowSpec.model_validate(normalized_data)
     except ValidationError as exc:
         raise WorkflowModelValidationError(
             message="WorkflowSpec validation failed",

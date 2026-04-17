@@ -13,6 +13,7 @@ from agent_platform.workflow_definitions import (
     WorkflowDefinitionService,
 )
 from agent_platform.runtime.execution_service import WorkflowExecutionService
+from agent_platform.integrations import RAGDatasetService, RAGNodeBindingService
 from agent_platform.models import GraphModel
 
 from .action_routes import action_bp
@@ -38,6 +39,8 @@ def create_app(
     definition_read_model_service: DefinitionReadModelService | None = None,
     workflow_graphs: MutableMapping[str, GraphModel] | None = None,
     latest_execution_ids: MutableMapping[str, str | None] | None = None,
+    rag_dataset_service: RAGDatasetService | None = None,
+    rag_node_binding_service: RAGNodeBindingService | None = None,
 ) -> Flask:
     project_root = Path(__file__).resolve().parents[3]
     template_folder = project_root / 'templates'
@@ -50,6 +53,14 @@ def create_app(
 
     workflow_graphs = workflow_graphs if workflow_graphs is not None else {}
     latest_execution_ids = latest_execution_ids if latest_execution_ids is not None else {}
+    rag_dataset_service = rag_dataset_service or RAGDatasetService(
+        catalog_path=project_root / 'data' / 'rag' / 'datasets.json',
+        datasets_dir=project_root / 'data' / 'rag' / 'datasets',
+        uploads_dir=project_root / 'data' / 'rag' / 'uploads',
+    )
+    rag_node_binding_service = rag_node_binding_service or RAGNodeBindingService(
+        bindings_path=project_root / 'data' / 'rag' / 'node_bindings.json',
+    )
     definition_validation_service = definition_validation_service or DefinitionValidationService()
     definition_editor_service = definition_editor_service or DefinitionEditorService()
     workflow_definition_service = workflow_definition_service or WorkflowDefinitionService(
@@ -61,6 +72,8 @@ def create_app(
     definition_read_model_service = definition_read_model_service or DefinitionReadModelService(
         workflow_definition_service,
         definition_validation_service,
+        rag_dataset_service=rag_dataset_service,
+        rag_node_binding_service=rag_node_binding_service,
     )
 
     if execution_service is None:
@@ -72,6 +85,8 @@ def create_app(
                 records_manager=records_manager,
                 workflow_graphs=workflow_graphs,
                 latest_execution_ids=latest_execution_ids,
+                rag_dataset_service=rag_dataset_service,
+                rag_node_binding_service=rag_node_binding_service,
             )
 
     register_ui_dependencies(
@@ -86,6 +101,8 @@ def create_app(
         definition_editor_service=definition_editor_service,
         definition_validation_service=definition_validation_service,
         definition_read_model_service=definition_read_model_service,
+        rag_dataset_service=rag_dataset_service,
+        rag_node_binding_service=rag_node_binding_service,
     )
 
     app.register_blueprint(web_bp)

@@ -9,7 +9,7 @@ from agent_platform.models import IssueSeverity, NodeType, ValidationIssue, Work
 from .adapter_validator import validate_profile_contracts
 
 SUPPORTED_SCHEMA_VERSION = "0.1"
-SUPPORTED_TRANSFORM_TYPES = {"pass_through", "json_extract", "merge_dict", "template_render"}
+SUPPORTED_LLM_TASKS = {"generate", "review", "classify", "summarize", "extract", "judge", "transform"}
 
 
 def validate_workflow_spec(spec: WorkflowSpec) -> list[ValidationIssue]:
@@ -302,7 +302,7 @@ def _validate_node_configs(spec: WorkflowSpec) -> list[ValidationIssue]:
 
     for index, node in enumerate(spec.nodes):
         location_prefix = f"nodes[{index}].config"
-        if node.type in {NodeType.LLM_GENERATE, NodeType.LLM_REVIEW}:
+        if node.type is NodeType.LLM:
             llm_profile = node.config.get("llm_profile")
             if not isinstance(llm_profile, str) or not llm_profile:
                 issues.append(
@@ -324,29 +324,102 @@ def _validate_node_configs(spec: WorkflowSpec) -> list[ValidationIssue]:
                         related_node_id=node.id,
                     )
                 )
-
-        elif node.type is NodeType.DETERMINISTIC_TRANSFORM:
-            transform_type = node.config.get("transform_type")
-            if not isinstance(transform_type, str) or not transform_type:
+            task = node.config.get("task")
+            if task is not None and (not isinstance(task, str) or task not in SUPPORTED_LLM_TASKS):
                 issues.append(
                     _issue(
-                        code="missing_transform_type",
-                        message=f"Node '{node.id}' requires config.transform_type.",
-                        severity=IssueSeverity.ERROR,
-                        location=f"{location_prefix}.transform_type",
-                        related_node_id=node.id,
-                    )
-                )
-            elif transform_type not in SUPPORTED_TRANSFORM_TYPES:
-                issues.append(
-                    _issue(
-                        code="unsupported_transform_type",
-                        message=f"transform_type '{transform_type}' is not in the MVP supported list.",
+                        code="invalid_llm_task",
+                        message=f"Node '{node.id}' has invalid config.task '{task}'.",
                         severity=IssueSeverity.WARNING,
-                        location=f"{location_prefix}.transform_type",
+                        location=f"{location_prefix}.task",
                         related_node_id=node.id,
                     )
                 )
+
+            memory = node.config.get("memory")
+            if memory is not None and not isinstance(memory, dict):
+                issues.append(
+                    _issue(
+                        code="invalid_memory_config",
+                        message=f"Node '{node.id}' config.memory must be an object.",
+                        severity=IssueSeverity.ERROR,
+                        location=f"{location_prefix}.memory",
+                        related_node_id=node.id,
+                    )
+                )
+            elif isinstance(memory, dict):
+                for key in ("read", "write"):
+                    cfg = memory.get(key)
+                    if cfg is None:
+                        continue
+                    if not isinstance(cfg, dict):
+                        issues.append(
+                            _issue(
+                                code="invalid_memory_config",
+                                message=f"Node '{node.id}' config.memory.{key} must be an object.",
+                                severity=IssueSeverity.ERROR,
+                                location=f"{location_prefix}.memory.{key}",
+                                related_node_id=node.id,
+                            )
+                        )
+                        continue
+                    profile_name = cfg.get("profile")
+                    if profile_name is not None:
+                        if not isinstance(profile_name, str) or not profile_name:
+                            issues.append(
+                                _issue(
+                                    code="missing_required_profile",
+                                    message=f"Node '{node.id}' config.memory.{key}.profile must be non-empty string.",
+                                    severity=IssueSeverity.ERROR,
+                                    location=f"{location_prefix}.memory.{key}.profile",
+                                    related_node_id=node.id,
+                                )
+                            )
+                        elif profile_name not in memory_profiles:
+                            issues.append(
+                                _issue(
+                                    code="unknown_profile_ref",
+                                    message=f"Node '{node.id}' references unknown memory_profile '{profile_name}'.",
+                                    severity=IssueSeverity.ERROR,
+                                    location=f"{location_prefix}.memory.{key}.profile",
+                                    related_node_id=node.id,
+                                )
+                            )
+
+            rag = node.config.get("rag")
+            if rag is not None and not isinstance(rag, dict):
+                issues.append(
+                    _issue(
+                        code="invalid_rag_config",
+                        message=f"Node '{node.id}' config.rag must be an object.",
+                        severity=IssueSeverity.ERROR,
+                        location=f"{location_prefix}.rag",
+                        related_node_id=node.id,
+                    )
+                )
+            elif isinstance(rag, dict):
+                rag_profile = rag.get("profile")
+                if rag_profile is not None:
+                    if not isinstance(rag_profile, str) or not rag_profile:
+                        issues.append(
+                            _issue(
+                                code="missing_required_profile",
+                                message=f"Node '{node.id}' config.rag.profile must be non-empty string.",
+                                severity=IssueSeverity.ERROR,
+                                location=f"{location_prefix}.rag.profile",
+                                related_node_id=node.id,
+                            )
+                        )
+                    elif rag_profile not in rag_profiles:
+                        issues.append(
+                            _issue(
+                                code="unknown_profile_ref",
+                                message=f"Node '{node.id}' references unknown rag_profile '{rag_profile}'.",
+                                severity=IssueSeverity.ERROR,
+                                location=f"{location_prefix}.rag.profile",
+                                related_node_id=node.id,
+                            )
+                        )
 
         elif node.type is NodeType.HUMAN_GATE:
             gate_type = node.config.get("gate_type")
@@ -373,53 +446,7 @@ def _validate_node_configs(spec: WorkflowSpec) -> list[ValidationIssue]:
                         )
                     )
 
-        elif node.type in {NodeType.MEMORY_READ, NodeType.MEMORY_WRITE}:
-            memory_profile = node.config.get("memory_profile")
-            if not isinstance(memory_profile, str) or not memory_profile:
-                issues.append(
-                    _issue(
-                        code="missing_required_profile",
-                        message=f"Node '{node.id}' requires config.memory_profile.",
-                        severity=IssueSeverity.ERROR,
-                        location=f"{location_prefix}.memory_profile",
-                        related_node_id=node.id,
-                    )
-                )
-            elif memory_profile not in memory_profiles:
-                issues.append(
-                    _issue(
-                        code="unknown_profile_ref",
-                        message=f"Node '{node.id}' references unknown memory_profile '{memory_profile}'.",
-                        severity=IssueSeverity.ERROR,
-                        location=f"{location_prefix}.memory_profile",
-                        related_node_id=node.id,
-                    )
-                )
-
-        elif node.type is NodeType.RAG_RETRIEVE:
-            rag_profile = node.config.get("rag_profile")
-            if not isinstance(rag_profile, str) or not rag_profile:
-                issues.append(
-                    _issue(
-                        code="missing_required_profile",
-                        message=f"Node '{node.id}' requires config.rag_profile.",
-                        severity=IssueSeverity.ERROR,
-                        location=f"{location_prefix}.rag_profile",
-                        related_node_id=node.id,
-                    )
-                )
-            elif rag_profile not in rag_profiles:
-                issues.append(
-                    _issue(
-                        code="unknown_profile_ref",
-                        message=f"Node '{node.id}' references unknown rag_profile '{rag_profile}'.",
-                        severity=IssueSeverity.ERROR,
-                        location=f"{location_prefix}.rag_profile",
-                        related_node_id=node.id,
-                    )
-                )
-
-        elif node.type in {NodeType.TOOL_INVOKE, NodeType.FILE_READ, NodeType.FILE_WRITE}:
+        elif node.type in {NodeType.API, NodeType.MCP}:
             tool_profile = node.config.get("tool_profile")
             if tool_profile is None:
                 issues.append(

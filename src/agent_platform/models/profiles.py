@@ -14,16 +14,27 @@ class ContractType(str, Enum):
 
 
 class NodeType(str, Enum):
-    LLM_GENERATE = "llm_generate"
-    LLM_REVIEW = "llm_review"
-    DETERMINISTIC_TRANSFORM = "deterministic_transform"
+    LLM = "llm"
     HUMAN_GATE = "human_gate"
-    MEMORY_READ = "memory_read"
-    MEMORY_WRITE = "memory_write"
-    RAG_RETRIEVE = "rag_retrieve"
-    TOOL_INVOKE = "tool_invoke"
-    FILE_READ = "file_read"
-    FILE_WRITE = "file_write"
+    API = "api"
+    MCP = "mcp"
+
+    @classmethod
+    def _missing_(cls, value: object) -> "NodeType" | None:
+        legacy = {
+            "llm_generate": cls.LLM,
+            "llm_review": cls.LLM,
+            "memory_read": cls.LLM,
+            "memory_write": cls.LLM,
+            "rag_retrieve": cls.LLM,
+            "deterministic_transform": cls.LLM,
+            "tool_invoke": cls.API,
+            "file_read": cls.API,
+            "file_write": cls.API,
+        }
+        if isinstance(value, str):
+            return legacy.get(value.strip().lower())
+        return None
 
 
 class NodeStatus(str, Enum):

@@ -4,11 +4,13 @@ from typing import Any
 
 import yaml
 
+from agent_platform.integrations import RAGDatasetService, RAGNodeBindingService
 from agent_platform.workflow_definitions import (
     DefinitionValidationService,
     WorkflowDefinitionDocument,
     WorkflowDefinitionService,
 )
+from agent_platform.workflow_definitions.node_type_migration import normalize_workflow_node_types
 
 from .definition_view_models import (
     EdgeConnectionNodeView,
@@ -17,6 +19,7 @@ from .definition_view_models import (
     GraphEditorView,
     InputDefinitionCandidateView,
     NodeEditorView,
+    RAGDatasetOptionView,
     NodeSummaryView,
     WorkflowDefinitionSummaryView,
 )
@@ -27,9 +30,13 @@ class DefinitionReadModelService:
         self,
         definition_service: WorkflowDefinitionService,
         validation_service: DefinitionValidationService,
+        rag_dataset_service: RAGDatasetService | None = None,
+        rag_node_binding_service: RAGNodeBindingService | None = None,
     ) -> None:
         self._definition_service = definition_service
         self._validation_service = validation_service
+        self._rag_dataset_service = rag_dataset_service
+        self._rag_node_binding_service = rag_node_binding_service
 
     def build_definition_summaries(self, *, include_archived: bool = False) -> list[WorkflowDefinitionSummaryView]:
         items = self._definition_service.list_definitions(include_archived=include_archived)
@@ -82,7 +89,12 @@ class DefinitionReadModelService:
             )
             for item in validation.edge_summaries
         ]
-        selected_editor = self._build_node_editor(document.yaml_text, selected_node_id, edge_summaries)
+        selected_editor = self._build_node_editor(
+            document.yaml_text,
+            workflow_id=validation.workflow_id or document.workflow_id,
+            selected_node_id=selected_node_id,
+            edge_summaries=edge_summaries,
+        )
         return GraphEditorView(
             workflow_id=validation.workflow_id or document.workflow_id,
             workflow_name=validation.workflow_name or document.workflow_name,
@@ -95,6 +107,7 @@ class DefinitionReadModelService:
             mermaid_text=validation.mermaid_text or 'graph TD\n',
             node_summaries=node_summaries,
             edge_summaries=edge_summaries,
+            rag_dataset_options=self._build_rag_dataset_options(),
             selected_node_editor=selected_editor,
             edge_editor=EdgeEditorView(),
             validation_status='valid' if validation.is_valid else 'invalid',
@@ -133,6 +146,8 @@ class DefinitionReadModelService:
     def _build_node_editor(
         self,
         yaml_text: str,
+        *,
+        workflow_id: str,
         selected_node_id: str | None,
         edge_summaries: list[EdgeSummaryView],
     ) -> NodeEditorView | None:
@@ -141,13 +156,14 @@ class DefinitionReadModelService:
         parsed = yaml.safe_load(yaml_text) or {}
         if not isinstance(parsed, dict):
             return None
+        parsed, _ = normalize_workflow_node_types(parsed)
         node_data = _find_node_payload(parsed, selected_node_id)
         if node_data is None:
             return None
         input_definition_candidates = _collect_input_definition_candidates(parsed, selected_node_id)
         config = node_data.get('config') if isinstance(node_data.get('config'), dict) else {}
         node_type = str(node_data.get('type') or node_data.get('node_type') or '')
-        is_llm_node = node_type in {'llm_generate', 'llm_review'}
+        is_llm_node = node_type == 'llm'
         basic_keys = {'id', 'node_id', 'name', 'display_name', 'type', 'node_type', 'group'}
         advanced = {k: v for k, v in node_data.items() if k not in basic_keys}
         incoming = [edge for edge in edge_summaries if edge.to_node_id == selected_node_id]
@@ -158,6 +174,12 @@ class DefinitionReadModelService:
             for item in edge_connection_candidates
             if any(edge.to_node_id == item.node_id for edge in outgoing)
         ]
+        rag_dataset_options = self._build_rag_dataset_options()
+        selected_rag_dataset_id = self._resolve_selected_rag_dataset_id(
+            workflow_id=workflow_id,
+            node_id=selected_node_id,
+            config=config,
+        )
         return NodeEditorView(
             node_id=selected_node_id,
             node_name=str(node_data.get('name') or node_data.get('display_name') or selected_node_id),
@@ -170,11 +192,47 @@ class DefinitionReadModelService:
             input_definition_candidates=input_definition_candidates,
             edge_connection_candidates=edge_connection_candidates,
             selected_outgoing_connections=selected_outgoing_connections,
+            rag_dataset_options=rag_dataset_options,
+            selected_rag_dataset_id=selected_rag_dataset_id,
             advanced_yaml_fragment=yaml.safe_dump(advanced, allow_unicode=True, sort_keys=False).strip() if advanced else '',
             incoming_edges=incoming,
             outgoing_edges=outgoing,
             deletable=not bool(incoming or outgoing),
         )
+
+    def _build_rag_dataset_options(self) -> list[RAGDatasetOptionView]:
+        if self._rag_dataset_service is None:
+            return []
+        options: list[RAGDatasetOptionView] = []
+        for item in self._rag_dataset_service.list_datasets():
+            options.append(
+                RAGDatasetOptionView(
+                    dataset_id=item.dataset_id,
+                    name=item.name,
+                    source_filename=item.source_filename,
+                    source_type=item.source_type,
+                    chunk_count=item.chunk_count,
+                )
+            )
+        return options
+
+    def _resolve_selected_rag_dataset_id(
+        self,
+        *,
+        workflow_id: str,
+        node_id: str,
+        config: dict[str, Any],
+    ) -> str | None:
+        if self._rag_node_binding_service is not None:
+            bound = self._rag_node_binding_service.get_dataset_id(workflow_id=workflow_id, node_id=node_id)
+            if bound:
+                return bound
+        rag = config.get('rag')
+        if isinstance(rag, dict):
+            profile = rag.get('profile')
+            if isinstance(profile, str) and profile.strip():
+                return profile.strip()
+        return None
 
 
 def _find_node_payload(parsed: dict[str, Any], node_id: str) -> dict[str, Any] | None:

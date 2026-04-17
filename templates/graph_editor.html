@@ -28,7 +28,7 @@
     </div>
 
     {% if editor.selected_tab == 'nodes' %}
-    {% set node_type_options = ['llm_generate', 'llm_review', 'deterministic_transform', 'human_gate', 'memory_read', 'memory_write', 'rag_retrieve', 'tool_invoke'] %}
+    {% set node_type_options = ['llm', 'human_gate', 'api', 'mcp'] %}
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body">
         <h2 class="h5">Node Selector</h2>
@@ -76,7 +76,7 @@
             <input class="form-control form-control-sm" type="text" name="group">
           </div>
           <div class="col-12">
-            <label class="form-label">llm_prompt (llm_generate/llm_review)</label>
+            <label class="form-label">llm_prompt (llm)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_prompt"></textarea>
           </div>
           <div class="col-12">
@@ -86,6 +86,22 @@
           <div class="col-12">
             <label class="form-label">llm_output_format</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_output_format"></textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">rag_dataset (optional)</label>
+            <div class="rag-dataset-picker" data-single="true">
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm rag-dataset-candidate">
+                  <option value="">-- not selected --</option>
+                  {% for dataset in editor.rag_dataset_options %}
+                  <option value="{{ dataset.dataset_id }}">{{ dataset.name }} ({{ dataset.dataset_id }})</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-primary btn-sm rag-dataset-add">Add</button>
+              </div>
+              <div class="d-flex flex-wrap gap-2 mt-2 rag-dataset-chip-list"></div>
+              <div class="rag-dataset-hidden-inputs"></div>
+            </div>
           </div>
           <div class="col-12">
             <label class="form-label">advanced_yaml_fragment</label>
@@ -156,6 +172,22 @@
           <div class="col-12">
             <label class="form-label">llm_output_format</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_output_format">{{ editor.selected_node_editor.llm_output_format }}</textarea>
+          </div>
+          <div class="col-12">
+            <label class="form-label">rag_dataset (optional)</label>
+            <div class="rag-dataset-picker" data-single="true">
+              <div class="d-flex gap-2">
+                <select class="form-select form-select-sm rag-dataset-candidate">
+                  <option value="" {% if not editor.selected_node_editor.selected_rag_dataset_id %}selected{% endif %}>-- not selected --</option>
+                  {% for dataset in editor.selected_node_editor.rag_dataset_options %}
+                  <option value="{{ dataset.dataset_id }}" {% if editor.selected_node_editor.selected_rag_dataset_id == dataset.dataset_id %}selected{% endif %}>{{ dataset.name }} ({{ dataset.dataset_id }})</option>
+                  {% endfor %}
+                </select>
+                <button type="button" class="btn btn-outline-primary btn-sm rag-dataset-add">Add</button>
+              </div>
+              <div class="d-flex flex-wrap gap-2 mt-2 rag-dataset-chip-list"></div>
+              <div class="rag-dataset-hidden-inputs"></div>
+            </div>
           </div>
           {% endif %}
           <div class="col-12">
@@ -307,6 +339,96 @@
   const addEdgeConnectionChipButton = document.getElementById('add-edge-connection-chip');
   const edgeConnectionChipList = document.getElementById('edge-connection-chip-list');
   const edgeConnectionHiddenInputs = document.getElementById('edge-connection-hidden-inputs');
+
+  document.querySelectorAll('.rag-dataset-picker').forEach((picker) => {
+    const candidateSelect = picker.querySelector('.rag-dataset-candidate');
+    const addButton = picker.querySelector('.rag-dataset-add');
+    const chipList = picker.querySelector('.rag-dataset-chip-list');
+    const hiddenInputs = picker.querySelector('.rag-dataset-hidden-inputs');
+    if (!(candidateSelect instanceof HTMLSelectElement) || !(addButton instanceof HTMLButtonElement) || !(chipList instanceof HTMLElement) || !(hiddenInputs instanceof HTMLElement)) {
+      return;
+    }
+
+    const isSingle = picker.dataset.single !== 'false';
+
+    const clearAll = () => {
+      chipList.innerHTML = '';
+      hiddenInputs.innerHTML = '';
+    };
+
+    const createChip = (datasetId, labelText) => {
+      const chip = document.createElement('span');
+      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 rag-dataset-chip';
+      chip.dataset.datasetId = datasetId;
+
+      const label = document.createElement('span');
+      label.textContent = labelText;
+      chip.appendChild(label);
+
+      const removeButton = document.createElement('button');
+      removeButton.type = 'button';
+      removeButton.className = 'btn-close btn-close-sm rag-dataset-remove';
+      removeButton.setAttribute('aria-label', 'Remove');
+      chip.appendChild(removeButton);
+      return chip;
+    };
+
+    const addSelection = (datasetId, labelText) => {
+      if (!datasetId) {
+        return;
+      }
+      if (isSingle) {
+        clearAll();
+      } else {
+        const exists = hiddenInputs.querySelector(`input[data-dataset-id="${CSS.escape(datasetId)}"]`);
+        if (exists) {
+          return;
+        }
+      }
+
+      const hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'rag_dataset_id';
+      hiddenInput.value = datasetId;
+      hiddenInput.dataset.datasetId = datasetId;
+      hiddenInputs.appendChild(hiddenInput);
+      chipList.appendChild(createChip(datasetId, labelText));
+    };
+
+    const selectedOption = candidateSelect.options[candidateSelect.selectedIndex];
+    if (selectedOption && candidateSelect.value) {
+      addSelection(candidateSelect.value, selectedOption.textContent || candidateSelect.value);
+      candidateSelect.value = '';
+    }
+
+    addButton.addEventListener('click', () => {
+      const selected = candidateSelect.options[candidateSelect.selectedIndex];
+      const datasetId = candidateSelect.value || '';
+      if (!selected || !datasetId) {
+        return;
+      }
+      addSelection(datasetId, selected.textContent || datasetId);
+      candidateSelect.value = '';
+    });
+
+    chipList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.classList.contains('rag-dataset-remove')) {
+        return;
+      }
+      const chip = target.closest('.rag-dataset-chip');
+      if (!(chip instanceof HTMLElement)) {
+        return;
+      }
+      const datasetId = chip.dataset.datasetId || '';
+      chip.remove();
+      if (!datasetId) {
+        return;
+      }
+      const hiddenInput = hiddenInputs.querySelector(`input[data-dataset-id="${CSS.escape(datasetId)}"]`);
+      hiddenInput?.remove();
+    });
+  });
 
   if (nodeSelector && nodeSelectorForm) {
     nodeSelector.addEventListener('change', () => {

@@ -52,7 +52,7 @@ def test_add_llm_node_fields_are_saved_into_config():
         {
             'node_id': 'writer',
             'node_name': 'Writer',
-            'node_type': 'llm_generate',
+            'node_type': 'llm',
             'llm_prompt': 'Write a short answer',
             'llm_input_definition': 'topic: string',
             'llm_output_format': 'json: {"answer": string}',

@@ -41,8 +41,8 @@ class WorkflowDefinitionService:
             'workflow_name': workflow_id,
             'version': '0.1.0',
             'nodes': [
-                {'id': 'start_node', 'name': 'Start Node', 'type': 'llm_generate'},
-                {'id': 'end_node', 'name': 'End Node', 'type': 'deterministic_transform'},
+                {'id': 'start_node', 'name': 'Start Node', 'type': 'llm', 'config': {'task': 'generate'}},
+                {'id': 'end_node', 'name': 'End Node', 'type': 'human_gate'},
             ],
             'edges': [{'from': 'start_node', 'to': 'end_node'}],
         }

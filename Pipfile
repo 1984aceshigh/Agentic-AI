@@ -9,10 +9,12 @@ pydantic = "*"
 pyyaml = "*"
 networkx = "*"
 langgraph = "*"
+langchain-text-splitters = "*"
 ruff = "*"
 black = "*"
 flask = "*"
 openai = "*"
+pypdf = "*"
 
 [dev-packages]
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from flask import Blueprint, render_template, request
 
-from .dependencies import get_definition_read_model_service
+from .dependencies import get_definition_read_model_service, get_rag_dataset_service
 
 
 definition_web_bp = Blueprint('definition_web_routes', __name__)
@@ -54,6 +54,12 @@ def graph_editor(workflow_id: str) -> str:
         selected_tab=selected_tab,
     )
     return render_template('graph_editor.html', editor=view)
+
+
+@definition_web_bp.get('/rag-datasets')
+def rag_datasets() -> str:
+    datasets = get_rag_dataset_service().list_datasets()
+    return render_template('rag_datasets.html', datasets=datasets)
 
 
 def _normalize_tab(value: str | None) -> str:

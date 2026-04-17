@@ -182,7 +182,7 @@ def test_build_node_detail_extracts_memory_records_and_event_history() -> None:
 
     assert detail.node_id == "step2"
     assert detail.node_name == "Memory Lookup"
-    assert detail.node_type == "memory_read"
+    assert detail.node_type == "llm"
     assert detail.status == "WAITING_HUMAN"
     assert detail.input_preview == "lookup prior notes"
     assert detail.logs == ["memory lookup pending review"]
@@ -214,7 +214,7 @@ def test_build_node_detail_extracts_rag_hits() -> None:
     detail = service.build_node_detail(graph, execution_id, "step3")
 
     assert detail.node_id == "step3"
-    assert detail.node_type == "rag_retrieve"
+    assert detail.node_type == "llm"
     assert detail.status == "FAILED"
     assert detail.error_message == "retrieval failed"
     assert detail.memory_records == []

@@ -136,22 +136,28 @@ def _validate_required_capabilities(spec: WorkflowSpec) -> list[ValidationIssue]
         profile_capabilities: set[str] | None = None
         profile_location: str | None = None
 
-        if node.type in {NodeType.LLM_GENERATE, NodeType.LLM_REVIEW}:
+        if node.type is NodeType.LLM:
             profile_name = _as_optional_str(node.config.get("llm_profile"))
             if profile_name and profile_name in spec.integrations.llm_profiles:
                 profile_capabilities = set(spec.integrations.llm_profiles[profile_name].capabilities)
                 profile_location = f"integrations.llm_profiles.{profile_name}"
-        elif node.type in {NodeType.MEMORY_READ, NodeType.MEMORY_WRITE}:
-            profile_name = _as_optional_str(node.config.get("memory_profile"))
-            if profile_name and profile_name in spec.integrations.memory_profiles:
-                profile_capabilities = set(spec.integrations.memory_profiles[profile_name].capabilities)
-                profile_location = f"integrations.memory_profiles.{profile_name}"
-        elif node.type is NodeType.RAG_RETRIEVE:
-            profile_name = _as_optional_str(node.config.get("rag_profile"))
-            if profile_name and profile_name in spec.integrations.rag_profiles:
-                profile_capabilities = set(spec.integrations.rag_profiles[profile_name].capabilities)
-                profile_location = f"integrations.rag_profiles.{profile_name}"
-        elif node.type in {NodeType.TOOL_INVOKE, NodeType.FILE_READ, NodeType.FILE_WRITE}:
+            memory = node.config.get("memory")
+            if isinstance(memory, dict):
+                for key in ("read", "write"):
+                    cfg = memory.get(key)
+                    if not isinstance(cfg, dict):
+                        continue
+                    memory_profile = _as_optional_str(cfg.get("profile"))
+                    if memory_profile and memory_profile in spec.integrations.memory_profiles:
+                        profile_capabilities = set(spec.integrations.memory_profiles[memory_profile].capabilities)
+                        profile_location = f"integrations.memory_profiles.{memory_profile}"
+            rag = node.config.get("rag")
+            if isinstance(rag, dict):
+                rag_profile = _as_optional_str(rag.get("profile"))
+                if rag_profile and rag_profile in spec.integrations.rag_profiles:
+                    profile_capabilities = set(spec.integrations.rag_profiles[rag_profile].capabilities)
+                    profile_location = f"integrations.rag_profiles.{rag_profile}"
+        elif node.type in {NodeType.API, NodeType.MCP}:
             profile_name = _as_optional_str(node.config.get("tool_profile"))
             if profile_name and profile_name in spec.integrations.tool_profiles:
                 profile_capabilities = set(spec.integrations.tool_profiles[profile_name].capabilities)

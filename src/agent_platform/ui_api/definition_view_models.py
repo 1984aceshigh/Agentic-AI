@@ -45,6 +45,14 @@ class EdgeConnectionNodeView(_BaseViewModel):
     node_type: str
 
 
+class RAGDatasetOptionView(_BaseViewModel):
+    dataset_id: str
+    name: str
+    source_filename: str
+    source_type: str
+    chunk_count: int
+
+
 class NodeEditorView(_BaseViewModel):
     node_id: str = ''
     node_name: str = ''
@@ -57,6 +65,8 @@ class NodeEditorView(_BaseViewModel):
     input_definition_candidates: list[InputDefinitionCandidateView] = Field(default_factory=list)
     edge_connection_candidates: list[EdgeConnectionNodeView] = Field(default_factory=list)
     selected_outgoing_connections: list[EdgeConnectionNodeView] = Field(default_factory=list)
+    rag_dataset_options: list[RAGDatasetOptionView] = Field(default_factory=list)
+    selected_rag_dataset_id: str | None = None
     advanced_yaml_fragment: str = ''
     incoming_edges: list[EdgeSummaryView] = Field(default_factory=list)
     outgoing_edges: list[EdgeSummaryView] = Field(default_factory=list)
@@ -82,6 +92,7 @@ class GraphEditorView(_BaseViewModel):
     mermaid_text: str = 'graph TD\n'
     node_summaries: list[NodeSummaryView] = Field(default_factory=list)
     edge_summaries: list[EdgeSummaryView] = Field(default_factory=list)
+    rag_dataset_options: list[RAGDatasetOptionView] = Field(default_factory=list)
     selected_node_editor: NodeEditorView | None = None
     edge_editor: EdgeEditorView = Field(default_factory=EdgeEditorView)
     validation_status: str = 'valid'

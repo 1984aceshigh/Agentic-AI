@@ -109,5 +109,4 @@ edges:
     assert result.mermaid_text is not None
     assert "flowchart TD" in result.mermaid_text
     assert 'subgraph group_1["review"]' in result.mermaid_text
-    assert "(llm_generate)" in result.mermaid_text
-    assert "(llm_review)" in result.mermaid_text
+    assert "(llm)" in result.mermaid_text

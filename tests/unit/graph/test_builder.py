@@ -105,7 +105,7 @@ def test_build_graph_node_reflects_group_and_copies_config() -> None:
 
     assert graph_node == GraphNode(
         id="step1",
-        type="llm_generate",
+        type="llm",
         name="Step 1",
         description=None,
         config={"llm_profile": "default_llm", "temperature": 0.2},
@@ -138,7 +138,7 @@ def test_dump_graph_model_returns_json_friendly_dict() -> None:
         "nodes": {
             "step1": {
                 "id": "step1",
-                "type": "llm_generate",
+                    "type": "llm",
                 "name": "Step 1",
                 "description": None,
                 "group": None,

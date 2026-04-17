@@ -15,7 +15,7 @@ from agent_platform.models import GraphEdge, GraphModel, GraphNode
 def make_graph_node(
     node_id: str,
     *,
-    node_type: str = "llm_generate",
+    node_type: str = "llm",
     name: str = "Step",
     group: str | None = None,
 ) -> GraphNode:
@@ -45,7 +45,7 @@ def test_build_mermaid_from_minimal_graph_model() -> None:
     mermaid = build_mermaid(graph)
 
     assert isinstance(mermaid, str)
-    assert 'step1["Step 1\\n(llm_generate)"]' in mermaid
+    assert 'step1["Step 1\\n(llm)"]' in mermaid
     assert "step1 --> step2" in mermaid
 
 
@@ -69,7 +69,7 @@ def test_build_mermaid_node_line_returns_expected_format() -> None:
 
     line = build_mermaid_node_line(node)
 
-    assert line == 'step1["Task Understanding\\n(llm_generate)"]'
+    assert line == 'step1["Task Understanding\\n(llm)"]'
 
 
 
@@ -85,7 +85,7 @@ def test_build_mermaid_edge_line_returns_expected_format() -> None:
 def test_group_less_nodes_are_rendered_at_top_level() -> None:
     mermaid = build_mermaid(make_graph_model())
 
-    assert "    step1[\"Step 1\\n(llm_generate)\"]" in mermaid
+    assert "    step1[\"Step 1\\n(llm)\"]" in mermaid
     assert "subgraph" not in mermaid
 
 
@@ -100,7 +100,7 @@ def test_nodes_in_same_group_are_wrapped_in_subgraph() -> None:
     mermaid = build_mermaid(graph)
 
     assert '    subgraph group_1["review"]' in mermaid
-    assert "        step1[\"Step 1\\n(llm_generate)\"]" in mermaid
+    assert "        step1[\"Step 1\\n(llm)\"]" in mermaid
     assert "        step2[\"Step 2\\n(human_gate)\"]" in mermaid
     assert "    end" in mermaid
 
@@ -113,10 +113,10 @@ def test_grouped_and_ungrouped_nodes_can_coexist() -> None:
 
     mermaid = build_mermaid(graph)
 
-    assert "    step1[\"Step 1\\n(llm_generate)\"]" in mermaid
+    assert "    step1[\"Step 1\\n(llm)\"]" in mermaid
     assert "    step2[\"Step 2\\n(human_gate)\"]" in mermaid
     assert '    subgraph group_1["review"]' in mermaid
-    assert "        step3[\"Step 3\\n(llm_generate)\"]" in mermaid
+    assert "        step3[\"Step 3\\n(llm)\"]" in mermaid
 
 
 
@@ -138,10 +138,10 @@ def test_node_output_order_is_deterministic() -> None:
     mermaid = build_mermaid(graph)
     lines = mermaid.splitlines()
 
-    assert lines[1] == '    a["A\\n(llm_generate)"]'
-    assert lines[2] == '    c["C\\n(llm_generate)"]'
+    assert lines[1] == '    a["A\\n(llm)"]'
+    assert lines[2] == '    c["C\\n(llm)"]'
     assert lines[3] == '    subgraph group_1["g1"]'
-    assert lines[4] == '        b["B\\n(llm_generate)"]'
+    assert lines[4] == '        b["B\\n(llm)"]'
 
 
 
@@ -204,7 +204,7 @@ def test_build_mermaid_raises_when_direction_is_empty() -> None:
 
 
 def test_build_mermaid_node_line_raises_when_node_id_is_empty() -> None:
-    node = GraphNode.model_construct(id="", type="llm_generate", name="Broken")
+    node = GraphNode.model_construct(id="", type="llm", name="Broken")
 
     with pytest.raises(MermaidBuildError, match="node.id"):
         build_mermaid_node_line(node)

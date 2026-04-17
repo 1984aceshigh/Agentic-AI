@@ -5,17 +5,19 @@ from types import SimpleNamespace
 from typing import Any
 
 from agent_platform.executors import (
-    DeterministicTransformExecutor,
+    APIExecutor,
     ExecutorRegistry,
     HumanGateExecutor,
-    LLMGenerateExecutor,
-    LLMReviewExecutor,
-    MemoryReadExecutor,
-    MemoryWriteExecutor,
-    RAGRetrieveExecutor,
+    LLMExecutor,
+    MCPExecutor,
 )
 from agent_platform.graph import compile_langgraph
-from agent_platform.integrations import DummyEchoLLMAdapter, OpenAIChatCompletionAdapter
+from agent_platform.integrations import (
+    DummyEchoLLMAdapter,
+    OpenAIChatCompletionAdapter,
+    RAGDatasetService,
+    RAGNodeBindingService,
+)
 from agent_platform.runtime.events import (
     NODE_STATUS_FAILED,
     NODE_STATUS_RUNNING,
@@ -44,6 +46,8 @@ class WorkflowExecutionService:
         openai_api_key: str | None = None,
         openai_model: str | None = None,
         llm_default_provider: str | None = None,
+        rag_dataset_service: RAGDatasetService | None = None,
+        rag_node_binding_service: RAGNodeBindingService | None = None,
     ) -> None:
         self._context_manager = context_manager
         self._records_manager = records_manager
@@ -52,6 +56,8 @@ class WorkflowExecutionService:
         self._openai_api_key = openai_api_key
         self._openai_model = openai_model
         self._llm_default_provider = llm_default_provider
+        self._rag_dataset_service = rag_dataset_service
+        self._rag_node_binding_service = rag_node_binding_service
         self._registry = executor_registry or self._build_default_registry()
         self._rerun_service = rerun_service or RerunService(context_manager, records_manager)
 
@@ -115,6 +121,8 @@ class WorkflowExecutionService:
                 config=dict(getattr(graph_node, "config", {}) or {}),
                 input=dict(getattr(graph_node, "input", {}) or {}),
             )
+            workflow_id = str(state.get("workflow_id") or getattr(context, "workflow_id", "") or "")
+            self._apply_rag_binding_to_node_config(workflow_id=workflow_id, node=node_obj)
 
             self._records_manager.start_node_record(execution_id, node_id, node_type)
             self._context_manager.update_node_state(execution_id, node_id, "RUNNING")
@@ -175,6 +183,23 @@ class WorkflowExecutionService:
             return updated
 
         return _fn
+
+    def _apply_rag_binding_to_node_config(self, *, workflow_id: str, node: Any) -> None:
+        if self._rag_node_binding_service is None:
+            return
+        node_id = str(getattr(node, "id", "") or "")
+        if not node_id:
+            return
+        dataset_id = self._rag_node_binding_service.get_dataset_id(workflow_id=workflow_id, node_id=node_id)
+        if not dataset_id:
+            return
+        config = getattr(node, "config", {})
+        if not isinstance(config, dict):
+            return
+        rag = config.get("rag") if isinstance(config.get("rag"), dict) else {}
+        rag["profile"] = dataset_id
+        rag.setdefault("top_k", 5)
+        config["rag"] = rag
 
     def _finalize_workflow_status(self, execution_id: str) -> None:
         context = self._context_manager.get_context(execution_id)
@@ -238,28 +263,21 @@ class WorkflowExecutionService:
 
         registry = ExecutorRegistry()
         registry.register(
-            "llm_generate",
-            LLMGenerateExecutor(
+            "llm",
+            LLMExecutor(
                 adapters_by_provider={
                     "openai": openai_adapter,
                     "dummy": dummy_adapter,
                 },
                 default_adapter=default_adapter,
-            ),
-        )
-        registry.register(
-            "llm_review",
-            LLMReviewExecutor(
-                adapters_by_provider={
-                    "openai": openai_adapter,
-                    "dummy": dummy_adapter,
-                },
-                default_adapter=default_adapter,
+                retrievers_by_profile_name=(
+                    self._rag_dataset_service.retrievers_by_dataset_id
+                    if self._rag_dataset_service is not None
+                    else None
+                ),
             ),
         )
         registry.register("human_gate", HumanGateExecutor())
-        registry.register("deterministic_transform", DeterministicTransformExecutor())
-        registry.register("memory_read", MemoryReadExecutor())
-        registry.register("memory_write", MemoryWriteExecutor())
-        registry.register("rag_retrieve", RAGRetrieveExecutor())
+        registry.register("api", APIExecutor())
+        registry.register("mcp", MCPExecutor())
         return registry

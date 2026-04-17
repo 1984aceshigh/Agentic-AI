@@ -17,6 +17,11 @@ from agent_platform.integrations.llm_adapters import (
     LLMCompletionResponse,
     OpenAIChatCompletionAdapter,
 )
+from agent_platform.integrations.rag_dataset_service import (
+    RAGDatasetService,
+    RAGDatasetSummary,
+    RAGNodeBindingService,
+)
 
 __all__ = [
     "ProfileResolver",
@@ -32,4 +37,7 @@ __all__ = [
     "LLMCompletionResponse",
     "DummyEchoLLMAdapter",
     "OpenAIChatCompletionAdapter",
+    "RAGDatasetService",
+    "RAGDatasetSummary",
+    "RAGNodeBindingService",
 ]

@@ -184,7 +184,7 @@ def test_unknown_llm_profile_returns_error() -> None:
     assert any(issue.code == "unknown_profile_ref" for issue in issues)
 
 
-def test_missing_transform_type_returns_error() -> None:
+def test_legacy_deterministic_transform_is_normalized_to_llm_and_requires_llm_profile() -> None:
     data = make_valid_workflow_dict()
     data["nodes"][0] = {
         "id": "step1",
@@ -197,10 +197,10 @@ def test_missing_transform_type_returns_error() -> None:
 
     issues = validate_workflow_spec(spec)
 
-    assert any(issue.code == "missing_transform_type" for issue in issues)
+    assert any(issue.code == "missing_required_profile" for issue in issues)
 
 
-def test_unsupported_transform_type_returns_warning() -> None:
+def test_legacy_deterministic_transform_with_custom_type_still_requires_llm_profile() -> None:
     data = make_valid_workflow_dict()
     data["nodes"][0] = {
         "id": "step1",
@@ -213,7 +213,7 @@ def test_unsupported_transform_type_returns_warning() -> None:
 
     issues = validate_workflow_spec(spec)
 
-    assert any(issue.code == "unsupported_transform_type" for issue in issues)
+    assert any(issue.code == "missing_required_profile" for issue in issues)
 
 
 def test_invalid_gate_type_returns_error() -> None:

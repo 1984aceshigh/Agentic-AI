@@ -8,6 +8,8 @@ from agent_platform.executors.base import BaseNodeExecutor, ExecutorResult
 class HumanGateExecutor(BaseNodeExecutor):
     """Placeholder executor for human_gate nodes."""
 
+    node_type = "human_gate"
+
     def execute(self, context: Any, node: Any) -> ExecutorResult:
         try:
             prepared = self.prepare_input(context=context, node=node)

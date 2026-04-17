@@ -16,8 +16,8 @@ def make_linear_graph_model() -> GraphModel:
         end_nodes=["step2"],
         direction="TD",
         nodes={
-            "step1": GraphNode(id="step1", type="llm_generate", name="Step 1"),
-            "step2": GraphNode(id="step2", type="llm_review", name="Step 2"),
+            "step1": GraphNode(id="step1", type="llm", name="Step 1"),
+            "step2": GraphNode(id="step2", type="llm", name="Step 2"),
         },
         edges=[GraphEdge(from_node="step1", to_node="step2")],
     )
@@ -31,8 +31,8 @@ def make_branching_graph_model() -> GraphModel:
         end_nodes=["step3"],
         direction="TD",
         nodes={
-            "step1": GraphNode(id="step1", type="llm_generate", name="Step 1"),
-            "step2": GraphNode(id="step2", type="llm_review", name="Step 2"),
+            "step1": GraphNode(id="step1", type="llm", name="Step 1"),
+            "step2": GraphNode(id="step2", type="llm", name="Step 2"),
             "step3": GraphNode(id="step3", type="human_gate", name="Step 3"),
         },
         edges=[
@@ -70,7 +70,7 @@ def test_invoke_runs_two_node_linear_graph_end_to_end() -> None:
     assert result["node_states"] == {"step1": "SUCCEEDED", "step2": "SUCCEEDED"}
     assert set(result["node_outputs"].keys()) == {"step1", "step2"}
     assert result["node_outputs"]["step1"]["result"] == "dummy output from step1"
-    assert result["node_outputs"]["step2"]["node_type"] == "llm_review"
+    assert result["node_outputs"]["step2"]["node_type"] == "llm"
     assert result["logs"] == ["executed:step1", "executed:step2"]
 
 

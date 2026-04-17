@@ -15,20 +15,22 @@ def _build_graph() -> GraphModel:
         nodes={
             "generate": GraphNode(
                 id="generate",
-                type="llm_generate",
+                type="llm",
                 name="Generate",
                 config={
                     "prompt": "Write report",
+                    "task": "generate",
                     "input_definition": "topic: string",
                     "output_format": "text",
                 },
             ),
             "review": GraphNode(
                 id="review",
-                type="llm_review",
+                type="llm",
                 name="Review",
                 config={
                     "prompt": "Review draft",
+                    "task": "review",
                     "input_definition": "ref: generate.result",
                     "output_format": "text",
                 },
@@ -60,9 +62,9 @@ def test_execution_service_run_workflow_updates_runtime_state() -> None:
     assert context.node_states["review"] == "SUCCEEDED"
     assert isinstance(context.node_outputs["generate"]["result"], str)
     assert "Write report" in context.node_outputs["generate"]["result"]
-    assert "Input definition:" in context.node_outputs["generate"]["result"]
+    assert "Input definition:\ntopic: string" in context.node_outputs["generate"]["result"]
     assert "Review draft" in context.node_outputs["review"]["review"]
-    assert context.node_outputs["generate"]["result"] in context.node_outputs["review"]["review"]
+    assert "Write report" in context.node_outputs["review"]["review"]
     assert "Resolved inputs:" in context.node_outputs["review"]["review"]
 
     workflow_record = records_manager.get_workflow_record(execution_id)
@@ -71,6 +73,7 @@ def test_execution_service_run_workflow_updates_runtime_state() -> None:
     review_record = records_manager.get_node_record(execution_id, "review")
     assert isinstance(generate_record.input_preview, str)
     assert "Write report" in generate_record.input_preview
+    assert "Input definition:\ntopic: string" in generate_record.input_preview
     assert isinstance(review_record.input_preview, str)
     assert "Review draft" in review_record.input_preview
     assert isinstance(generate_record.output_preview, str)

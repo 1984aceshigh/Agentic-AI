@@ -4,6 +4,7 @@ from pathlib import Path
 
 from agent_platform.graph.builder import build_graph_model
 from agent_platform.graph.mermaid import build_mermaid
+from agent_platform.integrations import RAGDatasetService, RAGNodeBindingService
 from agent_platform.models import GraphEdge, GraphModel, GraphNode, IssueSeverity
 from agent_platform.runtime.context_manager import ExecutionContextManager
 from agent_platform.runtime.app_config import load_runtime_llm_config
@@ -27,9 +28,15 @@ def make_graph_model() -> GraphModel:
         end_nodes=["step3"],
         direction="TD",
         nodes={
-            "step1": GraphNode(id="step1", type="llm_generate", name="Draft", group="analysis"),
+            "step1": GraphNode(id="step1", type="llm", name="Draft", group="analysis", config={"task": "generate"}),
             "step2": GraphNode(id="step2", type="human_gate", name="Human Review", group="review"),
-            "step3": GraphNode(id="step3", type="rag_retrieve", name="Knowledge Lookup", group="review"),
+            "step3": GraphNode(
+                id="step3",
+                type="llm",
+                name="Knowledge Lookup",
+                group="review",
+                config={"task": "generate", "rag": {"profile": "default_rag", "query": "{{ input.question }}", "top_k": 5}},
+            ),
         },
         edges=[
             GraphEdge(from_node="step1", to_node="step2"),
@@ -124,6 +131,14 @@ def build_app():
 
     context_manager = ExecutionContextManager()
     records_manager = ExecutionRecordsManager()
+    rag_dataset_service = RAGDatasetService(
+        catalog_path=project_root / "data" / "rag" / "datasets.json",
+        datasets_dir=project_root / "data" / "rag" / "datasets",
+        uploads_dir=project_root / "data" / "rag" / "uploads",
+    )
+    rag_node_binding_service = RAGNodeBindingService(
+        bindings_path=project_root / "data" / "rag" / "node_bindings.json",
+    )
     read_model_service = ReadModelService(
         context_manager=context_manager,
         records_manager=records_manager,
@@ -140,6 +155,8 @@ def build_app():
         openai_api_key=runtime_llm_config.openai_api_key,
         openai_model=runtime_llm_config.openai_model,
         llm_default_provider=runtime_llm_config.provider,
+        rag_dataset_service=rag_dataset_service,
+        rag_node_binding_service=rag_node_binding_service,
     )
     human_gate_service = UIHumanGateServiceAdapter(human_gate_core)
     rerun_service = UIRerunServiceAdapter(execution_service, records_manager)
@@ -151,6 +168,8 @@ def build_app():
         execution_service=execution_service,
         workflow_graphs=workflow_graphs,
         latest_execution_ids=latest_execution_ids,
+        rag_dataset_service=rag_dataset_service,
+        rag_node_binding_service=rag_node_binding_service,
     )
     return app
 

@@ -37,14 +37,8 @@ def test_contract_type_enum_values_match_expected_spec() -> None:
 
 def test_node_type_enum_values_match_expected_spec() -> None:
     assert [item.value for item in NodeType] == [
-        "llm_generate",
-        "llm_review",
-        "deterministic_transform",
+        "llm",
         "human_gate",
-        "memory_read",
-        "memory_write",
-        "rag_retrieve",
-        "tool_invoke",
-        "file_read",
-        "file_write",
+        "api",
+        "mcp",
     ]

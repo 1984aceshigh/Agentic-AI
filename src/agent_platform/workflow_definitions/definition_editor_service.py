@@ -187,7 +187,7 @@ class DefinitionEditorService:
 
     def _is_llm_node_type(self, node_type: str) -> bool:
         lowered = str(node_type).strip().lower()
-        return lowered in {'llm_generate', 'llm_review'}
+        return lowered == 'llm'
 
     def _apply_optional_config_text(self, config: dict[str, Any], key: str, raw_value: Any) -> None:
         if raw_value is None:
