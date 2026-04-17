@@ -1,0 +1,39 @@
+workflow_id: new_workflow_copy
+workflow_name: new_workflow
+version: 0.1.0
+nodes:
+- config:
+    prompt: 中国の故事成語を1つ出力してください。
+    task: generate
+    output_format: 故事成語以外のテキストは出力厳禁
+  id: start_node
+  name: Start Node
+  type: llm
+  group: A
+- config:
+    prompt: 指定の故事成語について、歴史や意味を解説してください。
+    task: generate
+    input_definition: '[参照ノード: start_node.result]'
+  id: first_node
+  name: First Node
+  type: llm
+  group: A
+- config:
+    prompt: 「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて
+    task: generate
+    output_format: 故事成語以外のテキストは不要
+  id: second_node
+  name: Second Node
+  type: llm
+- config:
+    prompt: 「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて
+  id: node_04
+  name: node_04
+  type: llm
+edges:
+- from: start_node
+  to: first_node
+- from: start_node
+  to: second_node
+- from: start_node
+  to: node_04

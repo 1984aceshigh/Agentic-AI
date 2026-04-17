@@ -229,6 +229,14 @@ def upload_rag_dataset():
     return redirect('/rag-datasets')
 
 
+@definition_action_bp.post('/rag-datasets/<dataset_id>/delete')
+def delete_rag_dataset(dataset_id: str):
+    deleted = get_rag_dataset_service().delete_dataset(dataset_id=dataset_id)
+    if request.is_json:
+        return jsonify({'status': 'ok', 'deleted': bool(deleted), 'dataset_id': dataset_id})
+    return redirect('/rag-datasets')
+
+
 @definition_action_bp.post('/<workflow_id>/graph/add-edge')
 def add_edge(workflow_id: str):
     payload = _get_payload()

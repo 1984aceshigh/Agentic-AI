@@ -44,3 +44,21 @@ def test_ingest_unsupported_file_type_raises(tmp_path: Path) -> None:
         assert "Unsupported file type" in str(exc)
     else:
         raise AssertionError("Expected ValueError")
+
+
+def test_delete_dataset_removes_catalog_file_upload_and_retriever(tmp_path: Path) -> None:
+    service = _build_service(tmp_path)
+
+    summary = service.ingest_uploaded_file(
+        dataset_name="Knowledge Base",
+        source_filename="kb.txt",
+        file_bytes="line1\nline2\nline3\n".encode("utf-8"),
+    )
+
+    deleted = service.delete_dataset(dataset_id=summary.dataset_id)
+
+    assert deleted is True
+    assert summary.dataset_id not in service.retrievers_by_dataset_id
+    assert (tmp_path / "datasets" / f"{summary.dataset_id}.json").exists() is False
+    assert (tmp_path / "uploads" / summary.dataset_id).exists() is False
+    assert service.list_datasets() == []

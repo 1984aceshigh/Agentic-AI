@@ -44,6 +44,7 @@
             <th>type</th>
             <th>chunks</th>
             <th>created_at</th>
+            <th class="text-end">actions</th>
           </tr>
         </thead>
         <tbody>
@@ -55,6 +56,11 @@
             <td>{{ item.source_type }}</td>
             <td>{{ item.chunk_count }}</td>
             <td>{{ item.created_at }}</td>
+            <td class="text-end">
+              <form method="post" action="/actions/workflow-definitions/rag-datasets/{{ item.dataset_id }}/delete" onsubmit="return confirm('Delete dataset {{ item.dataset_id }}?');">
+                <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+              </form>
+            </td>
           </tr>
           {% endfor %}
         </tbody>

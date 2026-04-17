@@ -102,6 +102,38 @@ class RAGDatasetService:
         self._upsert_catalog(summary)
         return summary
 
+    def delete_dataset(self, *, dataset_id: str) -> bool:
+        target_id = str(dataset_id or "").strip()
+        if not target_id:
+            return False
+
+        items = self._load_catalog()
+        filtered = [item for item in items if str(item.get("dataset_id") or "").strip() != target_id]
+        deleted = len(filtered) != len(items)
+
+        dataset_path = self._datasets_dir / f"{target_id}.json"
+        upload_dir = self._uploads_dir / target_id
+        if dataset_path.exists():
+            dataset_path.unlink()
+            deleted = True
+        if upload_dir.exists() and upload_dir.is_dir():
+            for path in sorted(upload_dir.rglob("*"), reverse=True):
+                if path.is_file():
+                    path.unlink()
+                elif path.is_dir():
+                    path.rmdir()
+            upload_dir.rmdir()
+            deleted = True
+
+        self._retrievers_by_dataset_id.pop(target_id, None)
+
+        if deleted:
+            self._catalog_path.write_text(
+                json.dumps(filtered, ensure_ascii=False, indent=2),
+                encoding="utf-8",
+            )
+        return deleted
+
     def _extract_text(self, *, file_bytes: bytes, source_filename: str) -> str:
         ext = Path(source_filename).suffix.lower()
         if ext in {".txt", ".md", ".csv", ".json", ".yaml", ".yml", ".log"}:

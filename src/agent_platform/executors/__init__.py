@@ -11,7 +11,6 @@ from agent_platform.executors.llm_generate import LLMGenerateExecutor
 from agent_platform.executors.llm_review import LLMReviewExecutor
 from agent_platform.executors.memory_read import MemoryReadExecutor, MemoryWriteExecutor
 from agent_platform.executors.mcp import MCPExecutor
-from agent_platform.executors.rag_retrieve import RAGRetrieveExecutor
 
 __all__ = [
     "BaseNodeExecutor",
@@ -26,5 +25,4 @@ __all__ = [
     "MemoryReadExecutor",
     "MemoryWriteExecutor",
     "MCPExecutor",
-    "RAGRetrieveExecutor",
 ]

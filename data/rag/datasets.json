@@ -1,13 +1,5 @@
 [
   {
-    "dataset_id": "test_document_1",
-    "name": "Agent Platform仕様書",
-    "source_filename": "02_AIエージェント基盤 MVP要件定義書.docx",
-    "source_type": "docx",
-    "chunk_count": 24,
-    "created_at": "2026-04-17T00:31:03.142483+00:00"
-  },
-  {
     "dataset_id": "fsa",
     "name": "企画競争に関する公告",
     "source_filename": "20260226-2.pdf",
