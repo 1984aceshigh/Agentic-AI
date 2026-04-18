@@ -193,7 +193,9 @@ class DefinitionReadModelService:
             llm_input_definition=str(config.get('input_definition') or ''),
             llm_output_format=str(config.get('output_format') or ''),
             llm_assessment_options='\n'.join(_string_list(config.get('assessment_options'))),
+            llm_assessment_option_list=_string_list(config.get('assessment_options')),
             llm_assessment_routes=_dump_yaml_mapping(config.get('assessment_routes')),
+            llm_assessment_route_map=_string_list_mapping(config.get('assessment_routes')),
             llm_extract_fields='\n'.join(_string_list(config.get('extract_fields'))),
             llm_extract_output_format=_normalize_extract_output_format(config.get('extract_output_format')),
             input_definition_candidates=input_definition_candidates,
@@ -273,21 +275,15 @@ def _collect_input_definition_candidates(
 
     candidates: list[InputDefinitionCandidateView] = []
     for node in ordered_nodes[:selected_index]:
-        output_key = 'result'
-        output_payload = node.get('output')
-        if isinstance(output_payload, dict) and isinstance(output_payload.get('key'), str):
-            normalized = str(output_payload.get('key')).strip()
-            if normalized:
-                output_key = normalized
-
-        candidates.append(
-            InputDefinitionCandidateView(
-                node_id=node['node_id'],
-                node_name=node['node_name'],
-                output_key=output_key,
-                ref_expression=f"ref: {node['node_id']}.{output_key}",
+        for output_key in _candidate_output_keys(node):
+            candidates.append(
+                InputDefinitionCandidateView(
+                    node_id=node['node_id'],
+                    node_name=node['node_name'],
+                    output_key=output_key,
+                    ref_expression=f"ref: {node['node_id']}.{output_key}",
+                )
             )
-        )
     return candidates
 
 
@@ -305,6 +301,8 @@ def _ordered_node_payloads(parsed: dict[str, Any]) -> list[dict[str, Any]]:
                 {
                     'node_id': node_id,
                     'node_name': str(item.get('name') or item.get('display_name') or node_id),
+                    'node_type': str(item.get('type') or item.get('node_type') or ''),
+                    'config': item.get('config') if isinstance(item.get('config'), dict) else {},
                     'output': item.get('output'),
                 }
             )
@@ -318,10 +316,29 @@ def _ordered_node_payloads(parsed: dict[str, Any]) -> list[dict[str, Any]]:
                 {
                     'node_id': str(node_id),
                     'node_name': str(payload.get('name') or payload.get('display_name') or node_id),
+                    'node_type': str(payload.get('type') or payload.get('node_type') or ''),
+                    'config': payload.get('config') if isinstance(payload.get('config'), dict) else {},
                     'output': payload.get('output'),
                 }
             )
     return ordered
+
+
+def _candidate_output_keys(node_payload: dict[str, Any]) -> list[str]:
+    output_payload = node_payload.get('output')
+    if isinstance(output_payload, dict) and isinstance(output_payload.get('key'), str):
+        normalized = str(output_payload.get('key')).strip()
+        if normalized:
+            return [normalized]
+
+    node_type = str(node_payload.get('node_type') or '').strip()
+    if node_type == 'llm':
+        config = node_payload.get('config') if isinstance(node_payload.get('config'), dict) else {}
+        task = _normalize_llm_task(config.get('task'))
+        if task == 'assessment':
+            return ['selected_option', 'assessment_content']
+
+    return ['result']
 
 
 def _collect_edge_connection_candidates(
@@ -419,3 +436,21 @@ def _dump_yaml_mapping(value: Any) -> str:
     if not isinstance(value, dict) or not value:
         return ''
     return yaml.safe_dump(value, allow_unicode=True, sort_keys=False).strip()
+
+
+def _string_list_mapping(value: Any) -> dict[str, list[str]]:
+    if not isinstance(value, dict):
+        return {}
+    normalized: dict[str, list[str]] = {}
+    for key, item in value.items():
+        key_text = str(key).strip()
+        if not key_text:
+            continue
+        if isinstance(item, list):
+            values = [str(v).strip() for v in item if str(v).strip()]
+        else:
+            value_text = str(item).strip()
+            values = [value_text] if value_text else []
+        if values:
+            normalized[key_text] = values
+    return normalized

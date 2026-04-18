@@ -5,7 +5,8 @@
 <section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
   <div>
     <h1 class="h3 mb-1">Node Detail</h1>
-    <p class="text-muted mb-0">{{ node.node_name }} / {{ node.node_id }}</p>
+    <h2 class="h4 mb-1 fw-bold">{{ node.node_name }}</h2>
+    <p class="text-muted mb-0">{{ node.node_type or '-' }}{% if node.task %} / {{ node.task }}{% endif %}</p>
   </div>
   <div class="d-flex align-items-center gap-2">
     <a class="btn btn-outline-secondary btn-sm" href="{{ node_list_path }}">Back to Node List</a>
@@ -38,7 +39,6 @@
 {% include "_logs_panel.html" %}
 {% include "_adapter_panel.html" %}
 {% include "_memory_panel.html" %}
-{% include "_rag_panel.html" %}
 
 <div class="card border-0 shadow-sm">
   <div class="card-body">

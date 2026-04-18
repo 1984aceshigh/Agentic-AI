@@ -156,6 +156,7 @@ class LLMExecutor(BaseNodeExecutor):
             selected_option = self._select_assessment_option(response_text=response_text, options=options)
             output: dict[str, Any] = {
                 "review": response_text,
+                "assessment_content": response_text,
                 "task": task,
                 "selected_option": selected_option,
                 "assessment_options": options,
@@ -166,6 +167,11 @@ class LLMExecutor(BaseNodeExecutor):
                 next_node = self._resolve_assessment_route(routes=routes, selected_option=selected_option)
                 if isinstance(next_node, str) and next_node.strip():
                     output["next_node"] = next_node.strip()
+                elif isinstance(next_node, list):
+                    next_nodes = [str(item).strip() for item in next_node if str(item).strip()]
+                    if next_nodes:
+                        output["next_nodes"] = next_nodes
+                        output["next_node"] = next_nodes[0]
             return output
 
         if task == "extract":

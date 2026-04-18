@@ -83,6 +83,8 @@ def test_llm_executor_assessment_task_outputs_review_key() -> None:
 
     assert result.status == "SUCCEEDED"
     assert "review" in result.output
+    assert "assessment_content" in result.output
+    assert result.output["assessment_content"] == result.output["review"]
     assert "result" not in result.output
     assert result.output.get("task") == "assessment"
 

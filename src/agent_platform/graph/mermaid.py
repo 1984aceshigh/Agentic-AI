@@ -33,8 +33,10 @@ def build_mermaid(graph: GraphModel) -> str:
 
     lines.append("")
 
+    assessment_edge_labels = _collect_assessment_edge_labels(graph)
     for edge in _sorted_edges(graph.edges):
-        lines.append(f"    {build_mermaid_edge_line(edge)}")
+        label = assessment_edge_labels.get((edge.from_node, edge.to_node))
+        lines.append(f"    {build_mermaid_edge_line(edge, label=label)}")
 
     return "\n".join(lines)
 
@@ -47,11 +49,14 @@ def build_mermaid_node_line(node: GraphNode) -> str:
     return f'{node.id}["{label}"]'
 
 
-def build_mermaid_edge_line(edge: GraphEdge) -> str:
+def build_mermaid_edge_line(edge: GraphEdge, *, label: str | None = None) -> str:
     if not edge.from_node or not edge.from_node.strip():
         raise MermaidBuildError("edge.from_node must not be empty")
     if not edge.to_node or not edge.to_node.strip():
         raise MermaidBuildError("edge.to_node must not be empty")
+    if label and label.strip():
+        safe_label = _sanitize_mermaid_edge_label(label)
+        return f"{edge.from_node} -->|{safe_label}| {edge.to_node}"
     return f"{edge.from_node} --> {edge.to_node}"
 
 
@@ -83,3 +88,38 @@ def _sorted_nodes(nodes: Iterable[GraphNode]) -> list[GraphNode]:
 
 def _sorted_edges(edges: Iterable[GraphEdge]) -> list[GraphEdge]:
     return sorted(edges, key=lambda edge: (edge.from_node, edge.to_node))
+
+
+def _collect_assessment_edge_labels(graph: GraphModel) -> dict[tuple[str, str], str]:
+    labels_map: dict[tuple[str, str], list[str]] = {}
+    for node_id, node in graph.nodes.items():
+        config = node.config if isinstance(node.config, dict) else {}
+        task = str(config.get('task') or '').strip().lower()
+        if task != 'assessment':
+            continue
+        routes = config.get('assessment_routes')
+        if not isinstance(routes, dict):
+            continue
+        for option, target in routes.items():
+            option_text = str(option).strip()
+            if not option_text:
+                continue
+            if isinstance(target, list):
+                targets = [str(item).strip() for item in target if str(item).strip()]
+            else:
+                target_text = str(target).strip()
+                targets = [target_text] if target_text else []
+            for to_node_id in targets:
+                key = (node_id, to_node_id)
+                labels_map.setdefault(key, [])
+                if option_text not in labels_map[key]:
+                    labels_map[key].append(option_text)
+    return {key: ' / '.join(options) for key, options in labels_map.items() if options}
+
+
+def _sanitize_mermaid_edge_label(label: str) -> str:
+    text = str(label).replace("\r\n", " ").replace("\r", " ").replace("\n", " ")
+    text = text.replace("|", "／")
+    text = text.replace('"', "'")
+    text = text.replace("[", "［").replace("]", "］")
+    return text.strip()

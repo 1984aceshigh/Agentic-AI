@@ -147,17 +147,21 @@ def test_build_node_cards_returns_flat_ui_friendly_models() -> None:
     assert [card.node_id for card in cards] == ["step1", "step2", "step3"]
     assert cards[0].node_name == "Draft"
     assert cards[0].group == "analysis"
+    assert cards[0].node_type == "llm"
+    assert cards[0].task == "generate"
     assert cards[0].status == "SUCCEEDED"
     assert cards[0].retryable is True
     assert cards[0].started_at == "2026-04-12 01:00:00"
     assert cards[0].finished_at == "2026-04-12 01:01:00"
     assert cards[0].output_preview == "drafted"
     assert cards[1].status == "WAITING_HUMAN"
+    assert cards[1].task == "read"
     assert cards[1].requires_human_action is True
     assert cards[1].started_at == "2026-04-12 01:02:00"
     assert cards[1].finished_at is None
     assert cards[1].output_preview is None
     assert cards[2].status == "FAILED"
+    assert cards[2].task == "retrieve"
     assert cards[2].retryable is True
     assert cards[2].error_message == "retrieval failed"
 
@@ -183,6 +187,7 @@ def test_build_node_detail_extracts_memory_records_and_event_history() -> None:
     assert detail.node_id == "step2"
     assert detail.node_name == "Memory Lookup"
     assert detail.node_type == "llm"
+    assert detail.task == "read"
     assert detail.status == "WAITING_HUMAN"
     assert detail.input_preview == "lookup prior notes"
     assert detail.logs == ["memory lookup pending review"]
@@ -215,6 +220,7 @@ def test_build_node_detail_extracts_rag_hits() -> None:
 
     assert detail.node_id == "step3"
     assert detail.node_type == "llm"
+    assert detail.task == "retrieve"
     assert detail.status == "FAILED"
     assert detail.error_message == "retrieval failed"
     assert detail.memory_records == []

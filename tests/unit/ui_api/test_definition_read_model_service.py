@@ -92,6 +92,50 @@ edges:
     ]
 
 
+def test_build_graph_editor_view_assessment_node_exposes_branch_and_content_candidates() -> None:
+    yaml_text = """
+schema_version: "0.1"
+workflow:
+  id: sample_workflow
+  name: Sample Workflow
+runtime:
+  start_node: judge
+  end_nodes: [publish]
+integrations:
+  llm_profiles: {}
+  memory_profiles: {}
+  rag_profiles: {}
+  tool_profiles: {}
+nodes:
+  - id: judge
+    name: Judge
+    type: llm
+    config:
+      task: assessment
+      prompt: Judge this input
+      assessment_options: [pass, rework]
+  - id: publish
+    name: Publish
+    type: llm
+edges:
+  - from: judge
+    to: publish
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        workflow_id='sample_workflow',
+        selected_tab='nodes',
+        selected_node_id='publish',
+    )
+
+    assert view.selected_node_editor is not None
+    refs = [item.ref_expression for item in view.selected_node_editor.input_definition_candidates]
+    assert 'ref: judge.selected_option' in refs
+    assert 'ref: judge.assessment_content' in refs
+
+
 def test_build_graph_editor_view_first_node_has_no_input_definition_candidates() -> None:
     yaml_text = """
 workflow_id: sample_workflow

@@ -23,6 +23,7 @@ class NodeCardView(_BaseViewModel):
     node_id: str
     node_name: str
     node_type: str
+    task: str | None = None
     status: str
     group: str | None = None
     started_at: str | None = None
@@ -37,6 +38,7 @@ class NodeDetailView(_BaseViewModel):
     node_id: str
     node_name: str
     node_type: str
+    task: str | None = None
     status: str
     input_preview: str | None = None
     output_preview: str | None = None

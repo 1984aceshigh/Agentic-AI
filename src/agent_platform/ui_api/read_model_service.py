@@ -89,6 +89,7 @@ class ReadModelService:
                     node_id=node_id,
                     node_name=graph_node.name,
                     node_type=self._to_text(graph_node.type),
+                    task=self._resolve_node_task(graph_node, node_record),
                     status=status,
                     group=graph_node.group,
                     started_at=self._format_datetime(getattr(node_record, "started_at", None)),
@@ -124,6 +125,7 @@ class ReadModelService:
             node_id=node_id,
             node_name=graph_node.name,
             node_type=self._to_text(graph_node.type),
+            task=self._resolve_node_task(graph_node, node_record),
             status=status,
             input_preview=getattr(node_record, "input_preview", None),
             output_preview=getattr(node_record, "output_preview", None),
@@ -180,6 +182,32 @@ class ReadModelService:
         if node_record is not None:
             return bool(node_record.requires_human_action)
         return status == "WAITING_HUMAN"
+
+    def _resolve_node_task(
+        self,
+        graph_node: Any,
+        node_record: NodeExecutionRecord | None,
+    ) -> str | None:
+        config = getattr(graph_node, "config", None)
+        if not isinstance(config, dict):
+            config = {}
+
+        task = config.get("task")
+        if task is not None:
+            task_text = self._to_text(task).strip()
+            if task_text:
+                return task_text
+
+        legacy_type = self._to_text(getattr(node_record, "node_type", "")).strip().lower()
+        legacy_task_map = {
+            "llm_generate": "generate",
+            "llm_review": "review",
+            "memory_read": "read",
+            "memory_write": "write",
+            "rag_retrieve": "retrieve",
+            "deterministic_transform": "transform",
+        }
+        return legacy_task_map.get(legacy_type)
 
     def _extract_memory_records(self, node_output: dict[str, Any]) -> list[dict[str, Any]]:
         records = node_output.get("records")

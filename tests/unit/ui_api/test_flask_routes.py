@@ -197,9 +197,12 @@ def test_get_node_list_returns_200() -> None:
     assert response.status_code == 200
     assert b"Node List" in response.data
     assert b"Human Review" in response.data
+    assert b"llm / generate" in response.data
     assert b"2026-04-12 02:01:00" in response.data
     assert b"Output" in response.data
     assert b"awaiting approval" in response.data
+    assert b"Requires Human Action" not in response.data
+    assert b"Retryable" not in response.data
 
 
 def test_get_node_list_latest_without_execution_returns_pending_cards() -> None:
@@ -274,7 +277,7 @@ def test_get_node_detail_returns_200() -> None:
     assert b"waiting for approval" in response.data
 
 
-def test_get_node_detail_renders_rag_results() -> None:
+def test_get_node_detail_hides_rag_results_panel() -> None:
     client, execution_id, _, _ = build_test_client()
 
     response = client.get(
@@ -282,10 +285,9 @@ def test_get_node_detail_renders_rag_results() -> None:
     )
 
     assert response.status_code == 200
-    assert b"RAG Results" in response.data
-    assert b"sample query" in response.data
-    assert b"sample chunk" in response.data
-    assert b"kb/risk.md" in response.data
+    assert b"RAG Results" not in response.data
+    assert b"Input Preview" in response.data
+    assert b"query text" in response.data
     assert b"retrieval failed" in response.data
 
 

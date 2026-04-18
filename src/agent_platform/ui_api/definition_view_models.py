@@ -65,7 +65,9 @@ class NodeEditorView(_BaseViewModel):
     llm_input_definition: str = ''
     llm_output_format: str = ''
     llm_assessment_options: str = ''
+    llm_assessment_option_list: list[str] = Field(default_factory=list)
     llm_assessment_routes: str = ''
+    llm_assessment_route_map: dict[str, list[str]] = Field(default_factory=dict)
     llm_extract_fields: str = ''
     llm_extract_output_format: str = 'json'
     input_definition_candidates: list[InputDefinitionCandidateView] = Field(default_factory=list)

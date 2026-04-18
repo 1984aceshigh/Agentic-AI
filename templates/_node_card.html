@@ -4,14 +4,14 @@
       {% set has_detail = has_execution and execution_id %}
       <header class="d-flex justify-content-between align-items-start gap-2 mb-3">
         <div>
-          <h2 class="h5 mb-1">
+          <h2 class="h4 mb-1 fw-bold">
             {% if has_detail %}
-            <a class="text-decoration-none" href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}">{{ card.node_name }}</a>
+            <a class="text-decoration-none text-dark" href="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}">{{ card.node_name }}</a>
             {% else %}
             <span>{{ card.node_name }}</span>
             {% endif %}
           </h2>
-          <p class="text-muted small mb-0">{{ card.node_id }} / {{ card.node_type }}</p>
+          <p class="text-muted small mb-0">{{ card.node_type or '-' }}{% if card.task %} / {{ card.task }}{% endif %}</p>
         </div>
         <span class="badge rounded-pill status-badge status-{{ card.status|lower }}">{{ card.status }}</span>
       </header>
@@ -20,8 +20,6 @@
         <dt class="col-5 text-muted">Group</dt><dd class="col-7 mb-0">{{ card.group or '-' }}</dd>
         <dt class="col-5 text-muted">Started</dt><dd class="col-7 mb-0">{{ card.started_at or '-' }}</dd>
         <dt class="col-5 text-muted">Finished</dt><dd class="col-7 mb-0">{{ card.finished_at or '-' }}</dd>
-        <dt class="col-5 text-muted">Requires Human Action</dt><dd class="col-7 mb-0">{{ 'Yes' if card.requires_human_action else 'No' }}</dd>
-        <dt class="col-5 text-muted">Retryable</dt><dd class="col-7 mb-0">{{ 'Yes' if card.retryable else 'No' }}</dd>
       </dl>
 
       <div class="node-output-preview-wrap mb-3">

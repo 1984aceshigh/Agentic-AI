@@ -35,8 +35,8 @@ nodes:
   type: llm
 - config:
     task: assessment
-    prompt: 入力されたテキストの内容が合っているか確認してください。
-    temperature: 0.7
+    prompt: 入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。
+    temperature: 0.0
     extract_output_format: markdown
     input_definition: '[参照ノード: second_node.result]'
     assessment_options:
@@ -50,20 +50,20 @@ nodes:
   type: llm
 - config:
     task: extract
-    input_definition: '[参照ノード: node_04.result]'
+    input_definition: '[参照ノード: node_04.result, review.assessment_content, review.selected_option]'
     temperature: 0.0
     extract_output_format: markdown
   id: extract
   name: Extract
   type: llm
-- id: node_05
-  name: node_05
-  type: llm
-  config:
+- config:
     task: generate
     prompt: 何か勇気づけられることわざを一つ教えてください
-    temperature: 0.0
+    temperature: 1.1
     extract_output_format: json
+  id: node_05
+  name: node_05
+  type: llm
 edges:
 - from: start_node
   to: first_node

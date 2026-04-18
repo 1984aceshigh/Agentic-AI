@@ -9,7 +9,7 @@
 ] %}
 <section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
   <div>
-    <a href="/workflow-definitions" class="text-decoration-none small">← definitions</a>
+    <a href="/workflow-definitions" class="btn btn-outline-secondary btn-sm mb-2">← Workflow Definitions</a>
     <h1 class="h3 mb-1 mt-1">{{ editor.workflow_name }}</h1>
     <p class="text-muted mb-0">workflow_id: {{ editor.workflow_id }}{% if editor.version %} / version: {{ editor.version }}{% endif %}{% if editor.is_dirty %} / unsaved{% endif %}</p>
   </div>
@@ -24,26 +24,38 @@
   <div class="col-12 col-xl-5">
     <div class="card border-0 shadow-sm mb-3">
       <div class="card-body">
-        <h2 class="h5">Workflow Metadata</h2>
-        <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/update-metadata" class="row g-2 mb-3">
-          <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
-          <input type="hidden" name="selected_tab" value="{{ editor.selected_tab }}">
-          <input type="hidden" name="selected_node_id" value="{{ editor.selected_node_id or '' }}">
-          <input type="hidden" name="save_after_update" value="1">
-          <div class="col-12">
-            <label class="form-label">workflow_id</label>
-            <input class="form-control form-control-sm" type="text" name="workflow_id" value="{{ editor.workflow_id }}">
+        <div class="accordion" id="workflow-metadata-accordion">
+          <div class="accordion-item border rounded-2">
+            <h2 class="accordion-header" id="workflow-metadata-heading">
+              <button class="accordion-button {% if editor.selected_node_editor %}collapsed{% endif %} py-2" type="button" data-bs-toggle="collapse" data-bs-target="#workflow-metadata-collapse" aria-expanded="{% if editor.selected_node_editor %}false{% else %}true{% endif %}" aria-controls="workflow-metadata-collapse">
+                <span class="h5 mb-0">Workflow Metadata</span>
+              </button>
+            </h2>
+            <div id="workflow-metadata-collapse" class="accordion-collapse collapse {% if not editor.selected_node_editor %}show{% endif %}" aria-labelledby="workflow-metadata-heading" data-bs-parent="#workflow-metadata-accordion">
+              <div class="accordion-body pt-3 pb-2 px-3">
+                <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/update-metadata" class="row g-2 mb-3">
+                  <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+                  <input type="hidden" name="selected_tab" value="{{ editor.selected_tab }}">
+                  <input type="hidden" name="selected_node_id" value="{{ editor.selected_node_id or '' }}">
+                  <input type="hidden" name="save_after_update" value="1">
+                  <div class="col-12">
+                    <label class="form-label">workflow_id</label>
+                    <input class="form-control form-control-sm" type="text" name="workflow_id" value="{{ editor.workflow_id }}">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">workflow_name</label>
+                    <input class="form-control form-control-sm" type="text" name="workflow_name" value="{{ editor.workflow_name }}">
+                  </div>
+                  <div class="col-12 d-grid">
+                    <button class="btn btn-outline-primary btn-sm" type="submit">Save Metadata</button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
-          <div class="col-12">
-            <label class="form-label">workflow_name</label>
-            <input class="form-control form-control-sm" type="text" name="workflow_name" value="{{ editor.workflow_name }}">
-          </div>
-          <div class="col-12 d-grid">
-            <button class="btn btn-outline-primary btn-sm" type="submit">Save Metadata</button>
-          </div>
-        </form>
+        </div>
 
-        <div class="nav nav-pills flex-wrap gap-2">
+        <div class="nav nav-pills flex-wrap gap-2 mt-3">
           {% for tab in ['nodes', 'yaml', 'validation'] %}
           <a href="?tab={{ tab }}{% if editor.selected_node_id %}&selected_node_id={{ editor.selected_node_id }}{% endif %}" class="btn btn-sm {% if editor.selected_tab == tab %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ tab }}</a>
           {% endfor %}
@@ -142,11 +154,6 @@
             <label class="form-label">assessment options (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_assessment_options" placeholder="pass\nrework"></textarea>
             <div class="form-text">判定ラベルの候補です。例: <code>pass</code>, <code>rework</code></div>
-          </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="assessment">
-            <label class="form-label">assessment routes (YAML: 選択肢→遷移先ノードID)</label>
-            <textarea class="form-control form-control-sm font-monospace" rows="4" name="llm_assessment_routes" placeholder="pass: publish\nrework: generate"></textarea>
-            <div class="form-text">選ばれたラベルごとに遷移先ノードIDを指定します。例: <code>pass: publish</code></div>
           </div>
           <div class="col-12 llm-task-section" data-llm-task-section="extract">
             <label class="form-label">extract fields (1行1項目 / カンマ区切り可)</label>
@@ -264,11 +271,6 @@
             <textarea class="form-control form-control-sm" rows="3" name="llm_assessment_options">{{ editor.selected_node_editor.llm_assessment_options }}</textarea>
             <div class="form-text">判定ラベル候補。ここで定義した値が routes のキーになります。</div>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="assessment">
-            <label class="form-label">assessment routes (YAML: 選択肢→遷移先ノードID)</label>
-            <textarea class="form-control form-control-sm font-monospace" rows="4" name="llm_assessment_routes">{{ editor.selected_node_editor.llm_assessment_routes }}</textarea>
-            <div class="form-text">YAMLで <code>選択肢: 次ノードID</code> を設定。未設定時は通常のedge順で進みます。</div>
-          </div>
           <div class="col-12 llm-task-section" data-llm-task-section="extract">
             <label class="form-label">extract fields (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_extract_fields">{{ editor.selected_node_editor.llm_extract_fields }}</textarea>
@@ -320,8 +322,66 @@
             <input type="hidden" name="from_node_id" value="{{ editor.selected_node_editor.node_id }}">
             <input type="hidden" name="selected_node_id" value="{{ editor.selected_node_editor.node_id }}">
             <input type="hidden" name="selected_tab" value="nodes">
-            <input type="hidden" name="edge_mode" value="set_outgoing">
             <input type="hidden" name="save_after_update" value="1">
+            {% if editor.selected_node_editor.llm_task == 'assessment' and editor.selected_node_editor.llm_assessment_option_list %}
+            <input type="hidden" name="edge_mode" value="set_assessment_routes">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">option</th>
+                      <th>next node</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for option in editor.selected_node_editor.llm_assessment_option_list %}
+                    <tr>
+                      <td>
+                        <span class="badge text-bg-light border">{{ option }}</span>
+                      </td>
+                      <td>
+                        {% set selected_route_nodes = editor.selected_node_editor.llm_assessment_route_map.get(option, []) %}
+                        <div class="d-flex gap-2">
+                          <select class="form-select form-select-sm assessment-route-candidate" data-assessment-option="{{ option }}">
+                            <option value="">-- ノードを選択 --</option>
+                            {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
+                            <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}</option>
+                            {% endfor %}
+                          </select>
+                          <button class="btn btn-outline-primary btn-sm assessment-route-add" type="button" data-assessment-option="{{ option }}">Add</button>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-2 assessment-route-chip-list" data-assessment-option="{{ option }}">
+                          {% for selected_node_id in selected_route_nodes %}
+                          {% set matched = namespace(node_name=selected_node_id, node_type='') %}
+                          {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
+                            {% if candidate.node_id == selected_node_id %}
+                              {% set matched.node_name = candidate.node_name %}
+                              {% set matched.node_type = candidate.node_type %}
+                            {% endif %}
+                          {% endfor %}
+                          <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 assessment-route-chip" data-assessment-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                            <span>{{ selected_node_id }} / {{ matched.node_name }}{% if matched.node_type %} / {{ matched.node_type }}{% endif %}</span>
+                            <button type="button" class="btn-close btn-close-sm assessment-route-remove" aria-label="Remove"></button>
+                          </span>
+                          {% endfor %}
+                        </div>
+                        <div class="assessment-route-hidden-inputs" data-assessment-option="{{ option }}">
+                          {% for selected_node_id in selected_route_nodes %}
+                          <input type="hidden" name="assessment_route_option" value="{{ option }}" data-assessment-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                          <input type="hidden" name="assessment_route_to_node" value="{{ selected_node_id }}" data-assessment-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                          {% endfor %}
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="form-text">assessment options ごとに遷移先を指定します（通常の接続先チップ入力は不要）。</div>
+            </div>
+            {% else %}
+            <input type="hidden" name="edge_mode" value="set_outgoing">
             <div class="col-12">
               <label class="form-label" for="edge-connection-candidate">接続先ノード</label>
               <div class="d-flex gap-2">
@@ -349,6 +409,7 @@
                 {% endfor %}
               </div>
             </div>
+            {% endif %}
             <div class="col-12 d-grid">
               <button class="btn btn-primary btn-sm" type="submit">Apply Edge Connections</button>
             </div>
@@ -712,6 +773,83 @@
       }
     });
   }
+
+  document.querySelectorAll('.assessment-route-add').forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+    const option = button.dataset.assessmentOption || '';
+    if (!option) {
+      return;
+    }
+    const candidateSelect = document.querySelector(`.assessment-route-candidate[data-assessment-option="${CSS.escape(option)}"]`);
+    const chipList = document.querySelector(`.assessment-route-chip-list[data-assessment-option="${CSS.escape(option)}"]`);
+    const hiddenInputs = document.querySelector(`.assessment-route-hidden-inputs[data-assessment-option="${CSS.escape(option)}"]`);
+    if (!(candidateSelect instanceof HTMLSelectElement) || !(chipList instanceof HTMLElement) || !(hiddenInputs instanceof HTMLElement)) {
+      return;
+    }
+
+    const addSelection = (nodeId, labelText) => {
+      if (!nodeId) {
+        return;
+      }
+      const existing = hiddenInputs.querySelector(`input[name="assessment_route_to_node"][data-node-id="${CSS.escape(nodeId)}"]`);
+      if (existing) {
+        return;
+      }
+      const chip = document.createElement('span');
+      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 assessment-route-chip';
+      chip.dataset.assessmentOption = option;
+      chip.dataset.nodeId = nodeId;
+      chip.innerHTML = `<span>${labelText}</span><button type="button" class="btn-close btn-close-sm assessment-route-remove" aria-label="Remove"></button>`;
+      chipList.appendChild(chip);
+
+      const optionInput = document.createElement('input');
+      optionInput.type = 'hidden';
+      optionInput.name = 'assessment_route_option';
+      optionInput.value = option;
+      optionInput.dataset.assessmentOption = option;
+      optionInput.dataset.nodeId = nodeId;
+      hiddenInputs.appendChild(optionInput);
+
+      const nodeInput = document.createElement('input');
+      nodeInput.type = 'hidden';
+      nodeInput.name = 'assessment_route_to_node';
+      nodeInput.value = nodeId;
+      nodeInput.dataset.assessmentOption = option;
+      nodeInput.dataset.nodeId = nodeId;
+      hiddenInputs.appendChild(nodeInput);
+    };
+
+    button.addEventListener('click', () => {
+      const selected = candidateSelect.options[candidateSelect.selectedIndex];
+      const nodeId = candidateSelect.value || '';
+      if (!selected || !nodeId) {
+        return;
+      }
+      addSelection(nodeId, selected.textContent || nodeId);
+      candidateSelect.value = '';
+    });
+
+    chipList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.classList.contains('assessment-route-remove')) {
+        return;
+      }
+      const chip = target.closest('.assessment-route-chip');
+      if (!(chip instanceof HTMLElement)) {
+        return;
+      }
+      const nodeId = chip.dataset.nodeId || '';
+      chip.remove();
+      if (!nodeId) {
+        return;
+      }
+      hiddenInputs
+        .querySelectorAll(`input[data-node-id="${CSS.escape(nodeId)}"]`)
+        .forEach((input) => input.remove());
+    });
+  });
 
   if (
     addInputDefinition instanceof HTMLTextAreaElement &&

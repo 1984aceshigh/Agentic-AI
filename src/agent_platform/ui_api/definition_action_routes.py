@@ -301,7 +301,30 @@ def add_edge(workflow_id: str):
     else:
         to_node_ids = [item.strip() for item in request.form.getlist('to_node_ids') if item.strip()]
 
-    if edge_mode == 'set_outgoing' or to_node_ids:
+    if edge_mode == 'set_assessment_routes':
+        if request.is_json:
+            options = payload.get('assessment_route_option')
+            targets = payload.get('assessment_route_to_node')
+            option_list = [str(item) for item in options] if isinstance(options, list) else []
+            target_list = [str(item) for item in targets] if isinstance(targets, list) else []
+        else:
+            option_list = [item for item in request.form.getlist('assessment_route_option')]
+            target_list = [item for item in request.form.getlist('assessment_route_to_node')]
+        routes: dict[str, list[str]] = {}
+        for idx, option in enumerate(option_list):
+            target = target_list[idx] if idx < len(target_list) else ''
+            option_text = str(option).strip()
+            target_text = str(target).strip()
+            if option_text and target_text:
+                routes.setdefault(option_text, [])
+                if target_text not in routes[option_text]:
+                    routes[option_text].append(target_text)
+        updated_yaml = get_definition_editor_service().set_assessment_routes(
+            yaml_text,
+            from_node_id,
+            routes,
+        )
+    elif edge_mode == 'set_outgoing' or to_node_ids:
         updated_yaml = get_definition_editor_service().set_outgoing_edges(
             yaml_text,
             from_node_id,

@@ -174,6 +174,39 @@ def test_set_outgoing_edges_can_clear_outgoing_edges_for_node():
     assert parsed['edges'] == []
 
 
+def test_set_assessment_routes_updates_config_and_syncs_outgoing_edges() -> None:
+    service = DefinitionEditorService()
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: judge
+    name: Judge
+    type: llm
+    config:
+      task: assessment
+  - id: node_true
+    name: Node True
+    type: llm
+  - id: node_false
+    name: Node False
+    type: llm
+edges: []
+"""
+
+    updated = service.set_assessment_routes(
+        yaml_text,
+        from_node_id='judge',
+        routes={'true': 'node_true', 'false': 'node_false'},
+    )
+
+    parsed = yaml.safe_load(updated)
+    judge = next(item for item in parsed['nodes'] if item.get('id') == 'judge')
+    assert judge['config']['assessment_routes'] == {'true': 'node_true', 'false': 'node_false'}
+    assert {'from': 'judge', 'to': 'node_true'} in parsed['edges']
+    assert {'from': 'judge', 'to': 'node_false'} in parsed['edges']
+
+
 def test_update_node_can_clear_existing_group_when_group_field_is_blank():
     service = DefinitionEditorService()
     yaml_text = """

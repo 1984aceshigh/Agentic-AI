@@ -81,6 +81,14 @@ def test_build_mermaid_edge_line_returns_expected_format() -> None:
     assert line == "step1 --> step2"
 
 
+def test_build_mermaid_edge_line_with_label_returns_expected_format() -> None:
+    edge = GraphEdge(from_node="step1", to_node="step2")
+
+    line = build_mermaid_edge_line(edge, label="pass")
+
+    assert line == 'step1 -->|pass| step2'
+
+
 
 def test_group_less_nodes_are_rendered_at_top_level() -> None:
     mermaid = build_mermaid(make_graph_model())
@@ -161,6 +169,38 @@ def test_edge_output_order_is_deterministic() -> None:
         "    step1 --> step2",
         "    step2 --> step3",
     ]
+
+
+def test_assessment_routes_are_rendered_as_edge_labels() -> None:
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="judge",
+        end_nodes=["publish", "rewrite"],
+        direction="TD",
+        nodes={
+            "judge": GraphNode(
+                id="judge",
+                type="llm",
+                name="Judge",
+                config={
+                    "task": "assessment",
+                    "assessment_routes": {"pass": "publish", "rework": "rewrite"},
+                },
+            ),
+            "publish": GraphNode(id="publish", type="llm", name="Publish"),
+            "rewrite": GraphNode(id="rewrite", type="llm", name="Rewrite"),
+        },
+        edges=[
+            GraphEdge(from_node="judge", to_node="publish"),
+            GraphEdge(from_node="judge", to_node="rewrite"),
+        ],
+    )
+
+    mermaid = build_mermaid(graph)
+
+    assert 'judge -->|pass| publish' in mermaid
+    assert 'judge -->|rework| rewrite' in mermaid
 
 
 

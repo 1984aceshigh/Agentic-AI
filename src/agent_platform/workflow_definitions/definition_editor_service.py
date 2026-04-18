@@ -123,6 +123,61 @@ class DefinitionEditorService:
         parsed['edges'] = remaining_edges
         return self._dump(parsed)
 
+    def set_assessment_routes(self, yaml_text: str, from_node_id: str, routes: dict[str, Any]) -> str:
+        parsed = self._parse(yaml_text)
+        node = self._find_node(parsed, from_node_id)
+        if node is None:
+            raise KeyError(f'Unknown node_id: {from_node_id}')
+
+        node_type = str(node.get('type') or node.get('node_type') or '')
+        if not self._is_llm_node_type(node_type):
+            raise ValueError('assessment routes can only be set for llm nodes.')
+
+        config = node.get('config') if isinstance(node.get('config'), dict) else {}
+        config['task'] = self._normalize_llm_task(config.get('task'))
+        if config['task'] != 'assessment':
+            raise ValueError('assessment routes can only be set when config.task is assessment.')
+
+        normalized_routes: dict[str, Any] = {}
+        for option, target_node_ids in (routes or {}).items():
+            option_text = self._optional_text(option)
+            if option_text is None:
+                continue
+            normalized_targets: list[str] = []
+            if isinstance(target_node_ids, list):
+                raw_target_ids = target_node_ids
+            else:
+                raw_target_ids = [target_node_ids]
+            for target_node_id in raw_target_ids:
+                node_id_text = self._optional_text(target_node_id)
+                if node_id_text is None or node_id_text == from_node_id:
+                    continue
+                self._ensure_node_exists(parsed, node_id_text)
+                if node_id_text not in normalized_targets:
+                    normalized_targets.append(node_id_text)
+            if not normalized_targets:
+                continue
+            normalized_routes[option_text] = (
+                normalized_targets[0] if len(normalized_targets) == 1 else normalized_targets
+            )
+
+        if normalized_routes:
+            config['assessment_routes'] = normalized_routes
+        else:
+            config.pop('assessment_routes', None)
+        node['config'] = config
+
+        parsed = self._replace_node(parsed, from_node_id, node)
+        target_ids: list[str] = []
+        for route_target in normalized_routes.values():
+            if isinstance(route_target, list):
+                for node_id in route_target:
+                    if node_id not in target_ids:
+                        target_ids.append(node_id)
+            elif isinstance(route_target, str) and route_target not in target_ids:
+                target_ids.append(route_target)
+        return self.set_outgoing_edges(self._dump(parsed), from_node_id, target_ids)
+
     def delete_edge(self, yaml_text: str, from_node_id: str, to_node_id: str) -> str:
         parsed = self._parse(yaml_text)
         edges = parsed.get('edges')
@@ -190,7 +245,9 @@ class DefinitionEditorService:
             self._apply_optional_extract_output_format(config, node_payload.get('llm_extract_output_format'))
 
             current_task = self._normalize_llm_task(config.get('task'))
-            if current_task in {'assessment', 'extract'} and node_payload.get('llm_temperature') is None:
+            if current_task == 'assessment':
+                config['temperature'] = 0.0
+            elif current_task == 'extract' and node_payload.get('llm_temperature') is None:
                 config['temperature'] = 0.0
             if current_task == 'extract' and 'extract_output_format' not in config:
                 config['extract_output_format'] = 'json'
@@ -264,11 +321,19 @@ class DefinitionEditorService:
             return
         if not isinstance(loaded, dict):
             raise ValueError('llm_assessment_routes must be a YAML mapping.')
-        routes: dict[str, str] = {}
+        routes: dict[str, Any] = {}
         for option, node_id in loaded.items():
             option_text = str(option).strip()
+            if not option_text:
+                continue
+            if isinstance(node_id, list):
+                node_ids = [str(item).strip() for item in node_id if str(item).strip()]
+                if not node_ids:
+                    continue
+                routes[option_text] = node_ids[0] if len(node_ids) == 1 else node_ids
+                continue
             node_id_text = str(node_id).strip()
-            if option_text and node_id_text:
+            if node_id_text:
                 routes[option_text] = node_id_text
         if routes:
             config['assessment_routes'] = routes
@@ -342,6 +407,21 @@ class DefinitionEditorService:
                 node.setdefault('id', node_id)
                 return node
         return None
+
+    def _replace_node(self, parsed: dict[str, Any], node_id: str, updated_node: dict[str, Any]) -> dict[str, Any]:
+        nodes = parsed.get('nodes')
+        if isinstance(nodes, list):
+            for index, node in enumerate(nodes):
+                if isinstance(node, dict) and self._extract_node_id(node, fallback_index=index) == node_id:
+                    nodes[index] = updated_node
+                    return parsed
+            raise KeyError(f'Unknown node_id: {node_id}')
+        if isinstance(nodes, dict):
+            if node_id not in nodes:
+                raise KeyError(f'Unknown node_id: {node_id}')
+            nodes[node_id] = {k: v for k, v in updated_node.items() if k not in {'id', 'node_id'}}
+            return parsed
+        raise ValueError('nodes must be either a list or a mapping.')
 
     def _extract_node_id(self, node: dict[str, Any], *, fallback_index: int | None = None) -> str:
         node_id = node.get('node_id') or node.get('id')
