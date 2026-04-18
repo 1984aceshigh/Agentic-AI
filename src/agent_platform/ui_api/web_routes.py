@@ -26,6 +26,34 @@ def workflows() -> str:
     return render_template("workflows.html", workflow_summaries=summaries)
 
 
+@web_bp.get("/executions")
+def execution_list() -> str:
+    read_model_service = get_read_model_service()
+    selected_workflow_id = request.args.get("workflow_id")
+    workflow_id = selected_workflow_id.strip() if isinstance(selected_workflow_id, str) and selected_workflow_id.strip() else None
+    execution_summaries = read_model_service.build_execution_summaries(workflow_id=workflow_id)
+
+    return render_template(
+        "execution_list.html",
+        execution_summaries=execution_summaries,
+        selected_workflow_id=workflow_id,
+    )
+
+
+@web_bp.get("/executions/<execution_id>")
+def execution_detail(execution_id: str) -> str:
+    read_model_service = get_read_model_service()
+    try:
+        execution_detail_view = read_model_service.build_execution_detail(execution_id)
+    except KeyError as exc:
+        raise abort(404, description=str(exc)) from exc
+
+    return render_template(
+        "execution_detail.html",
+        execution=execution_detail_view,
+    )
+
+
 @web_bp.get("/workflows/<workflow_id>/executions/<execution_id>/nodes")
 def node_list(workflow_id: str, execution_id: str) -> str:
     return _render_node_list(workflow_id=workflow_id, execution_id=execution_id)

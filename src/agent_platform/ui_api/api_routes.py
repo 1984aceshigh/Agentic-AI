@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from flask import Blueprint, abort, jsonify
+from flask import Blueprint, abort, jsonify, request
 
 from .dependencies import (
     get_latest_execution_ids,
@@ -39,3 +39,25 @@ def list_nodes(workflow_id: str, execution_id: str):
         raise abort(404, description=str(exc)) from exc
 
     return jsonify([card.model_dump(mode="json") for card in cards])
+
+
+@api_bp.get("/executions")
+def list_executions():
+    workflow_id = None
+    raw_workflow_id = request.args.get("workflow_id")
+    if isinstance(raw_workflow_id, str) and raw_workflow_id.strip():
+        workflow_id = raw_workflow_id.strip()
+
+    read_model_service = get_read_model_service()
+    summaries = read_model_service.build_execution_summaries(workflow_id=workflow_id)
+    return jsonify([summary.model_dump(mode="json") for summary in summaries])
+
+
+@api_bp.get("/executions/<execution_id>")
+def get_execution_detail(execution_id: str):
+    read_model_service = get_read_model_service()
+    try:
+        detail = read_model_service.build_execution_detail(execution_id)
+    except KeyError as exc:
+        raise abort(404, description=str(exc)) from exc
+    return jsonify(detail.model_dump(mode="json"))

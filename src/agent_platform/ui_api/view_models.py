@@ -19,6 +19,41 @@ class WorkflowSummaryView(_BaseViewModel):
     failed_count: int = 0
 
 
+class ExecutionSummaryView(_BaseViewModel):
+    execution_id: str
+    workflow_id: str
+    status: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    node_count: int = 0
+    waiting_human_count: int = 0
+    failed_count: int = 0
+
+
+class NodeExecutionResultView(_BaseViewModel):
+    node_id: str
+    node_type: str
+    status: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    retry_count: int = 0
+    error_message: str | None = None
+    output_preview: str | None = None
+
+
+class ExecutionDetailView(_BaseViewModel):
+    execution_id: str
+    workflow_id: str
+    status: str
+    started_at: str | None = None
+    finished_at: str | None = None
+    node_count: int = 0
+    waiting_human_count: int = 0
+    failed_count: int = 0
+    event_count: int = 0
+    node_results: list[NodeExecutionResultView] = Field(default_factory=list)
+
+
 class NodeCardView(_BaseViewModel):
     node_id: str
     node_name: str

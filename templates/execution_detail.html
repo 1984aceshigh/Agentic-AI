@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Execution Detail{% endblock %}
+{% block content %}
+<section class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+  <div>
+    <h1 class="h3 mb-1">Execution Detail</h1>
+    <p class="text-muted mb-0"><code>{{ execution.execution_id }}</code></p>
+  </div>
+  <div>
+    <a class="btn btn-outline-secondary btn-sm" href="/executions">Back to Execution List</a>
+  </div>
+</section>
+
+<section class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <h2 class="h5 mb-3">Summary</h2>
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <p class="mb-1"><strong>workflow_id:</strong> {{ execution.workflow_id }}</p>
+        <p class="mb-1"><strong>status:</strong> {{ execution.status }}</p>
+        <p class="mb-1"><strong>started_at:</strong> {{ execution.started_at or '-' }}</p>
+        <p class="mb-0"><strong>finished_at:</strong> {{ execution.finished_at or '-' }}</p>
+      </div>
+      <div class="col-12 col-md-6">
+        <p class="mb-1"><strong>node_count:</strong> {{ execution.node_count }}</p>
+        <p class="mb-1"><strong>waiting_human_count:</strong> {{ execution.waiting_human_count }}</p>
+        <p class="mb-1"><strong>failed_count:</strong> {{ execution.failed_count }}</p>
+        <p class="mb-0"><strong>event_count:</strong> {{ execution.event_count }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>node_id</th>
+            <th>node_type</th>
+            <th>status</th>
+            <th>started_at</th>
+            <th>finished_at</th>
+            <th>retry_count</th>
+            <th>error</th>
+            <th>output_preview</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in execution.node_results %}
+          <tr>
+            <td><code>{{ item.node_id }}</code></td>
+            <td>{{ item.node_type }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.started_at or '-' }}</td>
+            <td>{{ item.finished_at or '-' }}</td>
+            <td>{{ item.retry_count }}</td>
+            <td>{{ item.error_message or '-' }}</td>
+            <td>{{ item.output_preview or '-' }}</td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="8" class="text-center text-muted py-4">No node results found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

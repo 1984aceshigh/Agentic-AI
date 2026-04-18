@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import json
+
 from agent_platform.runtime.events import (
     EVENT_TYPE_NODE_FAILED,
     EVENT_TYPE_NODE_STARTED,
@@ -221,3 +223,36 @@ def test_records_manager_find_node_records_returns_node_records() -> None:
     records = manager.find_node_records("exec-001")
 
     assert records == [node_a, node_b]
+
+
+def test_records_manager_persists_and_restores_state(tmp_path) -> None:
+    storage_path = tmp_path / "runtime" / "execution_records.json"
+    manager = ExecutionRecordsManager(storage_path=storage_path)
+    manager.create_workflow_record("exec-001", "workflow_a")
+    manager.start_node_record("exec-001", "node_a", "llm")
+    manager.complete_node_record("exec-001", "node_a", output_preview="ok")
+    manager.set_workflow_status("exec-001", WORKFLOW_STATUS_SUCCEEDED)
+
+    assert storage_path.exists() is True
+    persisted = json.loads(storage_path.read_text(encoding="utf-8"))
+    assert persisted["workflow_records"][0]["execution_id"] == "exec-001"
+
+    restored = ExecutionRecordsManager(storage_path=storage_path)
+    workflow_record = restored.get_workflow_record("exec-001")
+    assert workflow_record.workflow_id == "workflow_a"
+    assert workflow_record.status == WORKFLOW_STATUS_SUCCEEDED
+    assert len(workflow_record.node_records) == 1
+    assert workflow_record.node_records[0].output_preview == "ok"
+
+
+def test_records_manager_list_workflow_records_returns_newest_first() -> None:
+    manager = ExecutionRecordsManager()
+    manager.create_workflow_record("exec-old", "workflow_a")
+    manager.create_workflow_record("exec-new", "workflow_b")
+
+    records = manager.list_workflow_records()
+
+    assert [record.execution_id for record in records] == ["exec-new", "exec-old"]
+
+    filtered = manager.list_workflow_records("workflow_a")
+    assert [record.execution_id for record in filtered] == ["exec-old"]

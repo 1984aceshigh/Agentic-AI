@@ -20,7 +20,13 @@ def make_graph_model() -> GraphModel:
         direction="TD",
         nodes={
             "step1": GraphNode(id="step1", type="llm_generate", name="Draft", group="analysis"),
-            "step2": GraphNode(id="step2", type="memory_read", name="Memory Lookup", group="analysis"),
+            "step2": GraphNode(
+                id="step2",
+                type="llm",
+                name="Memory Lookup",
+                group="analysis",
+                config={"task": "read"},
+            ),
             "step3": GraphNode(id="step3", type="rag_retrieve", name="Knowledge Lookup", group="review"),
         },
         edges=[
@@ -52,7 +58,7 @@ def prepare_execution() -> tuple[ReadModelService, GraphModel, str]:
     record1.finished_at = datetime(2026, 4, 12, 1, 1, tzinfo=UTC)
     records_manager.append_node_log(execution_id, "step1", "draft complete")
 
-    record2 = records_manager.start_node_record(execution_id, "step2", "memory_read")
+    record2 = records_manager.start_node_record(execution_id, "step2", "llm")
     record2.input_preview = "lookup prior notes"
     record2.started_at = datetime(2026, 4, 12, 1, 2, tzinfo=UTC)
     records_manager.mark_node_waiting_human(execution_id, "step2")
@@ -136,6 +142,35 @@ def test_build_workflow_summary_counts_waiting_and_failed_nodes() -> None:
     assert summary.last_status == "FAILED"
     assert summary.waiting_human_count == 1
     assert summary.failed_count == 1
+
+
+def test_build_execution_summaries_returns_records() -> None:
+    service, _, execution_id = prepare_execution()
+
+    summaries = service.build_execution_summaries()
+
+    assert len(summaries) == 1
+    assert summaries[0].execution_id == execution_id
+    assert summaries[0].workflow_id == "sample_workflow"
+    assert summaries[0].status == "FAILED"
+    assert summaries[0].node_count == 3
+    assert summaries[0].waiting_human_count == 1
+    assert summaries[0].failed_count == 1
+
+
+def test_build_execution_detail_returns_node_results() -> None:
+    service, _, execution_id = prepare_execution()
+
+    detail = service.build_execution_detail(execution_id)
+
+    assert detail.execution_id == execution_id
+    assert detail.workflow_id == "sample_workflow"
+    assert detail.status == "FAILED"
+    assert detail.node_count == 3
+    assert detail.waiting_human_count == 1
+    assert detail.failed_count == 1
+    assert detail.event_count == 7
+    assert [item.node_id for item in detail.node_results] == ["step1", "step2", "step3"]
 
 
 
@@ -235,6 +270,96 @@ def test_build_node_detail_extracts_rag_hits() -> None:
     ]
     assert detail.rag_count == 1
     assert detail.event_history[0]["event_type"] == "node_failed"
+
+
+def test_build_node_detail_extracts_nested_llm_memory_and_rag_outputs() -> None:
+    service, context_manager, records_manager = build_service()
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="step1",
+        end_nodes=["step1"],
+        direction="TD",
+        nodes={
+            "step1": GraphNode(
+                id="step1",
+                type="llm",
+                name="Assistant",
+                group="analysis",
+                config={"task": "generate"},
+            ),
+        },
+        edges=[],
+    )
+
+    context = context_manager.create_context(workflow_id=graph.workflow_id)
+    execution_id = context.execution_id
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    records_manager.start_node_record(execution_id, "step1", "llm")
+    records_manager.complete_node_record(execution_id, "step1", output_preview="ok")
+    context_manager.update_node_state(execution_id, "step1", "SUCCEEDED")
+    context_manager.set_node_output(
+        execution_id,
+        "step1",
+        {
+            "task": "generate",
+            "result": "ok",
+            "memory": {
+                "records": [
+                    {"record_id": "mem-1", "scope": "workflow", "text": "prior note"},
+                    {"record_id": "mem-2", "scope": "workflow", "text": "another note"},
+                ],
+                "count": 2,
+            },
+            "rag": {
+                "query_text": "current question",
+                "hits": [
+                    {
+                        "chunk_id": "doc-1",
+                        "score": 0.95,
+                        "text": "knowledge",
+                        "metadata": {"source": "kb/source.md"},
+                    }
+                ],
+                "count": 1,
+            },
+        },
+    )
+
+    detail = service.build_node_detail(graph, execution_id, "step1")
+
+    assert detail.memory_count == 2
+    assert len(detail.memory_records) == 2
+    assert detail.rag_query_text == "current question"
+    assert detail.rag_count == 1
+    assert detail.rag_hits[0]["chunk_id"] == "doc-1"
+
+
+def test_build_node_cards_legacy_llm_review_maps_to_assessment_task() -> None:
+    service, context_manager, records_manager = build_service()
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="review",
+        end_nodes=["review"],
+        direction="TD",
+        nodes={
+            "review": GraphNode(id="review", type="llm_review", name="Review", group="quality"),
+        },
+        edges=[],
+    )
+
+    context = context_manager.create_context(workflow_id=graph.workflow_id)
+    execution_id = context.execution_id
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    records_manager.start_node_record(execution_id, "review", "llm_review")
+    records_manager.complete_node_record(execution_id, "review", output_preview="done")
+    context_manager.update_node_state(execution_id, "review", "SUCCEEDED")
+
+    cards = service.build_node_cards(graph, execution_id)
+
+    assert len(cards) == 1
+    assert cards[0].task == "assessment"
 
 
 

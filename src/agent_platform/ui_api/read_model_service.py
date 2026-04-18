@@ -11,9 +11,12 @@ from agent_platform.runtime.context_manager import ExecutionContextManager
 from agent_platform.runtime.records_manager import ExecutionRecordsManager
 
 from .view_models import (
+    ExecutionDetailView,
     ExecutionArtifactsView,
+    ExecutionSummaryView,
     GraphView,
     NodeCardView,
+    NodeExecutionResultView,
     NodeDetailView,
     WorkflowSummaryView,
 )
@@ -64,6 +67,72 @@ class ReadModelService:
             last_updated_at=last_updated_at,
             waiting_human_count=waiting_human_count,
             failed_count=failed_count,
+        )
+
+    def build_execution_summaries(self, workflow_id: str | None = None) -> list[ExecutionSummaryView]:
+        records = self._records_manager.list_workflow_records(workflow_id)
+        summaries: list[ExecutionSummaryView] = []
+        for record in records:
+            waiting_human_count = 0
+            failed_count = 0
+            for node_record in record.node_records:
+                status = self._to_text(node_record.status)
+                if status == "WAITING_HUMAN":
+                    waiting_human_count += 1
+                elif status == "FAILED":
+                    failed_count += 1
+
+            summaries.append(
+                ExecutionSummaryView(
+                    execution_id=record.execution_id,
+                    workflow_id=record.workflow_id,
+                    status=self._to_text(record.status),
+                    started_at=self._format_datetime(record.started_at),
+                    finished_at=self._format_datetime(record.finished_at),
+                    node_count=len(record.node_records),
+                    waiting_human_count=waiting_human_count,
+                    failed_count=failed_count,
+                )
+            )
+        return summaries
+
+    def build_execution_detail(self, execution_id: str) -> ExecutionDetailView:
+        workflow_record = self._records_manager.get_workflow_record(execution_id)
+        node_results: list[NodeExecutionResultView] = []
+        waiting_human_count = 0
+        failed_count = 0
+        for node_record in workflow_record.node_records:
+            status = self._to_text(node_record.status)
+            if status == "WAITING_HUMAN":
+                waiting_human_count += 1
+            elif status == "FAILED":
+                failed_count += 1
+
+            node_results.append(
+                NodeExecutionResultView(
+                    node_id=node_record.node_id,
+                    node_type=self._to_text(node_record.node_type),
+                    status=status,
+                    started_at=self._format_datetime(node_record.started_at),
+                    finished_at=self._format_datetime(node_record.finished_at),
+                    retry_count=node_record.retry_count,
+                    error_message=node_record.error_message,
+                    output_preview=node_record.output_preview,
+                )
+            )
+
+        events = self._records_manager.find_events(execution_id)
+        return ExecutionDetailView(
+            execution_id=workflow_record.execution_id,
+            workflow_id=workflow_record.workflow_id,
+            status=self._to_text(workflow_record.status),
+            started_at=self._format_datetime(workflow_record.started_at),
+            finished_at=self._format_datetime(workflow_record.finished_at),
+            node_count=len(workflow_record.node_records),
+            waiting_human_count=waiting_human_count,
+            failed_count=failed_count,
+            event_count=len(events),
+            node_results=node_results,
         )
 
     def build_node_cards(
@@ -136,10 +205,20 @@ class ReadModelService:
             connection_ref=getattr(node_record, "connection_ref", None),
             resolved_capabilities=list(getattr(node_record, "resolved_capabilities", []) or []),
             memory_records=memory_records,
-            memory_count=self._extract_count(node_output, "count", default=len(memory_records), for_key="records"),
+            memory_count=self._extract_count(
+                node_output,
+                section_key="memory",
+                legacy_items_key="records",
+                default=len(memory_records),
+            ),
             rag_query_text=self._extract_query_text(node_output),
             rag_hits=rag_hits,
-            rag_count=self._extract_count(node_output, "count", default=len(rag_hits), for_key="hits"),
+            rag_count=self._extract_count(
+                node_output,
+                section_key="rag",
+                legacy_items_key="hits",
+                default=len(rag_hits),
+            ),
             event_history=self._collect_event_history(context.events, node_id),
         )
 
@@ -201,27 +280,43 @@ class ReadModelService:
         legacy_type = self._to_text(getattr(node_record, "node_type", "")).strip().lower()
         legacy_task_map = {
             "llm_generate": "generate",
-            "llm_review": "review",
-            "memory_read": "read",
-            "memory_write": "write",
+            "llm_review": "assessment",
             "rag_retrieve": "retrieve",
             "deterministic_transform": "transform",
         }
         return legacy_task_map.get(legacy_type)
 
     def _extract_memory_records(self, node_output: dict[str, Any]) -> list[dict[str, Any]]:
+        memory_output = node_output.get("memory")
+        if isinstance(memory_output, dict):
+            records = memory_output.get("records")
+            if isinstance(records, list):
+                return [self._json_friendly_dict(record) for record in records]
+
         records = node_output.get("records")
         if not isinstance(records, list):
             return []
         return [self._json_friendly_dict(record) for record in records]
 
     def _extract_rag_hits(self, node_output: dict[str, Any]) -> list[dict[str, Any]]:
+        rag_output = node_output.get("rag")
+        if isinstance(rag_output, dict):
+            hits = rag_output.get("hits")
+            if isinstance(hits, list):
+                return [self._json_friendly_dict(hit) for hit in hits]
+
         hits = node_output.get("hits")
         if not isinstance(hits, list):
             return []
         return [self._json_friendly_dict(hit) for hit in hits]
 
     def _extract_query_text(self, node_output: dict[str, Any]) -> str | None:
+        rag_output = node_output.get("rag")
+        if isinstance(rag_output, dict):
+            query_text = rag_output.get("query_text")
+            if query_text is not None:
+                return self._to_text(query_text)
+
         query_text = node_output.get("query_text")
         if query_text is None:
             return None
@@ -230,14 +325,22 @@ class ReadModelService:
     def _extract_count(
         self,
         node_output: dict[str, Any],
-        key: str,
         *,
+        section_key: str,
+        legacy_items_key: str,
         default: int,
-        for_key: str,
     ) -> int:
-        if for_key not in node_output:
+        section_output = node_output.get(section_key)
+        if isinstance(section_output, dict):
+            section_count = section_output.get("count")
+            if isinstance(section_count, int):
+                return section_count
+            if legacy_items_key in section_output:
+                return default
+
+        if legacy_items_key not in node_output:
             return 0
-        value = node_output.get(key)
+        value = node_output.get("count")
         if isinstance(value, int):
             return value
         return default

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Execution Results{% endblock %}
+{% block content %}
+<section class="mb-4">
+  <h1 class="h3 mb-1">Execution Results</h1>
+  <p class="text-muted mb-0">実行結果の一覧</p>
+</section>
+
+<section class="card border-0 shadow-sm mb-3">
+  <div class="card-body">
+    <form method="get" class="row g-2 align-items-end">
+      <div class="col-12 col-md-6 col-lg-4">
+        <label class="form-label" for="workflow-id-filter">workflow_id</label>
+        <input
+          id="workflow-id-filter"
+          type="text"
+          class="form-control form-control-sm"
+          name="workflow_id"
+          value="{{ selected_workflow_id or '' }}"
+          placeholder="sample_workflow"
+        >
+      </div>
+      <div class="col-12 col-md-auto d-flex gap-2">
+        <button type="submit" class="btn btn-sm btn-primary">Filter</button>
+        <a href="/executions" class="btn btn-sm btn-outline-secondary">Clear</a>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="card border-0 shadow-sm">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-sm table-striped align-middle mb-0">
+        <thead>
+          <tr>
+            <th>execution_id</th>
+            <th>workflow_id</th>
+            <th>status</th>
+            <th>started_at</th>
+            <th>finished_at</th>
+            <th>nodes</th>
+            <th>waiting_human</th>
+            <th>failed</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in execution_summaries %}
+          <tr>
+            <td><code>{{ item.execution_id }}</code></td>
+            <td>{{ item.workflow_id }}</td>
+            <td>{{ item.status }}</td>
+            <td>{{ item.started_at or '-' }}</td>
+            <td>{{ item.finished_at or '-' }}</td>
+            <td>{{ item.node_count }}</td>
+            <td>{{ item.waiting_human_count }}</td>
+            <td>{{ item.failed_count }}</td>
+            <td class="text-end">
+              <a class="btn btn-sm btn-outline-primary" href="/executions/{{ item.execution_id }}">Detail</a>
+            </td>
+          </tr>
+          {% else %}
+          <tr>
+            <td colspan="9" class="text-center text-muted py-4">No executions found.</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+{% endblock %}

@@ -189,6 +189,45 @@ def test_get_workflows_returns_200() -> None:
     assert b">Nodes<" in response.data
 
 
+def test_get_execution_list_returns_200() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    response = client.get("/executions")
+
+    assert response.status_code == 200
+    assert b"Execution Results" in response.data
+    assert execution_id.encode() in response.data
+
+
+def test_get_execution_detail_returns_200() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    response = client.get(f"/executions/{execution_id}")
+
+    assert response.status_code == 200
+    assert b"Execution Detail" in response.data
+    assert b"workflow_id:" in response.data
+    assert b"step1" in response.data
+
+
+def test_api_execution_list_and_detail_return_expected_schema() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    list_response = client.get("/api/executions")
+    assert list_response.status_code == 200
+    list_payload = list_response.get_json()
+    assert isinstance(list_payload, list)
+    assert list_payload[0]["execution_id"] == execution_id
+    assert list_payload[0]["workflow_id"] == "sample_workflow"
+
+    detail_response = client.get(f"/api/executions/{execution_id}")
+    assert detail_response.status_code == 200
+    detail_payload = detail_response.get_json()
+    assert detail_payload["execution_id"] == execution_id
+    assert detail_payload["workflow_id"] == "sample_workflow"
+    assert detail_payload["node_count"] == 3
+
+
 def test_get_node_list_returns_200() -> None:
     client, execution_id, _, _ = build_test_client()
 

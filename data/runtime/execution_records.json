@@ -1,0 +1,255 @@
+{
+  "workflow_records": [
+    {
+      "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+      "workflow_id": "sample_workflow",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-18T15:12:56.518731Z",
+      "finished_at": "2026-04-18T15:13:08.746687Z",
+      "node_records": [
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "start_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:12:56.559466Z",
+          "finished_at": "2026-04-18T15:12:58.464734Z",
+          "input_preview": "中国の故事成語を1つ出力してください。\n\nOutput format:\n故事成語以外のテキストは出力厳禁",
+          "output_preview": "一石二鳥",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "first_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:12:58.469975Z",
+          "finished_at": "2026-04-18T15:13:04.736325Z",
+          "input_preview": "指定の故事成語について、歴史や意味を解説してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: 一石二鳥",
+          "output_preview": "「一石二鳥」という故事成語は、ある行動や努力によって二つの目的を同時に達成することを意味します。この表現は、英語の「kill two birds with one stone」に相当します。\n\n### 歴史的背景\nこの成語の起源は、古代の狩猟や農業に関連しています。石を投げて鳥を捕まえるという行為は、狩猟の一環として行われていました。一つの石で二羽の鳥を捕まえることができれば、効率的であり、時間や労力を節約できることから、この表現が生まれたと考えられています。\n\n### 意味\n「一石二鳥」は、特定の行動が複数の利益をもたらすことを強調する際に使われます。例えば、あるプロジェクトを進めることで、コスト削減と同時に新しい顧客を獲得することができる場合などに用いられます。\n\n### 使用例\n- 新しいマーケティング戦略を導入することで、売上を増やしつつブランドの認知度も高めることができた。まさに一石二鳥の結果だ。\n- 旅行を兼ねてビジネスミーティングを行うことで、仕事とリフレッシュを同時に達成した。これも一石二鳥と言える。\n\nこのように、「一石二鳥」は日常生活やビジネスシーンで非常に便利に使われる表現です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "node_04",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:12:58.470864Z",
+          "finished_at": "2026-04-18T15:13:00.894946Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  }\n]",
+          "output_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分から（予定）です。説明会はWeb会議による方法で開催されます。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "second_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:12:58.471134Z",
+          "finished_at": "2026-04-18T15:13:00.548619Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nOutput format:\n故事成語以外のテキストは不要",
+          "output_preview": "申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当者にお問い合わせください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "review",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:13:04.738114Z",
+          "finished_at": "2026-04-18T15:13:06.797056Z",
+          "input_preview": "入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。\n\nInput definition:\n[参照ノード]\n- second_node.result: 申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当者にお問い合わせください。\n\nAssessment options:\n- True\n- False\n\nReturn one option as selected_option.\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": -0.07013510475963043,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": -0.2871335626863006,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  }\n]",
+          "output_preview": "selected_option: False\n\nコメント: 提供されたテキストは、特定の情報を提供できないという内容であり、関連する公式の情報源や担当者に問い合わせるように指示しています。この内容は、一般的な情報提供の制限を示しているため、正確性に欠けると評価しました。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=assessment executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+          "node_id": "node_05",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-18T15:13:06.800414Z",
+          "finished_at": "2026-04-18T15:13:08.743380Z",
+          "input_preview": "何か勇気づけられることわざを一つ教えてください",
+          "output_preview": "「雨降って地固まる」ということわざがあります。困難や苦難を乗り越えた後には、逆に物事がより強固になるという意味です。困難な時期も、やがて成長や安定をもたらすことがありますので、励みにしてください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    }
+  ],
+  "events": {
+    "3d446a8b-87e7-4069-8940-5d66046f5be3": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:12:56.559699Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:12:58.464778Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:12:58.470008Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "first_node",
+        "message": "Node started: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:12:58.470885Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "node_04",
+        "message": "Node started: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:12:58.471148Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "second_node",
+        "message": "Node started: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:13:00.548634Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "second_node",
+        "message": "Node succeeded: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:13:00.894966Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "node_04",
+        "message": "Node succeeded: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:13:04.736342Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "first_node",
+        "message": "Node succeeded: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:13:04.738147Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "review",
+        "message": "Node started: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:13:06.797082Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "review",
+        "message": "Node succeeded: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-18T15:13:06.800463Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "node_05",
+        "message": "Node started: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-18T15:13:08.743403Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": "node_05",
+        "message": "Node succeeded: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-18T15:13:08.746709Z",
+        "execution_id": "3d446a8b-87e7-4069-8940-5d66046f5be3",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ]
+  }
+}

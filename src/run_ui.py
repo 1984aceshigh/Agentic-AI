@@ -130,7 +130,9 @@ def build_app():
         workflow_graphs = {graph.workflow_id: graph}
 
     context_manager = ExecutionContextManager()
-    records_manager = ExecutionRecordsManager()
+    records_manager = ExecutionRecordsManager(
+        storage_path=project_root / "data" / "runtime" / "execution_records.json"
+    )
     rag_dataset_service = RAGDatasetService(
         catalog_path=project_root / "data" / "rag" / "datasets.json",
         datasets_dir=project_root / "data" / "rag" / "datasets",
