@@ -140,6 +140,7 @@ def test_build_workflow_summary_counts_waiting_and_failed_nodes() -> None:
     assert summary.workflow_name == "Sample Workflow"
     assert summary.last_execution_id == execution_id
     assert summary.last_status == "FAILED"
+    assert summary.last_updated_at == "2026-04-12 01:04:00"
     assert summary.waiting_human_count == 1
     assert summary.failed_count == 1
 

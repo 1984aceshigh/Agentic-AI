@@ -256,3 +256,32 @@ def test_records_manager_list_workflow_records_returns_newest_first() -> None:
 
     filtered = manager.list_workflow_records("workflow_a")
     assert [record.execution_id for record in filtered] == ["exec-old"]
+
+
+def test_records_manager_delete_workflow_record_removes_related_data() -> None:
+    manager = ExecutionRecordsManager()
+    manager.create_workflow_record("exec-001", "workflow_a")
+    manager.start_node_record("exec-001", "node_a", "llm_generate")
+    manager.append_event("exec-001", "custom_event", node_id="node_a", message="hello")
+
+    deleted = manager.delete_workflow_record("exec-001")
+
+    assert deleted.execution_id == "exec-001"
+    assert deleted.workflow_id == "workflow_a"
+    assert manager.list_workflow_records() == []
+
+    try:
+        manager.get_workflow_record("exec-001")
+        assert False, "ExecutionRecordNotFoundError was not raised"
+    except ExecutionRecordNotFoundError:
+        assert True
+
+
+def test_records_manager_delete_workflow_record_raises_for_unknown_execution_id() -> None:
+    manager = ExecutionRecordsManager()
+
+    try:
+        manager.delete_workflow_record("missing")
+        assert False, "ExecutionRecordNotFoundError was not raised"
+    except ExecutionRecordNotFoundError:
+        assert True

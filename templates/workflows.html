@@ -15,6 +15,7 @@
         <p class="small text-muted mb-3">workflow_id: {{ item.workflow_id }}</p>
         <ul class="list-group list-group-flush mb-3">
           <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">last_status</span><span>{{ item.last_status or "N/A" }}</span></li>
+          <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">last_updated_at</span><span>{{ item.last_updated_at or "N/A" }}</span></li>
           <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">waiting_human</span><span>{{ item.waiting_human_count }}</span></li>
           <li class="list-group-item px-0 d-flex justify-content-between"><span class="text-muted">failed</span><span>{{ item.failed_count }}</span></li>
         </ul>

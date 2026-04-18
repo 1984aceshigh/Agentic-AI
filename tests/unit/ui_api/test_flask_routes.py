@@ -94,6 +94,7 @@ def build_test_client():
     draft_record.started_at = datetime(2026, 4, 12, 2, 0, tzinfo=UTC)
     draft_record.input_preview = "user request"
     records_manager.complete_node_record(execution_id, "step1", output_preview="draft output")
+    draft_record.finished_at = datetime(2026, 4, 12, 2, 0, 30, tzinfo=UTC)
 
     review_record = records_manager.start_node_record(execution_id, "step2", "human_gate")
     review_record.started_at = datetime(2026, 4, 12, 2, 1, tzinfo=UTC)
@@ -134,6 +135,7 @@ def build_test_client():
     rag_record.started_at = datetime(2026, 4, 12, 2, 2, tzinfo=UTC)
     rag_record.input_preview = "query text"
     records_manager.fail_node_record(execution_id, "step3", error_message="retrieval failed")
+    rag_record.finished_at = datetime(2026, 4, 12, 2, 2, 0, tzinfo=UTC)
 
     context_manager.update_node_state(execution_id, "step1", "SUCCEEDED")
     context_manager.update_node_state(execution_id, "step2", "WAITING_HUMAN")
@@ -187,6 +189,8 @@ def test_get_workflows_returns_200() -> None:
     assert b">Run<" in response.data
     assert b"/workflows/sample_workflow/nodes" in response.data
     assert b">Nodes<" in response.data
+    assert b"last_updated_at" in response.data
+    assert b"2026-04-12 02:02:00" in response.data
 
 
 def test_get_execution_list_returns_200() -> None:
@@ -197,6 +201,8 @@ def test_get_execution_list_returns_200() -> None:
     assert response.status_code == 200
     assert b"Execution Results" in response.data
     assert execution_id.encode() in response.data
+    assert f"/actions/executions/{execution_id}/delete".encode() in response.data
+    assert b">Delete<" in response.data
 
 
 def test_get_execution_detail_returns_200() -> None:
@@ -226,6 +232,38 @@ def test_api_execution_list_and_detail_return_expected_schema() -> None:
     assert detail_payload["execution_id"] == execution_id
     assert detail_payload["workflow_id"] == "sample_workflow"
     assert detail_payload["node_count"] == 3
+
+
+def test_post_delete_execution_returns_200_and_removes_execution() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/executions/{execution_id}/delete",
+        json={},
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["status"] == "ok"
+    assert payload["action"] == "delete_execution"
+    assert payload["execution_id"] == execution_id
+
+    list_response = client.get("/api/executions")
+    assert list_response.status_code == 200
+    assert list_response.get_json() == []
+
+
+def test_form_post_delete_execution_redirects_to_execution_list() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/executions/{execution_id}/delete",
+        data={"next": "/executions"},
+        follow_redirects=False,
+    )
+
+    assert response.status_code == 302
+    assert response.headers["Location"].endswith("/executions")
 
 
 def test_get_node_list_returns_200() -> None:
@@ -492,7 +530,7 @@ def test_api_workflows_returns_expected_schema() -> None:
             "workflow_name": "Sample Workflow",
             "last_execution_id": execution_id,
             "last_status": "FAILED",
-            "last_updated_at": None,
+            "last_updated_at": "2026-04-12 02:02:00",
             "waiting_human_count": 1,
             "failed_count": 1,
         }

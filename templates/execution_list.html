@@ -57,7 +57,13 @@
             <td>{{ item.waiting_human_count }}</td>
             <td>{{ item.failed_count }}</td>
             <td class="text-end">
-              <a class="btn btn-sm btn-outline-primary" href="/executions/{{ item.execution_id }}">Detail</a>
+              <div class="d-inline-flex gap-1">
+                <a class="btn btn-sm btn-outline-primary" href="/executions/{{ item.execution_id }}">Detail</a>
+                <form method="post" action="/actions/executions/{{ item.execution_id }}/delete" class="d-inline" onsubmit="return confirm('この実行結果を削除しますか？');">
+                  <input type="hidden" name="next" value="/executions{% if selected_workflow_id %}?workflow_id={{ selected_workflow_id|urlencode }}{% endif %}">
+                  <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                </form>
+              </div>
             </td>
           </tr>
           {% else %}

@@ -6,8 +6,10 @@ from urllib.parse import urlparse
 from flask import Blueprint, abort, jsonify, redirect, request
 
 from .dependencies import (
+    get_latest_execution_ids,
     get_execution_service,
     get_human_gate_service,
+    get_read_model_service,
     get_rerun_service,
     get_workflow_graphs,
 )
@@ -141,6 +143,43 @@ def run_workflow(workflow_id: str):
             "action": "run",
             "workflow_id": workflow_id,
             "execution_id": execution_id,
+        }
+    )
+
+
+@action_bp.post("/executions/<execution_id>/delete")
+def delete_execution(execution_id: str):
+    payload = _get_payload()
+    read_model_service = get_read_model_service()
+    records_manager = getattr(read_model_service, "_records_manager", None)
+    if records_manager is None or not hasattr(records_manager, "delete_workflow_record"):
+        abort(500, description="Execution record delete is not supported.")
+
+    try:
+        deleted_record = records_manager.delete_workflow_record(execution_id)
+    except KeyError as exc:
+        raise abort(404, description=str(exc)) from exc
+
+    workflow_id = str(getattr(deleted_record, "workflow_id", ""))
+    if workflow_id:
+        latest_execution_ids = get_latest_execution_ids()
+        if latest_execution_ids.get(workflow_id) == execution_id:
+            remaining = records_manager.list_workflow_records(workflow_id)
+            latest_execution_ids[workflow_id] = remaining[0].execution_id if remaining else None
+
+    redirect_response = _maybe_redirect(payload)
+    if redirect_response is not None:
+        return redirect_response
+
+    if not request.is_json:
+        return redirect("/executions")
+
+    return jsonify(
+        {
+            "status": "ok",
+            "action": "delete_execution",
+            "execution_id": execution_id,
+            "workflow_id": workflow_id or None,
         }
     )
 

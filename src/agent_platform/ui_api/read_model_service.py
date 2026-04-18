@@ -39,10 +39,14 @@ class ReadModelService:
         execution_id: str | None = None,
     ) -> WorkflowSummaryView:
         if execution_id is None:
-            return WorkflowSummaryView(
-                workflow_id=graph.workflow_id,
-                workflow_name=graph.workflow_name,
-            )
+            records = self._records_manager.list_workflow_records(graph.workflow_id)
+            if records:
+                execution_id = records[0].execution_id
+            else:
+                return WorkflowSummaryView(
+                    workflow_id=graph.workflow_id,
+                    workflow_name=graph.workflow_name,
+                )
 
         workflow_record = self._records_manager.get_workflow_record(execution_id)
         waiting_human_count = 0
@@ -54,10 +58,7 @@ class ReadModelService:
             elif status == "FAILED":
                 failed_count += 1
 
-        # MVPでは workflow-level の「最終更新日時」の意味がまだ固定されていない。
-        # started_at / finished_at から推定するとテストや今後のUI要件とずれやすいため、
-        # 専用の更新時刻が整備されるまでは未設定として扱う。
-        last_updated_at = None
+        last_updated_at = self._resolve_workflow_last_updated_at(workflow_record)
 
         return WorkflowSummaryView(
             workflow_id=graph.workflow_id,
@@ -68,6 +69,27 @@ class ReadModelService:
             waiting_human_count=waiting_human_count,
             failed_count=failed_count,
         )
+
+    def _resolve_workflow_last_updated_at(
+        self,
+        workflow_record: WorkflowExecutionRecord,
+    ) -> str | None:
+        timestamps: list[datetime] = []
+        for node_record in workflow_record.node_records:
+            if node_record.finished_at is not None:
+                timestamps.append(node_record.finished_at)
+            elif node_record.started_at is not None:
+                timestamps.append(node_record.started_at)
+
+        if not timestamps:
+            if workflow_record.finished_at is not None:
+                timestamps.append(workflow_record.finished_at)
+            elif workflow_record.started_at is not None:
+                timestamps.append(workflow_record.started_at)
+
+        if not timestamps:
+            return None
+        return self._format_datetime(max(timestamps))
 
     def build_execution_summaries(self, workflow_id: str | None = None) -> list[ExecutionSummaryView]:
         records = self._records_manager.list_workflow_records(workflow_id)

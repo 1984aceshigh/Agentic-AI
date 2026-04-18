@@ -302,6 +302,17 @@ class ExecutionRecordsManager:
         records.sort(key=lambda record: record.started_at or min_dt, reverse=True)
         return records
 
+    def delete_workflow_record(self, execution_id: str) -> WorkflowExecutionRecord:
+        record = self._workflow_records.pop(execution_id, None)
+        if record is None:
+            raise ExecutionRecordNotFoundError(execution_id)
+
+        for node_record in record.node_records:
+            self._node_records.pop((execution_id, node_record.node_id), None)
+        self._events.pop(execution_id, None)
+        self._persist_state()
+        return record
+
     def _load_state(self) -> None:
         if self._storage_path is None or not self._storage_path.exists():
             return
