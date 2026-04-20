@@ -59,6 +59,7 @@ class NodeCardView(_BaseViewModel):
     node_name: str
     node_type: str
     task: str | None = None
+    human_gate_task: str | None = None
     status: str
     group: str | None = None
     started_at: str | None = None
@@ -74,6 +75,11 @@ class NodeDetailView(_BaseViewModel):
     node_name: str
     node_type: str
     task: str | None = None
+    human_gate_task: str | None = None
+    human_gate_approval_options: list[str] = Field(default_factory=list)
+    human_gate_required_fields: list[str] = Field(default_factory=list)
+    human_gate_allow_files: bool = False
+    human_gate_instructions: str | None = None
     status: str
     input_preview: str | None = None
     output_preview: str | None = None
@@ -89,6 +95,9 @@ class NodeDetailView(_BaseViewModel):
     rag_hits: list[dict[str, Any]] = Field(default_factory=list)
     rag_count: int = 0
     event_history: list[dict[str, Any]] = Field(default_factory=list)
+    human_input: dict[str, Any] = Field(default_factory=dict)
+    human_comment: str | None = None
+    selected_option: str | None = None
 
 
 class GraphView(_BaseViewModel):

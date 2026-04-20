@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import io
 from datetime import datetime, timezone
 
 from agent_platform.models import ExecutionEvent, GraphEdge, GraphModel, GraphNode
@@ -15,13 +16,25 @@ class FakeHumanGateService:
     def __init__(self) -> None:
         self.approvals: list[dict[str, str | None]] = []
         self.rejections: list[dict[str, str | None]] = []
+        self.submissions: list[dict[str, object | None]] = []
         self.valid_execution_ids: set[str] = set()
         self.valid_node_ids: set[str] = set()
 
-    def approve_node(self, execution_id: str, node_id: str, comment: str | None = None) -> None:
+    def approve_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        comment: str | None = None,
+        decision_option: str | None = None,
+    ) -> None:
         self._ensure_known(execution_id, node_id)
         self.approvals.append(
-            {"execution_id": execution_id, "node_id": node_id, "comment": comment}
+            {
+                "execution_id": execution_id,
+                "node_id": node_id,
+                "comment": comment,
+                "decision_option": decision_option,
+            }
         )
 
     def reject_node(
@@ -41,6 +54,23 @@ class FakeHumanGateService:
             }
         )
 
+    def submit_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: dict[str, object] | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self._ensure_known(execution_id, node_id)
+        self.submissions.append(
+            {
+                "execution_id": execution_id,
+                "node_id": node_id,
+                "human_input": dict(human_input or {}),
+                "comment": comment,
+            }
+        )
+
     def _ensure_known(self, execution_id: str, node_id: str) -> None:
         if execution_id not in self.valid_execution_ids or node_id not in self.valid_node_ids:
             raise KeyError("Unknown execution or node")
@@ -56,6 +86,24 @@ class FakeRerunService:
         if execution_id not in self.valid_execution_ids or from_node_id not in self.valid_node_ids:
             raise KeyError("Unknown execution or node")
         self.calls.append({"execution_id": execution_id, "from_node_id": from_node_id})
+
+
+class FakeExecutionService:
+    last_instance: "FakeExecutionService | None" = None
+
+    def __init__(self) -> None:
+        self.resume_calls: list[dict[str, str]] = []
+        FakeExecutionService.last_instance = self
+
+    def run_workflow(self, workflow_id: str, *, global_inputs: dict[str, object] | None = None) -> str:
+        return "exec-new"
+
+    def rerun_from_node(self, *, workflow_id: str, execution_id: str, from_node_id: str) -> str:
+        return execution_id
+
+    def resume_workflow(self, *, workflow_id: str, execution_id: str) -> str:
+        self.resume_calls.append({"workflow_id": workflow_id, "execution_id": execution_id})
+        return execution_id
 
 
 def make_graph_model() -> GraphModel:
@@ -160,6 +208,7 @@ def build_test_client():
 
     human_gate_service = FakeHumanGateService()
     rerun_service = FakeRerunService()
+    execution_service = FakeExecutionService()
     human_gate_service.valid_execution_ids.add(execution_id)
     human_gate_service.valid_node_ids.update(graph.nodes.keys())
     rerun_service.valid_execution_ids.add(execution_id)
@@ -169,6 +218,7 @@ def build_test_client():
         read_model_service=read_model_service,
         human_gate_service=human_gate_service,
         rerun_service=rerun_service,
+        execution_service=execution_service,
     )
     app.testing = True
     set_workflow_graphs(app, {graph.workflow_id: graph})
@@ -318,8 +368,9 @@ def test_node_list_includes_waiting_human_and_failed_action_forms() -> None:
     response = client.get(f"/workflows/sample_workflow/executions/{execution_id}/nodes")
 
     assert response.status_code == 200
-    assert b"Approve" in response.data
-    assert b"Reject" in response.data
+    assert b"Approve" not in response.data
+    assert b"Reject" not in response.data
+    assert b"Submit" not in response.data
     assert b"Rerun" in response.data
 
 
@@ -352,6 +403,15 @@ def test_get_node_detail_returns_200() -> None:
     assert b"Event History" in response.data
     assert b"approval required" in response.data
     assert b"waiting for approval" in response.data
+    assert b"js-markdown-mermaid-preview" in response.data
+    assert b"is-collapsed" in response.data
+    assert b"js-preview-toggle" in response.data
+    assert b"data-target=\"input-preview\"" in response.data
+    assert b"data-target=\"output-preview\"" in response.data
+    assert b"marked.min.js" in response.data
+    assert b"dompurify" in response.data
+    assert b"mermaid.min.js" in response.data
+    assert b"node_detail_preview.js" in response.data
 
 
 def test_get_node_detail_hides_rag_results_panel() -> None:
@@ -428,8 +488,36 @@ def test_post_approve_returns_200_and_json() -> None:
     )
 
     assert response.status_code == 200
-    assert response.get_json() == {"status": "ok", "action": "approve", "node_id": "step2"}
+    assert response.get_json() == {
+        "status": "ok",
+        "action": "approve",
+        "node_id": "step2",
+        "selected_option": None,
+    }
     assert human_gate_service.approvals[0]["comment"] == "looks good"
+    assert FakeExecutionService.last_instance is not None
+    assert FakeExecutionService.last_instance.resume_calls[-1] == {
+        "workflow_id": "sample_workflow",
+        "execution_id": execution_id,
+    }
+
+
+def test_post_approve_with_decision_option_returns_selected_option() -> None:
+    client, execution_id, human_gate_service, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/workflows/sample_workflow/executions/{execution_id}/nodes/step2/approve",
+        json={"comment": "route this", "decision_option": "承認"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "status": "ok",
+        "action": "approve",
+        "node_id": "step2",
+        "selected_option": "承認",
+    }
+    assert human_gate_service.approvals[0]["decision_option"] == "承認"
 
 
 def test_post_reject_returns_200_and_json() -> None:
@@ -448,6 +536,65 @@ def test_post_reject_returns_200_and_json() -> None:
         "fallback_node_id": "step1",
     }
     assert human_gate_service.rejections[0]["fallback_node_id"] == "step1"
+
+
+def test_post_submit_returns_200_and_json() -> None:
+    client, execution_id, human_gate_service, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/workflows/sample_workflow/executions/{execution_id}/nodes/step2/submit",
+        json={"human_input": {"text": "manual update"}, "comment": "submitted"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {
+        "status": "ok",
+        "action": "submit",
+        "node_id": "step2",
+        "human_input": {"text": "manual update"},
+    }
+    assert human_gate_service.submissions[0]["human_input"] == {"text": "manual update"}
+    assert FakeExecutionService.last_instance is not None
+    assert FakeExecutionService.last_instance.resume_calls[-1] == {
+        "workflow_id": "sample_workflow",
+        "execution_id": execution_id,
+    }
+
+
+def test_post_submit_with_uploaded_text_file_extracts_text() -> None:
+    client, execution_id, human_gate_service, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/workflows/sample_workflow/executions/{execution_id}/nodes/step2/submit",
+        data={
+            "human_input_text": "short summary",
+            "human_input_file": (io.BytesIO("line1\nline2".encode("utf-8")), "input.txt"),
+            "comment": "submitted with file",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload["status"] == "ok"
+    assert payload["action"] == "submit"
+    assert payload["node_id"] == "step2"
+    assert payload["human_input"]["text"] == "short summary"
+    assert payload["human_input"]["file"]["filename"] == "input.txt"
+    assert payload["human_input"]["file"]["text"] == "line1\nline2"
+    assert human_gate_service.submissions[0]["human_input"]["file"]["filename"] == "input.txt"
+
+
+def test_post_submit_with_unsupported_file_type_returns_400() -> None:
+    client, execution_id, _, _ = build_test_client()
+
+    response = client.post(
+        f"/actions/workflows/sample_workflow/executions/{execution_id}/nodes/step2/submit",
+        data={
+            "human_input_file": (io.BytesIO(b"binary"), "input.exe"),
+        },
+    )
+
+    assert response.status_code == 400
 
 
 def test_post_rerun_returns_200_and_json() -> None:

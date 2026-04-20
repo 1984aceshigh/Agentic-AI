@@ -88,6 +88,11 @@ class FakeExecutionRecordsManager:
         self.events.append(event)
         return event
 
+    def set_workflow_status(self, execution_id: str, status: str) -> FakeWorkflowRecord:
+        workflow_record = self.get_workflow_record(execution_id)
+        workflow_record.status = status
+        return workflow_record
+
     def _get_or_create_node_record(self, execution_id: str, node_id: str) -> FakeNodeRecord:
         workflow_record = self.workflow_records[execution_id]
         for record in workflow_record.node_records:
@@ -101,9 +106,13 @@ class FakeExecutionRecordsManager:
 class FakeExecutionContextManager:
     def __init__(self) -> None:
         self.node_states: dict[tuple[str, str], str] = {}
+        self.node_outputs: dict[tuple[str, str], dict[str, object]] = {}
 
     def update_node_state(self, execution_id: str, node_id: str, status: str) -> None:
         self.node_states[(execution_id, node_id)] = status
+
+    def set_node_output(self, execution_id: str, node_id: str, output: dict[str, object]) -> None:
+        self.node_outputs[(execution_id, node_id)] = output
 
 
 @pytest.fixture
@@ -161,9 +170,128 @@ def test_human_gate_service_approve_sets_succeeded_and_returns_status(
     assert result == SUCCEEDED
     assert node_record.status == SUCCEEDED
     assert node_record.output_preview == "approved"
+    assert workflow_record.status == SUCCEEDED
     assert context_manager.node_states[(execution_id, "human_review")] == SUCCEEDED
     assert records_manager.events[-1]["event_type"] == "human_gate_approved"
     assert records_manager.events[-1]["message"] == "approved"
+
+
+def test_human_gate_service_approve_node_with_decision_option_sets_context_output() -> None:
+    records_manager = FakeExecutionRecordsManager()
+    context_manager = FakeExecutionContextManager()
+    service = HumanGateService(records_manager=records_manager, context_manager=context_manager)
+
+    execution_id = "exec-approval"
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id="wf-approval")
+    records_manager.get_workflow_record(execution_id).node_records.append(
+        FakeNodeRecord(node_id="human_review", node_type="human_gate", status=WAITING_HUMAN)
+    )
+    service.register_workflow_definition(
+        execution_id,
+        nodes=[
+            {
+                "id": "human_review",
+                "type": "human_gate",
+                "config": {
+                    "approval_routes": {
+                        "承認": ["publish"],
+                        "否認": ["revise"],
+                    }
+                },
+            }
+        ],
+    )
+
+    service.approve_node(
+        execution_id=execution_id,
+        node_id="human_review",
+        comment="go",
+        decision_option="承認",
+    )
+
+    node_record = next(
+        record for record in records_manager.get_workflow_record(execution_id).node_records if record.node_id == "human_review"
+    )
+    assert node_record.status == SUCCEEDED
+    assert node_record.output_preview == "go"
+    assert context_manager.node_states[(execution_id, "human_review")] == SUCCEEDED
+    assert context_manager.node_outputs[(execution_id, "human_review")]["selected_option"] == "承認"
+    assert context_manager.node_outputs[(execution_id, "human_review")]["next_node"] == "publish"
+    assert context_manager.node_outputs[(execution_id, "human_review")]["human_comment"] == "go"
+    assert records_manager.events[-1]["event_type"] == "human_gate_approved"
+    assert records_manager.events[-1]["payload_ref"] == "publish"
+
+
+def test_human_gate_service_submit_sets_succeeded_and_stores_human_input(
+    setup_service: tuple[HumanGateService, FakeExecutionRecordsManager, FakeExecutionContextManager, str],
+) -> None:
+    service, records_manager, context_manager, execution_id = setup_service
+
+    result = service.submit(
+        execution_id,
+        "human_review",
+        human_input={"input_file": "docs/spec.pdf", "priority": "high"},
+        comment="submitted from ui",
+    )
+
+    workflow_record = records_manager.get_workflow_record(execution_id)
+    node_record = next(record for record in workflow_record.node_records if record.node_id == "human_review")
+    assert result == SUCCEEDED
+    assert node_record.status == SUCCEEDED
+    assert node_record.output_preview == "submitted from ui"
+    assert workflow_record.status == SUCCEEDED
+    assert context_manager.node_states[(execution_id, "human_review")] == SUCCEEDED
+    assert context_manager.node_outputs[(execution_id, "human_review")]["human_input"] == {
+        "input_file": "docs/spec.pdf",
+        "priority": "high",
+    }
+    assert context_manager.node_outputs[(execution_id, "human_review")]["result"] == (
+        '{"input_file": "docs/spec.pdf", "priority": "high"}'
+    )
+    assert records_manager.events[-1]["event_type"] == "human_gate_submitted"
+
+
+def test_human_gate_service_submit_node_compatibility_method_calls_submit(
+    setup_service: tuple[HumanGateService, FakeExecutionRecordsManager, FakeExecutionContextManager, str],
+) -> None:
+    service, records_manager, _context_manager, execution_id = setup_service
+
+    service.submit_node(execution_id, "human_review", human_input={"text": "done"}, comment="ok")
+
+    workflow_record = records_manager.get_workflow_record(execution_id)
+    node_record = next(record for record in workflow_record.node_records if record.node_id == "human_review")
+    assert node_record.status == SUCCEEDED
+    assert node_record.output_preview == "ok"
+
+
+def test_human_gate_service_submit_keeps_file_text_payload() -> None:
+    records_manager = FakeExecutionRecordsManager()
+    context_manager = FakeExecutionContextManager()
+    service = HumanGateService(records_manager=records_manager, context_manager=context_manager)
+
+    execution_id = "exec-entry-file"
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id="wf-entry")
+    records_manager.get_workflow_record(execution_id).node_records.append(
+        FakeNodeRecord(node_id="entry_input", node_type="human_gate", status=WAITING_HUMAN)
+    )
+
+    service.submit(
+        execution_id=execution_id,
+        node_id="entry_input",
+        human_input={
+            "text": "manual context",
+            "file": {
+                "filename": "input.md",
+                "content_type": "text/markdown",
+                "text": "# heading\nbody",
+            },
+        },
+        comment="submitted with file",
+    )
+
+    assert context_manager.node_outputs[(execution_id, "entry_input")]["human_input"]["file"]["filename"] == "input.md"
+    assert context_manager.node_outputs[(execution_id, "entry_input")]["human_input"]["file"]["text"] == "# heading\nbody"
+    assert context_manager.node_outputs[(execution_id, "entry_input")]["result"] == "manual context"
 
 
 def test_human_gate_service_reject_returns_explicit_fallback_when_given(
@@ -183,6 +311,7 @@ def test_human_gate_service_reject_returns_explicit_fallback_when_given(
     assert result == "task_understanding"
     assert node_record.status == FAILED
     assert node_record.error_message == "redo from start"
+    assert workflow_record.status == FAILED
     assert context_manager.node_states[(execution_id, "human_review")] == FAILED
     assert records_manager.events[-1]["event_type"] == "human_gate_rejected"
     assert records_manager.events[-1]["message"] == "redo from start"
@@ -192,11 +321,28 @@ def test_human_gate_service_reject_returns_explicit_fallback_when_given(
 def test_human_gate_service_reject_uses_on_reject_config_when_present(
     setup_service: tuple[HumanGateService, FakeExecutionRecordsManager, FakeExecutionContextManager, str],
 ) -> None:
-    service, _records_manager, _context_manager, execution_id = setup_service
+    service, records_manager, _context_manager, execution_id = setup_service
 
     result = service.reject(execution_id, "human_review", comment="needs revision")
 
     assert result == "outline_generation"
+    assert records_manager.get_workflow_record(execution_id).status == FAILED
+
+
+def test_human_gate_service_approve_clears_waiting_human_workflow_status() -> None:
+    records_manager = FakeExecutionRecordsManager()
+    context_manager = FakeExecutionContextManager()
+    service = HumanGateService(records_manager=records_manager, context_manager=context_manager)
+
+    execution_id = "exec-only-human"
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id="wf-only-human")
+    records_manager.get_workflow_record(execution_id).node_records.append(
+        FakeNodeRecord(node_id="review", node_type="human_gate", status=WAITING_HUMAN)
+    )
+
+    service.approve(execution_id=execution_id, node_id="review", comment="done")
+
+    assert records_manager.get_workflow_record(execution_id).status == SUCCEEDED
 
 
 def test_human_gate_service_reject_uses_previous_executed_node_when_on_reject_missing() -> None:

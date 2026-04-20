@@ -7,6 +7,11 @@
   ('assessment', 'assessment: 入力を評価し、判断・分類するタスクです'),
   ('extract', 'extract: 入力から構造化情報を抽出するタスクです')
 ] %}
+{% set human_gate_task_options = [
+  ('entry_input', 'entry_input: 業務の入り口として初期入力を受け取る'),
+  ('human_task', 'human_task: ワークフロー内で人が作業を実施する'),
+  ('approval', 'approval: AI結果を確認し進行可否を判断する')
+] %}
 <section class="d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3 mb-4">
   <div>
     <a href="/workflow-definitions" class="btn btn-outline-secondary btn-sm mb-2">← Workflow Definitions</a>
@@ -101,7 +106,7 @@
           </div>
           <div class="col-12">
             <label class="form-label">node_type</label>
-            <select class="form-select form-select-sm" name="node_type">
+            <select class="form-select form-select-sm node-type-select" name="node_type">
               {% for node_type in node_type_options %}
               <option value="{{ node_type }}">{{ node_type }}</option>
               {% endfor %}
@@ -111,11 +116,25 @@
             <label class="form-label">group</label>
             <input class="form-control form-control-sm" type="text" name="group">
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="human_gate">
+            <label class="form-label">config.task (human_gate)</label>
+            <select class="form-select form-select-sm human-gate-task-select" name="human_gate_task">
+              {% for task_value, task_label in human_gate_task_options %}
+              <option value="{{ task_value }}" {% if task_value == 'approval' %}selected{% endif %}>{{ task_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 node-type-section human-gate-task-section" data-node-type-section="human_gate" data-human-gate-task-section="approval">
+            <label class="form-label">approval options (1行1項目 / カンマ区切り可)</label>
+            <textarea class="form-control form-control-sm" rows="3" name="human_gate_approval_options" placeholder="承認
+否認"></textarea>
+            <div class="form-text">未入力時はデフォルトで <code>承認</code> / <code>否認</code> が使用されます。</div>
+          </div>
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_prompt (llm)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_prompt"></textarea>
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">config.task (llm)</label>
             <select class="form-select form-select-sm llm-task-select" name="llm_task">
               {% for task_value, task_label in llm_task_options %}
@@ -123,12 +142,12 @@
               {% endfor %}
             </select>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="generate">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="generate">
             <label class="form-label">temperature (generate)</label>
             <input class="form-control form-control-sm" type="number" step="0.1" min="0" max="2" name="llm_temperature" value="0">
             <div class="form-text">生成の揺らぎ制御。0でより決定的、値を上げると多様性が増えます。</div>
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_input_definition</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_input_definition" id="llm-input-definition-add"></textarea>
             {% if editor.node_summaries %}
@@ -146,20 +165,20 @@
             </div>
             {% endif %}
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_output_format</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_output_format"></textarea>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="assessment">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="assessment">
             <label class="form-label">assessment options (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_assessment_options" placeholder="pass\nrework"></textarea>
             <div class="form-text">判定ラベルの候補です。例: <code>pass</code>, <code>rework</code></div>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="extract">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="extract">
             <label class="form-label">extract fields (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_extract_fields" placeholder="company_name\ninvoice_no\ntotal_amount"></textarea>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="extract">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="extract">
             <label class="form-label">extract output format</label>
             <select class="form-select form-select-sm" name="llm_extract_output_format">
               {% for fmt in ['json', 'yaml', 'markdown', 'plain_text'] %}
@@ -212,7 +231,7 @@
           </div>
           <div class="col-12">
             <label class="form-label">node_type</label>
-            <select class="form-select form-select-sm" name="node_type">
+            <select class="form-select form-select-sm node-type-select" name="node_type">
               {% for node_type in node_type_options %}
               <option value="{{ node_type }}" {% if editor.selected_node_editor.node_type == node_type %}selected{% endif %}>{{ node_type }}</option>
               {% endfor %}
@@ -222,8 +241,20 @@
             <label class="form-label">group</label>
             <input class="form-control form-control-sm" type="text" name="group" value="{{ editor.selected_node_editor.group or '' }}">
           </div>
-          {% if editor.selected_node_editor.is_llm_node %}
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="human_gate">
+            <label class="form-label">config.task (human_gate)</label>
+            <select class="form-select form-select-sm human-gate-task-select" name="human_gate_task">
+              {% for task_value, task_label in human_gate_task_options %}
+              <option value="{{ task_value }}" {% if editor.selected_node_editor.human_gate_task == task_value %}selected{% endif %}>{{ task_label }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12 node-type-section human-gate-task-section" data-node-type-section="human_gate" data-human-gate-task-section="approval">
+            <label class="form-label">approval options (1行1項目 / カンマ区切り可)</label>
+            <textarea class="form-control form-control-sm" rows="3" name="human_gate_approval_options">{{ editor.selected_node_editor.human_gate_approval_options }}</textarea>
+            <div class="form-text">未入力時はデフォルトで <code>承認</code> / <code>否認</code> が使用されます。</div>
+          </div>
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">config.task</label>
             <select class="form-select form-select-sm llm-task-select" name="llm_task">
               {% for task_value, task_label in llm_task_options %}
@@ -231,16 +262,16 @@
               {% endfor %}
             </select>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="generate">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="generate">
             <label class="form-label">temperature (generate)</label>
             <input class="form-control form-control-sm" type="number" step="0.1" min="0" max="2" name="llm_temperature" value="{{ editor.selected_node_editor.llm_temperature }}">
             <div class="form-text">assessment/extract に切り替えると保存時に既定値 0 が適用されます。</div>
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_prompt</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_prompt">{{ editor.selected_node_editor.llm_prompt }}</textarea>
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label" for="llm-input-definition">llm_input_definition</label>
             <textarea class="form-control form-control-sm w-100" rows="3" name="llm_input_definition" id="llm-input-definition">{{ editor.selected_node_editor.llm_input_definition }}</textarea>
             <div class="mt-2">
@@ -254,7 +285,7 @@
                 <select class="form-select form-select-sm" id="llm-input-definition-candidates">
                   <option value="">-- 候補を選択 --</option>
                   {% for candidate in editor.selected_node_editor.input_definition_candidates %}
-                  <option value="{{ candidate.ref_expression }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.output_key }}</option>
+                  <option value="{{ candidate.ref_expression }}" data-node-type="{{ candidate.node_type }}" data-node-task="{{ candidate.node_task or '' }}" data-visual-class="{{ candidate.visual_class }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.output_key }}{% if candidate.node_task %} / {{ candidate.node_task }}{% endif %}</option>
                   {% endfor %}
                 </select>
                 <button type="button" class="btn btn-outline-primary btn-sm" id="add-llm-input-definition-chip">Add</button>
@@ -262,20 +293,20 @@
             </div>
             {% endif %}
           </div>
-          <div class="col-12">
+          <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_output_format</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_output_format">{{ editor.selected_node_editor.llm_output_format }}</textarea>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="assessment">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="assessment">
             <label class="form-label">assessment options (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_assessment_options">{{ editor.selected_node_editor.llm_assessment_options }}</textarea>
             <div class="form-text">判定ラベル候補。ここで定義した値が routes のキーになります。</div>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="extract">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="extract">
             <label class="form-label">extract fields (1行1項目 / カンマ区切り可)</label>
             <textarea class="form-control form-control-sm" rows="3" name="llm_extract_fields">{{ editor.selected_node_editor.llm_extract_fields }}</textarea>
           </div>
-          <div class="col-12 llm-task-section" data-llm-task-section="extract">
+          <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="extract">
             <label class="form-label">extract output format</label>
             <select class="form-select form-select-sm" name="llm_extract_output_format">
               {% for fmt in ['json', 'yaml', 'markdown', 'plain_text'] %}
@@ -299,7 +330,6 @@
               <div class="rag-dataset-hidden-inputs"></div>
             </div>
           </div>
-          {% endif %}
           <div class="col-12">
             <label class="form-label">advanced_yaml_fragment</label>
             <textarea class="form-control form-control-sm font-monospace" rows="5" name="advanced_yaml_fragment">{{ editor.selected_node_editor.advanced_yaml_fragment }}</textarea>
@@ -346,22 +376,24 @@
                           <select class="form-select form-select-sm assessment-route-candidate" data-assessment-option="{{ option }}">
                             <option value="">-- ノードを選択 --</option>
                             {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
-                            <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}</option>
+                            <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}" data-node-task="{{ candidate.node_task or '' }}" data-visual-class="{{ candidate.visual_class }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}{% if candidate.node_task %} / {{ candidate.node_task }}{% endif %}</option>
                             {% endfor %}
                           </select>
                           <button class="btn btn-outline-primary btn-sm assessment-route-add" type="button" data-assessment-option="{{ option }}">Add</button>
                         </div>
                         <div class="d-flex flex-wrap gap-2 mt-2 assessment-route-chip-list" data-assessment-option="{{ option }}">
                           {% for selected_node_id in selected_route_nodes %}
-                          {% set matched = namespace(node_name=selected_node_id, node_type='') %}
+                          {% set matched = namespace(node_name=selected_node_id, node_type='', node_task='', visual_class='node-type-default') %}
                           {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
                             {% if candidate.node_id == selected_node_id %}
                               {% set matched.node_name = candidate.node_name %}
                               {% set matched.node_type = candidate.node_type %}
+                              {% set matched.node_task = candidate.node_task or '' %}
+                              {% set matched.visual_class = candidate.visual_class %}
                             {% endif %}
                           {% endfor %}
-                          <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 assessment-route-chip" data-assessment-option="{{ option }}" data-node-id="{{ selected_node_id }}">
-                            <span>{{ selected_node_id }} / {{ matched.node_name }}{% if matched.node_type %} / {{ matched.node_type }}{% endif %}</span>
+                          <span class="badge rounded-pill d-inline-flex align-items-center gap-2 assessment-route-chip node-visual-chip {{ matched.visual_class }}" data-assessment-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                            <span>{{ selected_node_id }} / {{ matched.node_name }}{% if matched.node_type %} / {{ matched.node_type }}{% endif %}{% if matched.node_task %} / {{ matched.node_task }}{% endif %}</span>
                             <button type="button" class="btn-close btn-close-sm assessment-route-remove" aria-label="Remove"></button>
                           </span>
                           {% endfor %}
@@ -380,6 +412,65 @@
               </div>
               <div class="form-text">assessment options ごとに遷移先を指定します（通常の接続先チップ入力は不要）。</div>
             </div>
+            {% elif editor.selected_node_editor.is_human_gate_node and editor.selected_node_editor.human_gate_task == 'approval' and editor.selected_node_editor.human_gate_approval_option_list %}
+            <input type="hidden" name="edge_mode" value="set_human_gate_approval_routes">
+            <div class="col-12">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th style="width: 35%;">approval option</th>
+                      <th>next node</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for option in editor.selected_node_editor.human_gate_approval_option_list %}
+                    <tr>
+                      <td>
+                        <span class="badge text-bg-light border">{{ option }}</span>
+                      </td>
+                      <td>
+                        {% set selected_route_nodes = editor.selected_node_editor.human_gate_approval_route_map.get(option, []) %}
+                        <div class="d-flex gap-2">
+                          <select class="form-select form-select-sm approval-route-candidate" data-approval-option="{{ option }}">
+                            <option value="">-- ノードを選択 --</option>
+                            {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
+                            <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}" data-node-task="{{ candidate.node_task or '' }}" data-visual-class="{{ candidate.visual_class }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}{% if candidate.node_task %} / {{ candidate.node_task }}{% endif %}</option>
+                            {% endfor %}
+                          </select>
+                          <button class="btn btn-outline-primary btn-sm approval-route-add" type="button" data-approval-option="{{ option }}">Add</button>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2 mt-2 approval-route-chip-list" data-approval-option="{{ option }}">
+                          {% for selected_node_id in selected_route_nodes %}
+                          {% set matched = namespace(node_name=selected_node_id, node_type='', node_task='', visual_class='node-type-default') %}
+                          {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
+                            {% if candidate.node_id == selected_node_id %}
+                              {% set matched.node_name = candidate.node_name %}
+                              {% set matched.node_type = candidate.node_type %}
+                              {% set matched.node_task = candidate.node_task or '' %}
+                              {% set matched.visual_class = candidate.visual_class %}
+                            {% endif %}
+                          {% endfor %}
+                          <span class="badge rounded-pill d-inline-flex align-items-center gap-2 approval-route-chip node-visual-chip {{ matched.visual_class }}" data-approval-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                            <span>{{ selected_node_id }} / {{ matched.node_name }}{% if matched.node_type %} / {{ matched.node_type }}{% endif %}{% if matched.node_task %} / {{ matched.node_task }}{% endif %}</span>
+                            <button type="button" class="btn-close btn-close-sm approval-route-remove" aria-label="Remove"></button>
+                          </span>
+                          {% endfor %}
+                        </div>
+                        <div class="approval-route-hidden-inputs" data-approval-option="{{ option }}">
+                          {% for selected_node_id in selected_route_nodes %}
+                          <input type="hidden" name="approval_route_option" value="{{ option }}" data-approval-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                          <input type="hidden" name="approval_route_to_node" value="{{ selected_node_id }}" data-approval-option="{{ option }}" data-node-id="{{ selected_node_id }}">
+                          {% endfor %}
+                        </div>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="form-text">approval options ごとに遷移先を指定します（通常の接続先チップ入力は不要）。</div>
+            </div>
             {% else %}
             <input type="hidden" name="edge_mode" value="set_outgoing">
             <div class="col-12">
@@ -388,7 +479,7 @@
                 <select class="form-select form-select-sm" id="edge-connection-candidate">
                   <option value="">-- ノードを選択 --</option>
                   {% for candidate in editor.selected_node_editor.edge_connection_candidates %}
-                  <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}</option>
+                  <option value="{{ candidate.node_id }}" data-node-name="{{ candidate.node_name }}" data-node-type="{{ candidate.node_type }}" data-node-task="{{ candidate.node_task or '' }}" data-visual-class="{{ candidate.visual_class }}">{{ candidate.node_id }} / {{ candidate.node_name }} / {{ candidate.node_type }}{% if candidate.node_task %} / {{ candidate.node_task }}{% endif %}</option>
                   {% endfor %}
                 </select>
                 <button class="btn btn-outline-primary btn-sm" type="button" id="add-edge-connection-chip">Add</button>
@@ -397,8 +488,8 @@
             <div class="col-12">
               <div class="d-flex flex-wrap gap-2" id="edge-connection-chip-list">
                 {% for node in editor.selected_node_editor.selected_outgoing_connections %}
-                <span class="badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 edge-connection-chip" data-node-id="{{ node.node_id }}">
-                  <span>{{ node.node_id }} / {{ node.node_name }} / {{ node.node_type }}</span>
+                <span class="badge rounded-pill d-inline-flex align-items-center gap-2 edge-connection-chip node-visual-chip {{ node.visual_class }}" data-node-id="{{ node.node_id }}">
+                  <span>{{ node.node_id }} / {{ node.node_name }} / {{ node.node_type }}{% if node.node_task %} / {{ node.node_task }}{% endif %}</span>
                   <button type="button" class="btn-close btn-close-sm edge-connection-remove" aria-label="Remove"></button>
                 </span>
                 {% endfor %}
@@ -530,7 +621,7 @@
 
     const createChip = (datasetId, labelText) => {
       const chip = document.createElement('span');
-      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 rag-dataset-chip';
+      chip.className = 'badge rounded-pill d-inline-flex align-items-center gap-2 rag-dataset-chip';
       chip.dataset.datasetId = datasetId;
 
       const label = document.createElement('span');
@@ -616,9 +707,23 @@
 
     const selectedRefs = new Set();
 
-    const createRefChip = (refValue) => {
+    const candidateMetaMap = new Map();
+    if (inputDefinitionCandidates instanceof HTMLSelectElement) {
+      Array.from(inputDefinitionCandidates.options).forEach((option) => {
+        const value = normalizeRef(option.value || '');
+        if (!value) {
+          return;
+        }
+        candidateMetaMap.set(value, {
+          visualClass: option.dataset.visualClass || 'node-type-default',
+        });
+      });
+    }
+
+    const createRefChip = (refValue, meta = null) => {
       const chip = document.createElement('span');
-      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 llm-input-ref-chip';
+      chip.className = 'badge rounded-pill d-inline-flex align-items-center gap-2 llm-input-ref-chip node-visual-chip';
+      chip.classList.add(meta?.visualClass || 'node-type-default');
       chip.dataset.refValue = refValue;
 
       const label = document.createElement('span');
@@ -634,13 +739,13 @@
       return chip;
     };
 
-    const addRefChip = (rawRef) => {
+    const addRefChip = (rawRef, meta = null) => {
       const normalized = normalizeRef(rawRef);
       if (!normalized || selectedRefs.has(normalized)) {
         return;
       }
       selectedRefs.add(normalized);
-      inputDefinitionChipList.appendChild(createRefChip(normalized));
+      inputDefinitionChipList.appendChild(createRefChip(normalized, meta || candidateMetaMap.get(normalized) || null));
     };
 
     const parseInitialInputDefinition = () => {
@@ -693,7 +798,9 @@
         if (!ref) {
           return;
         }
-        addRefChip(ref);
+        const selectedOption = inputDefinitionCandidates.options[inputDefinitionCandidates.selectedIndex];
+        const visualClass = selectedOption?.dataset.visualClass || 'node-type-default';
+        addRefChip(ref, { visualClass });
         inputDefinitionCandidates.value = '';
       });
     }
@@ -711,10 +818,16 @@
     edgeConnectionChipList &&
     edgeConnectionHiddenInputs
   ) {
-    const createChip = (nodeId, labelText) => {
+    const createChip = (nodeId, labelText, nodeMeta = null) => {
       const chip = document.createElement('span');
-      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 edge-connection-chip';
+      chip.className = 'badge rounded-pill d-inline-flex align-items-center gap-2 edge-connection-chip node-visual-chip';
       chip.dataset.nodeId = nodeId;
+
+      if (nodeMeta?.visualClass) {
+        chip.classList.add(nodeMeta.visualClass);
+      } else {
+        chip.classList.add('node-type-default');
+      }
 
       const label = document.createElement('span');
       label.textContent = labelText;
@@ -728,7 +841,7 @@
       return chip;
     };
 
-    const addSelection = (nodeId, labelText) => {
+    const addSelection = (nodeId, labelText, nodeMeta = null) => {
       if (!nodeId) {
         return;
       }
@@ -742,7 +855,7 @@
       hiddenInput.value = nodeId;
       hiddenInput.dataset.nodeId = nodeId;
       edgeConnectionHiddenInputs.appendChild(hiddenInput);
-      edgeConnectionChipList.appendChild(createChip(nodeId, labelText));
+      edgeConnectionChipList.appendChild(createChip(nodeId, labelText, nodeMeta));
     };
 
     addEdgeConnectionChipButton.addEventListener('click', () => {
@@ -751,8 +864,11 @@
       if (!nodeId || !selectedOption) {
         return;
       }
+      const nodeType = selectedOption.dataset.nodeType || '';
+      const nodeTask = selectedOption.dataset.nodeTask || '';
+      const visualClass = selectedOption.dataset.visualClass || '';
       const labelText = selectedOption.textContent || nodeId;
-      addSelection(nodeId, labelText);
+      addSelection(nodeId, labelText, { nodeType, nodeTask, visualClass });
       edgeConnectionCandidate.value = '';
     });
 
@@ -789,7 +905,7 @@
       return;
     }
 
-    const addSelection = (nodeId, labelText) => {
+    const addSelection = (nodeId, labelText, nodeMeta = null) => {
       if (!nodeId) {
         return;
       }
@@ -798,7 +914,9 @@
         return;
       }
       const chip = document.createElement('span');
-      chip.className = 'badge rounded-pill text-bg-light border d-inline-flex align-items-center gap-2 assessment-route-chip';
+      chip.className = 'badge rounded-pill d-inline-flex align-items-center gap-2 assessment-route-chip node-visual-chip';
+      const visualClass = nodeMeta?.visualClass || 'node-type-default';
+      chip.classList.add(visualClass);
       chip.dataset.assessmentOption = option;
       chip.dataset.nodeId = nodeId;
       chip.innerHTML = `<span>${labelText}</span><button type="button" class="btn-close btn-close-sm assessment-route-remove" aria-label="Remove"></button>`;
@@ -827,7 +945,10 @@
       if (!selected || !nodeId) {
         return;
       }
-      addSelection(nodeId, selected.textContent || nodeId);
+      const nodeType = selected.dataset.nodeType || '';
+      const nodeTask = selected.dataset.nodeTask || '';
+      const visualClass = selected.dataset.visualClass || '';
+      addSelection(nodeId, selected.textContent || nodeId, { nodeType, nodeTask, visualClass });
       candidateSelect.value = '';
     });
 
@@ -872,24 +993,152 @@
   }
 
   document.querySelectorAll('.graph-node-form').forEach((form) => {
+    const nodeTypeSelect = form.querySelector('.node-type-select');
+
+    const getSelectedNodeType = () => {
+      if (!(nodeTypeSelect instanceof HTMLSelectElement)) {
+        return '';
+      }
+      return String(nodeTypeSelect.value || '').trim().toLowerCase();
+    };
+
+    const syncNodeTypeSections = () => {
+      const selectedNodeType = getSelectedNodeType();
+      form.querySelectorAll('.node-type-section').forEach((section) => {
+        if (!(section instanceof HTMLElement)) {
+          return;
+        }
+        const sectionNodeType = String(section.dataset.nodeTypeSection || '').trim().toLowerCase();
+        section.style.display = sectionNodeType && sectionNodeType === selectedNodeType ? '' : 'none';
+      });
+    };
+
     const taskSelect = form.querySelector('.llm-task-select');
-    if (!(taskSelect instanceof HTMLSelectElement)) {
-      return;
-    }
     const sections = Array.from(form.querySelectorAll('.llm-task-section'));
     const syncTaskSections = () => {
-      const selectedTask = (taskSelect.value || 'generate').trim();
+      const selectedNodeType = getSelectedNodeType();
+      const selectedTask = (taskSelect instanceof HTMLSelectElement ? taskSelect.value : 'generate').trim();
       sections.forEach((section) => {
         if (!(section instanceof HTMLElement)) {
           return;
         }
         const sectionTask = section.dataset.llmTaskSection || '';
-        const visible = sectionTask === selectedTask;
+        const visible = selectedNodeType === 'llm' && sectionTask === selectedTask;
         section.style.display = visible ? '' : 'none';
       });
     };
-    taskSelect.addEventListener('change', syncTaskSections);
+    if (taskSelect instanceof HTMLSelectElement) {
+      taskSelect.addEventListener('change', syncTaskSections);
+    }
     syncTaskSections();
+
+    const humanGateTaskSelect = form.querySelector('.human-gate-task-select');
+    const humanGateSections = Array.from(form.querySelectorAll('.human-gate-task-section'));
+    const syncHumanGateSections = () => {
+      const selectedNodeType = getSelectedNodeType();
+      const selectedTask = (humanGateTaskSelect instanceof HTMLSelectElement ? humanGateTaskSelect.value : 'approval').trim();
+      humanGateSections.forEach((section) => {
+        if (!(section instanceof HTMLElement)) {
+          return;
+        }
+        const sectionTask = section.dataset.humanGateTaskSection || '';
+        section.style.display = selectedNodeType === 'human_gate' && sectionTask === selectedTask ? '' : 'none';
+      });
+    };
+
+    if (nodeTypeSelect instanceof HTMLSelectElement) {
+      nodeTypeSelect.addEventListener('change', () => {
+        syncNodeTypeSections();
+        syncTaskSections();
+        syncHumanGateSections();
+      });
+    }
+
+    syncNodeTypeSections();
+    syncTaskSections();
+    if (humanGateTaskSelect instanceof HTMLSelectElement) {
+      humanGateTaskSelect.addEventListener('change', syncHumanGateSections);
+    }
+    syncHumanGateSections();
+  });
+
+  document.querySelectorAll('.approval-route-add').forEach((button) => {
+    if (!(button instanceof HTMLButtonElement)) {
+      return;
+    }
+    const option = button.dataset.approvalOption || '';
+    if (!option) {
+      return;
+    }
+    const candidateSelect = document.querySelector(`.approval-route-candidate[data-approval-option="${CSS.escape(option)}"]`);
+    const chipList = document.querySelector(`.approval-route-chip-list[data-approval-option="${CSS.escape(option)}"]`);
+    const hiddenInputs = document.querySelector(`.approval-route-hidden-inputs[data-approval-option="${CSS.escape(option)}"]`);
+    if (!(candidateSelect instanceof HTMLSelectElement) || !(chipList instanceof HTMLElement) || !(hiddenInputs instanceof HTMLElement)) {
+      return;
+    }
+
+    const addSelection = (nodeId, labelText, nodeMeta = null) => {
+      if (!nodeId) {
+        return;
+      }
+      const existing = hiddenInputs.querySelector(`input[name="approval_route_to_node"][data-node-id="${CSS.escape(nodeId)}"]`);
+      if (existing) {
+        return;
+      }
+      const chip = document.createElement('span');
+      chip.className = 'badge rounded-pill d-inline-flex align-items-center gap-2 approval-route-chip node-visual-chip';
+      chip.classList.add(nodeMeta?.visualClass || 'node-type-default');
+      chip.dataset.approvalOption = option;
+      chip.dataset.nodeId = nodeId;
+      chip.innerHTML = `<span>${labelText}</span><button type="button" class="btn-close btn-close-sm approval-route-remove" aria-label="Remove"></button>`;
+      chipList.appendChild(chip);
+
+      const optionInput = document.createElement('input');
+      optionInput.type = 'hidden';
+      optionInput.name = 'approval_route_option';
+      optionInput.value = option;
+      optionInput.dataset.approvalOption = option;
+      optionInput.dataset.nodeId = nodeId;
+      hiddenInputs.appendChild(optionInput);
+
+      const nodeInput = document.createElement('input');
+      nodeInput.type = 'hidden';
+      nodeInput.name = 'approval_route_to_node';
+      nodeInput.value = nodeId;
+      nodeInput.dataset.approvalOption = option;
+      nodeInput.dataset.nodeId = nodeId;
+      hiddenInputs.appendChild(nodeInput);
+    };
+
+    button.addEventListener('click', () => {
+      const selected = candidateSelect.options[candidateSelect.selectedIndex];
+      const nodeId = candidateSelect.value || '';
+      if (!selected || !nodeId) {
+        return;
+      }
+      const visualClass = selected.dataset.visualClass || '';
+      addSelection(nodeId, selected.textContent || nodeId, { visualClass });
+      candidateSelect.value = '';
+    });
+
+    chipList.addEventListener('click', (event) => {
+      const target = event.target;
+      if (!(target instanceof HTMLElement) || !target.classList.contains('approval-route-remove')) {
+        return;
+      }
+      const chip = target.closest('.approval-route-chip');
+      if (!(chip instanceof HTMLElement)) {
+        return;
+      }
+      const nodeId = chip.dataset.nodeId || '';
+      chip.remove();
+      if (!nodeId) {
+        return;
+      }
+      hiddenInputs
+        .querySelectorAll(`input[data-node-id="${CSS.escape(nodeId)}"]`)
+        .forEach((input) => input.remove());
+    });
   });
 </script>
 {% endblock %}

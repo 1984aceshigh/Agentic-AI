@@ -20,6 +20,7 @@ class StatefulHumanGateService:
         self._records_manager = records_manager
         self.approvals: list[dict[str, str | None]] = []
         self.rejections: list[dict[str, str | None]] = []
+        self.submissions: list[dict[str, object | None]] = []
         self.valid_execution_ids: set[str] = set()
         self.valid_node_ids: set[str] = set()
 
@@ -28,10 +29,16 @@ class StatefulHumanGateService:
         execution_id: str,
         node_id: str,
         comment: str | None = None,
+        decision_option: str | None = None,
     ) -> None:
         self._ensure_known(execution_id, node_id)
         self.approvals.append(
-            {"execution_id": execution_id, "node_id": node_id, "comment": comment}
+            {
+                "execution_id": execution_id,
+                "node_id": node_id,
+                "comment": comment,
+                "decision_option": decision_option,
+            }
         )
         self._records_manager.complete_node_record(
             execution_id,
@@ -70,6 +77,29 @@ class StatefulHumanGateService:
                     message=f"rejected; fallback to {fallback_node_id}",
                 ),
             )
+
+    def submit_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: dict[str, object] | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self._ensure_known(execution_id, node_id)
+        self.submissions.append(
+            {
+                "execution_id": execution_id,
+                "node_id": node_id,
+                "human_input": dict(human_input or {}),
+                "comment": comment,
+            }
+        )
+        self._records_manager.complete_node_record(
+            execution_id,
+            node_id,
+            output_preview="submitted via ui",
+        )
+        self._context_manager.update_node_state(execution_id, node_id, "SUCCEEDED")
 
     def _ensure_known(self, execution_id: str, node_id: str) -> None:
         if execution_id not in self.valid_execution_ids or node_id not in self.valid_node_ids:

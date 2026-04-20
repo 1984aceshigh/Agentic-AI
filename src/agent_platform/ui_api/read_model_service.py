@@ -181,6 +181,7 @@ class ReadModelService:
                     node_name=graph_node.name,
                     node_type=self._to_text(graph_node.type),
                     task=self._resolve_node_task(graph_node, node_record),
+                    human_gate_task=self._resolve_human_gate_task(graph_node),
                     status=status,
                     group=graph_node.group,
                     started_at=self._format_datetime(getattr(node_record, "started_at", None)),
@@ -217,6 +218,11 @@ class ReadModelService:
             node_name=graph_node.name,
             node_type=self._to_text(graph_node.type),
             task=self._resolve_node_task(graph_node, node_record),
+            human_gate_task=self._resolve_human_gate_task(graph_node),
+            human_gate_approval_options=self._resolve_human_gate_approval_options(graph_node),
+            human_gate_required_fields=self._resolve_human_gate_required_fields(graph_node, node_output),
+            human_gate_allow_files=self._resolve_human_gate_allow_files(graph_node, node_output),
+            human_gate_instructions=self._resolve_human_gate_instructions(graph_node, node_output),
             status=status,
             input_preview=getattr(node_record, "input_preview", None),
             output_preview=getattr(node_record, "output_preview", None),
@@ -242,6 +248,9 @@ class ReadModelService:
                 default=len(rag_hits),
             ),
             event_history=self._collect_event_history(context.events, node_id),
+            human_input=self._extract_human_input(node_output),
+            human_comment=self._extract_human_comment(node_output),
+            selected_option=self._extract_selected_option(node_output),
         )
 
     def build_graph_view(self, graph: GraphModel) -> GraphView:
@@ -307,6 +316,100 @@ class ReadModelService:
             "deterministic_transform": "transform",
         }
         return legacy_task_map.get(legacy_type)
+
+    def _resolve_human_gate_task(self, graph_node: Any) -> str | None:
+        node_type = self._to_text(getattr(graph_node, "type", "")).strip().lower()
+        if node_type != "human_gate":
+            return None
+
+        config = getattr(graph_node, "config", None)
+        if not isinstance(config, dict):
+            config = {}
+        task = config.get("task")
+        if isinstance(task, str) and task.strip():
+            return task.strip().lower()
+
+        gate_type = config.get("gate_type")
+        if isinstance(gate_type, str) and gate_type.strip().lower() == "review":
+            return "human_task"
+        return "approval"
+
+    def _extract_human_input(self, node_output: dict[str, Any]) -> dict[str, Any]:
+        human_input = node_output.get("human_input")
+        if isinstance(human_input, dict):
+            return self._json_friendly_dict(human_input)
+        return {}
+
+    def _extract_human_comment(self, node_output: dict[str, Any]) -> str | None:
+        value = node_output.get("human_comment")
+        if isinstance(value, str):
+            text = value.strip()
+            return text or None
+        return None
+
+    def _extract_selected_option(self, node_output: dict[str, Any]) -> str | None:
+        value = node_output.get("selected_option")
+        if isinstance(value, str):
+            text = value.strip()
+            return text or None
+        return None
+
+    def _resolve_human_gate_approval_options(self, graph_node: Any) -> list[str]:
+        node_type = self._to_text(getattr(graph_node, "type", "")).strip().lower()
+        if node_type != "human_gate":
+            return []
+        config = getattr(graph_node, "config", None)
+        if not isinstance(config, dict):
+            config = {}
+        task = self._resolve_human_gate_task(graph_node)
+        raw_options = config.get("approval_options")
+        if isinstance(raw_options, list):
+            options = [str(item).strip() for item in raw_options if str(item).strip()]
+            if options:
+                return options
+        if task == "approval":
+            return ["承認", "否認"]
+        return []
+
+    def _resolve_human_gate_required_fields(self, graph_node: Any, node_output: dict[str, Any]) -> list[str]:
+        required = node_output.get("required_fields")
+        if isinstance(required, list):
+            normalized = [str(item).strip() for item in required if str(item).strip()]
+            if normalized:
+                return normalized
+
+        config = getattr(graph_node, "config", None)
+        if isinstance(config, dict):
+            cfg_required = config.get("required_fields")
+            if isinstance(cfg_required, list):
+                return [str(item).strip() for item in cfg_required if str(item).strip()]
+        return []
+
+    def _resolve_human_gate_allow_files(self, graph_node: Any, node_output: dict[str, Any]) -> bool:
+        raw_allow_files = node_output.get("allow_files")
+        if isinstance(raw_allow_files, bool):
+            return raw_allow_files
+
+        config = getattr(graph_node, "config", None)
+        if isinstance(config, dict) and "allow_files" in config:
+            return bool(config.get("allow_files"))
+        return self._resolve_human_gate_task(graph_node) == "entry_input"
+
+    def _resolve_human_gate_instructions(self, graph_node: Any, node_output: dict[str, Any]) -> str | None:
+        raw_instructions = node_output.get("instructions")
+        if isinstance(raw_instructions, str):
+            text = raw_instructions.strip()
+            if text:
+                return text
+
+        config = getattr(graph_node, "config", None)
+        if isinstance(config, dict):
+            cfg = config.get("instructions")
+            if isinstance(cfg, str):
+                text = cfg.strip()
+                if text:
+                    return text
+        return None
 
     def _extract_memory_records(self, node_output: dict[str, Any]) -> list[dict[str, Any]]:
         memory_output = node_output.get("memory")

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from types import SimpleNamespace
 from typing import Any
@@ -48,6 +49,7 @@ class WorkflowExecutionService:
         llm_default_provider: str | None = None,
         rag_dataset_service: RAGDatasetService | None = None,
         rag_node_binding_service: RAGNodeBindingService | None = None,
+        assessment_same_output_max_evaluations: int = 3,
     ) -> None:
         self._context_manager = context_manager
         self._records_manager = records_manager
@@ -58,8 +60,10 @@ class WorkflowExecutionService:
         self._llm_default_provider = llm_default_provider
         self._rag_dataset_service = rag_dataset_service
         self._rag_node_binding_service = rag_node_binding_service
+        self._assessment_same_output_max_evaluations = max(1, int(assessment_same_output_max_evaluations))
         self._registry = executor_registry or self._build_default_registry()
         self._rerun_service = rerun_service or RerunService(context_manager, records_manager)
+        self._skip_succeeded_execution_ids: set[str] = set()
 
     def run_workflow(self, workflow_id: str, *, global_inputs: dict[str, Any] | None = None) -> str:
         graph = self._workflow_graphs.get(workflow_id)
@@ -88,7 +92,23 @@ class WorkflowExecutionService:
         self._latest_execution_ids[workflow_id] = execution_id
         return execution_id
 
-    def _invoke_graph(self, *, graph: Any, execution_id: str) -> None:
+    def resume_workflow(self, *, workflow_id: str, execution_id: str) -> str:
+        """Resume a halted workflow after human_gate completion.
+
+        This keeps already-succeeded nodes intact and continues downstream.
+        """
+        graph = self._workflow_graphs.get(workflow_id)
+        if graph is None:
+            raise KeyError(f"Unknown workflow_id: {workflow_id}")
+
+        self._records_manager.set_workflow_status(execution_id, WORKFLOW_STATUS_RUNNING)
+        self._latest_execution_ids[workflow_id] = execution_id
+        self._invoke_graph(graph=graph, execution_id=execution_id, skip_succeeded=True)
+        return execution_id
+
+    def _invoke_graph(self, *, graph: Any, execution_id: str, skip_succeeded: bool = False) -> None:
+        if skip_succeeded:
+            self._skip_succeeded_execution_ids.add(execution_id)
         compiled = compile_langgraph(graph, node_fn_factory=self._make_node_fn)
         context = self._context_manager.get_context(execution_id)
         state = {
@@ -100,9 +120,12 @@ class WorkflowExecutionService:
             "logs": list(context.metadata.get("logs", []) if isinstance(context.metadata, dict) else []),
             "halted": False,
         }
-        final_state = compiled.invoke(state)
-        self._context_manager.set_artifact(execution_id, "langgraph_final_state", final_state)
-        self._finalize_workflow_status(execution_id)
+        try:
+            final_state = compiled.invoke(state)
+            self._context_manager.set_artifact(execution_id, "langgraph_final_state", final_state)
+            self._finalize_workflow_status(execution_id)
+        finally:
+            self._skip_succeeded_execution_ids.discard(execution_id)
 
     def _make_node_fn(self, graph_node: Any):
         def _fn(state: dict[str, Any]) -> dict[str, Any]:
@@ -116,6 +139,12 @@ class WorkflowExecutionService:
             context = self._context_manager.get_context(execution_id)
             node_id = graph_node.id
             node_type = str(getattr(graph_node.type, "value", graph_node.type))
+
+            existing_state = str(context.node_states.get(node_id, "") or "").strip().upper()
+            should_skip_succeeded = execution_id in self._skip_succeeded_execution_ids
+            if should_skip_succeeded and existing_state == NODE_STATUS_SUCCEEDED:
+                return {}
+
             node_obj = SimpleNamespace(
                 id=node_id,
                 type=node_type,
@@ -128,6 +157,26 @@ class WorkflowExecutionService:
             self._records_manager.start_node_record(execution_id, node_id, node_type)
             self._context_manager.update_node_state(execution_id, node_id, "RUNNING")
             self._set_adapter_info(execution_id, node_id, node_obj)
+
+            limit_error = self._check_assessment_same_output_limit(
+                execution_id=execution_id,
+                node=node_obj,
+                context=context,
+            )
+            if limit_error is not None:
+                self._records_manager.append_node_log(execution_id, node_id, limit_error)
+                self._context_manager.append_log(execution_id, f"{node_id}: {limit_error}")
+                self._context_manager.update_node_state(execution_id, node_id, NODE_STATUS_FAILED)
+                self._records_manager.fail_node_record(
+                    execution_id,
+                    node_id,
+                    error_message=limit_error,
+                )
+                return {
+                    "node_states": {node_id: NODE_STATUS_FAILED},
+                    "logs": [f"{node_id}: {limit_error}"],
+                    "halted": True,
+                }
 
             executor = self._registry.resolve_for_node(node_obj)
             result = executor.run(spec=None, node=node_obj, context=context)
@@ -204,6 +253,77 @@ class WorkflowExecutionService:
         rag["profile"] = dataset_id
         rag.setdefault("top_k", 5)
         config["rag"] = rag
+
+    def _check_assessment_same_output_limit(
+        self,
+        *,
+        execution_id: str,
+        node: Any,
+        context: Any,
+    ) -> str | None:
+        node_type = str(getattr(node, "type", "") or "").strip().lower()
+        config = getattr(node, "config", {}) or {}
+        task = str(config.get("task") or "").strip().lower() if isinstance(config, dict) else ""
+        if node_type != "llm" or task != "assessment":
+            return None
+
+        signature = self._build_assessment_input_signature(node=node, context=context)
+        metadata = getattr(context, "metadata", None)
+        if not isinstance(metadata, dict):
+            return None
+
+        counts = metadata.get("assessment_same_output_eval_counts")
+        if not isinstance(counts, dict):
+            counts = {}
+            metadata["assessment_same_output_eval_counts"] = counts
+
+        node_id = str(getattr(node, "id", "") or "")
+        node_counts = counts.get(node_id)
+        if not isinstance(node_counts, dict):
+            node_counts = {}
+            counts[node_id] = node_counts
+
+        current_count = int(node_counts.get(signature, 0)) + 1
+        node_counts[signature] = current_count
+        if current_count <= self._assessment_same_output_max_evaluations:
+            return None
+
+        return (
+            f"assessment evaluation limit exceeded for node '{node_id}' with the same input output "
+            f"(count={current_count}, limit={self._assessment_same_output_max_evaluations})."
+        )
+
+    def _build_assessment_input_signature(self, *, node: Any, context: Any) -> str:
+        node_input = getattr(node, "input", {}) or {}
+        node_outputs = getattr(context, "node_outputs", {}) or {}
+        refs = node_input.get("from") if isinstance(node_input, dict) else None
+
+        signature_payload: dict[str, Any]
+        if isinstance(refs, list) and refs:
+            resolved_refs: list[dict[str, Any]] = []
+            for ref in refs:
+                if not isinstance(ref, dict):
+                    continue
+                source_node = str(ref.get("node") or "").strip()
+                source_key = str(ref.get("key") or "").strip()
+                if not source_node or not source_key:
+                    continue
+                source_output = node_outputs.get(source_node, {}) if isinstance(node_outputs, dict) else {}
+                value = source_output.get(source_key) if isinstance(source_output, dict) else None
+                resolved_refs.append(
+                    {
+                        "node": source_node,
+                        "key": source_key,
+                        "value": value,
+                    }
+                )
+            signature_payload = {"refs": resolved_refs}
+        else:
+            signature_payload = {
+                "global_inputs": getattr(context, "global_inputs", {}),
+            }
+
+        return json.dumps(signature_payload, ensure_ascii=False, sort_keys=True, default=str)
 
     def _finalize_workflow_status(self, execution_id: str) -> None:
         context = self._context_manager.get_context(execution_id)

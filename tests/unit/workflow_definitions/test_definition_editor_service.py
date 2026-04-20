@@ -234,3 +234,106 @@ edges: []
     parsed = yaml.safe_load(updated)
     review_node = next(node for node in parsed['nodes'] if node.get('id') == 'review')
     assert 'group' not in review_node
+
+
+def test_add_human_gate_node_human_gate_task_is_saved_into_config_task() -> None:
+    service = DefinitionEditorService()
+
+    updated = service.add_node(
+        SAMPLE_YAML,
+        {
+            'node_id': 'entry',
+            'node_name': 'Entry Input',
+            'node_type': 'human_gate',
+            'human_gate_task': 'entry_input',
+        },
+    )
+
+    parsed = yaml.safe_load(updated)
+    node = next(item for item in parsed['nodes'] if item.get('id') == 'entry')
+    assert node['config']['task'] == 'entry_input'
+
+
+def test_update_human_gate_node_human_gate_task_is_updated() -> None:
+    service = DefinitionEditorService()
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: review
+    name: Review
+    type: human_gate
+    config:
+      task: approval
+edges: []
+"""
+
+    updated = service.update_node(
+        yaml_text,
+        'review',
+        {
+            'node_id': 'review',
+            'node_name': 'Review',
+            'node_type': 'human_gate',
+            'human_gate_task': 'human_task',
+        },
+    )
+
+    parsed = yaml.safe_load(updated)
+    review_node = next(node for node in parsed['nodes'] if node.get('id') == 'review')
+    assert review_node['config']['task'] == 'human_task'
+
+
+def test_add_human_gate_approval_defaults_options_to_approve_reject() -> None:
+    service = DefinitionEditorService()
+
+    updated = service.add_node(
+        SAMPLE_YAML,
+        {
+            'node_id': 'gate',
+            'node_name': 'Gate',
+            'node_type': 'human_gate',
+            'human_gate_task': 'approval',
+        },
+    )
+
+    parsed = yaml.safe_load(updated)
+    gate = next(item for item in parsed['nodes'] if item.get('id') == 'gate')
+    assert gate['config']['task'] == 'approval'
+    assert gate['config']['approval_options'] == ['承認', '否認']
+
+
+def test_set_human_gate_approval_routes_updates_config_and_syncs_outgoing_edges() -> None:
+    service = DefinitionEditorService()
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: gate
+    name: Gate
+    type: human_gate
+    config:
+      task: approval
+      approval_options:
+        - 承認
+        - 否認
+  - id: publish
+    name: Publish
+    type: llm
+  - id: revise
+    name: Revise
+    type: llm
+edges: []
+"""
+
+    updated = service.set_human_gate_approval_routes(
+        yaml_text,
+        from_node_id='gate',
+        routes={'承認': 'publish', '否認': 'revise'},
+    )
+
+    parsed = yaml.safe_load(updated)
+    gate = next(item for item in parsed['nodes'] if item.get('id') == 'gate')
+    assert gate['config']['approval_routes'] == {'承認': 'publish', '否認': 'revise'}
+    assert {'from': 'gate', 'to': 'publish'} in parsed['edges']
+    assert {'from': 'gate', 'to': 'revise'} in parsed['edges']

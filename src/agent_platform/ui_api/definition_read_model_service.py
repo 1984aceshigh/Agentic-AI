@@ -165,6 +165,7 @@ class DefinitionReadModelService:
         config = node_data.get('config') if isinstance(node_data.get('config'), dict) else {}
         node_type = str(node_data.get('type') or node_data.get('node_type') or '')
         is_llm_node = node_type == 'llm'
+        is_human_gate_node = node_type == 'human_gate'
         basic_keys = {'id', 'node_id', 'name', 'display_name', 'type', 'node_type', 'group'}
         advanced = {k: v for k, v in node_data.items() if k not in basic_keys}
         incoming = [edge for edge in edge_summaries if edge.to_node_id == selected_node_id]
@@ -187,7 +188,13 @@ class DefinitionReadModelService:
             node_type=node_type,
             group=(str(node_data['group']) if node_data.get('group') is not None else None),
             is_llm_node=is_llm_node,
+            is_human_gate_node=is_human_gate_node,
             llm_task=_normalize_llm_task(config.get('task')),
+            human_gate_task=_normalize_human_gate_task(config.get('task')),
+            human_gate_approval_options='\n'.join(_normalize_human_gate_approval_options(config)),
+            human_gate_approval_option_list=_normalize_human_gate_approval_options(config),
+            human_gate_approval_routes=_dump_yaml_mapping(config.get('approval_routes')),
+            human_gate_approval_route_map=_string_list_mapping(config.get('approval_routes')),
             llm_temperature=_stringify_scalar(config.get('temperature')),
             llm_prompt=str(config.get('prompt') or ''),
             llm_input_definition=str(config.get('input_definition') or ''),
@@ -275,6 +282,13 @@ def _collect_input_definition_candidates(
 
     candidates: list[InputDefinitionCandidateView] = []
     for node in ordered_nodes[:selected_index]:
+        node_payload = {
+            'type': node.get('node_type'),
+            'node_type': node.get('node_type'),
+            'config': node.get('config') if isinstance(node.get('config'), dict) else {},
+        }
+        node_task = _resolve_node_task_for_visual(node_payload)
+        visual_class = _resolve_node_visual_class(node_payload)
         for output_key in _candidate_output_keys(node):
             candidates.append(
                 InputDefinitionCandidateView(
@@ -282,6 +296,9 @@ def _collect_input_definition_candidates(
                     node_name=node['node_name'],
                     output_key=output_key,
                     ref_expression=f"ref: {node['node_id']}.{output_key}",
+                    node_type=str(node.get('node_type') or ''),
+                    node_task=node_task,
+                    visual_class=visual_class,
                 )
             )
     return candidates
@@ -350,6 +367,8 @@ def _collect_edge_connection_candidates(
             node_id=node['node_id'],
             node_name=node['node_name'],
             node_type=str(node.get('node_type') or ''),
+            node_task=(str(node.get('node_task')) if node.get('node_task') else None),
+            visual_class=str(node.get('visual_class') or 'node-type-default'),
         )
         for node in _ordered_node_payloads_with_type(parsed)
         if node['node_id'] != selected_node_id
@@ -371,6 +390,8 @@ def _ordered_node_payloads_with_type(parsed: dict[str, Any]) -> list[dict[str, A
                     'node_id': node_id,
                     'node_name': str(item.get('name') or item.get('display_name') or node_id),
                     'node_type': str(item.get('type') or item.get('node_type') or ''),
+                    'node_task': _resolve_node_task_for_visual(item),
+                    'visual_class': _resolve_node_visual_class(item),
                 }
             )
         return ordered
@@ -384,9 +405,36 @@ def _ordered_node_payloads_with_type(parsed: dict[str, Any]) -> list[dict[str, A
                     'node_id': str(node_id),
                     'node_name': str(payload.get('name') or payload.get('display_name') or node_id),
                     'node_type': str(payload.get('type') or payload.get('node_type') or ''),
+                    'node_task': _resolve_node_task_for_visual(payload),
+                    'visual_class': _resolve_node_visual_class(payload),
                 }
             )
     return ordered
+
+
+def _resolve_node_task_for_visual(node_payload: dict[str, Any]) -> str | None:
+    node_type = str(node_payload.get('type') or node_payload.get('node_type') or '').strip().lower()
+    config = node_payload.get('config') if isinstance(node_payload.get('config'), dict) else {}
+    if node_type == 'llm':
+        task = str(config.get('task') or 'generate').strip().lower()
+        if task in {'assessment', 'extract', 'generate'}:
+            return task
+        return None
+    if node_type == 'human_gate':
+        return _normalize_human_gate_task(config.get('task'))
+    return None
+
+
+def _resolve_node_visual_class(node_payload: dict[str, Any]) -> str:
+    node_type = str(node_payload.get('type') or node_payload.get('node_type') or '').strip().lower()
+    if node_type == 'llm':
+        task = _resolve_node_task_for_visual(node_payload)
+        if task:
+            return f'node-task-{task}'
+        return 'node-type-llm'
+    if node_type in {'api', 'human_gate', 'mcp'}:
+        return f'node-type-{node_type}'
+    return 'node-type-default'
 
 
 def _format_datetime_text(value: str | None) -> str | None:
@@ -409,6 +457,26 @@ def _normalize_llm_task(raw_task: Any) -> str:
     if normalized in {'review', 'classify', 'judge'}:
         return 'assessment'
     return 'generate'
+
+
+def _normalize_human_gate_task(raw_task: Any) -> str:
+    normalized = str(raw_task or 'approval').strip().lower()
+    if normalized in {'entry_input', 'human_task', 'approval'}:
+        return normalized
+    if normalized == 'review':
+        return 'human_task'
+    return 'approval'
+
+
+def _normalize_human_gate_approval_options(config: dict[str, Any]) -> list[str]:
+    options = _string_list(config.get('approval_options'))
+    if options:
+        return options
+
+    task = _normalize_human_gate_task(config.get('task'))
+    if task == 'approval':
+        return ['承認', '否認']
+    return []
 
 
 def _normalize_extract_output_format(raw_value: Any) -> str:

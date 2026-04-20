@@ -107,6 +107,71 @@ def test_execution_service_rerun_from_node_marks_running() -> None:
     assert record.status == "RUNNING"
 
 
+def test_execution_service_resume_workflow_continues_after_waiting_human() -> None:
+    graph = GraphModel(
+        workflow_id="wf_resume",
+        workflow_name="Workflow Resume",
+        start_node="entry",
+        end_nodes=["extract"],
+        nodes={
+            "entry": GraphNode(
+                id="entry",
+                type="human_gate",
+                name="Entry Input",
+                config={"task": "entry_input", "required_fields": ["input_file"]},
+            ),
+            "extract": GraphNode(
+                id="extract",
+                type="llm",
+                name="Extract",
+                config={"task": "generate", "prompt": "extract markdown"},
+                input={"from": [{"node": "entry", "key": "result"}]},
+            ),
+        },
+        edges=[GraphEdge(from_node="entry", to_node="extract")],
+    )
+    context_manager = ExecutionContextManager()
+    records_manager = ExecutionRecordsManager()
+    latest_execution_ids: dict[str, str | None] = {}
+    service = WorkflowExecutionService(
+        context_manager=context_manager,
+        records_manager=records_manager,
+        workflow_graphs={graph.workflow_id: graph},
+        latest_execution_ids=latest_execution_ids,
+    )
+
+    execution_id = service.run_workflow(graph.workflow_id)
+    context = context_manager.get_context(execution_id)
+    assert context.node_states.get("entry") == "WAITING_HUMAN"
+    assert context.node_states.get("extract") is None
+
+    entry_record = records_manager.get_node_record(execution_id, "entry")
+    entry_record.status = "SUCCEEDED"
+    entry_record.requires_human_action = False
+    records_manager.complete_node_record(execution_id, "entry", output_preview="submitted")
+    context_manager.update_node_state(execution_id, "entry", "SUCCEEDED")
+    context_manager.set_node_output(
+        execution_id,
+        "entry",
+        {
+            "result": "pdf text",
+            "human_input": {"file": {"filename": "sample.pdf", "text": "pdf text"}},
+        },
+    )
+
+    service.resume_workflow(workflow_id=graph.workflow_id, execution_id=execution_id)
+
+    resumed_context = context_manager.get_context(execution_id)
+    assert resumed_context.node_states.get("entry") == "SUCCEEDED"
+    assert resumed_context.node_states.get("extract") == "SUCCEEDED"
+    downstream_result = resumed_context.node_outputs.get("extract", {}).get("result")
+    assert isinstance(downstream_result, str)
+    assert "pdf text" in downstream_result
+
+    workflow_record = records_manager.get_workflow_record(execution_id)
+    assert workflow_record.status == "SUCCEEDED"
+
+
 def test_execution_service_applies_assessment_next_node_override() -> None:
     graph = GraphModel(
         workflow_id="wf_branch",
@@ -241,6 +306,70 @@ def test_execution_service_non_assessment_branch_executes_all_outgoing_nodes() -
     assert context.node_states.get("first_node") == "SUCCEEDED"
     assert context.node_states.get("node_04") == "SUCCEEDED"
     assert context.node_states.get("second_node") == "SUCCEEDED"
+
+
+def test_execution_service_assessment_same_output_limit_stops_infinite_rework_loop() -> None:
+    graph = GraphModel(
+        workflow_id="wf_assessment_limit",
+        workflow_name="Workflow Assessment Limit",
+        start_node="prepare",
+        end_nodes=["publish"],
+        nodes={
+            "prepare": GraphNode(
+                id="prepare",
+                type="llm",
+                name="Prepare",
+                config={"task": "generate", "prompt": "draft"},
+            ),
+            "judge": GraphNode(
+                id="judge",
+                type="llm",
+                name="Judge",
+                config={
+                    "task": "assessment",
+                    "prompt": "rework",
+                    "assessment_options": ["pass", "rework"],
+                    "assessment_routes": {"pass": "publish", "rework": "prepare"},
+                },
+                input={"from": [{"node": "prepare", "key": "result"}]},
+            ),
+            "publish": GraphNode(
+                id="publish",
+                type="llm",
+                name="Publish",
+                config={"task": "generate", "prompt": "publish"},
+            ),
+        },
+        edges=[
+            GraphEdge(from_node="prepare", to_node="judge"),
+            GraphEdge(from_node="judge", to_node="prepare"),
+            GraphEdge(from_node="judge", to_node="publish"),
+        ],
+    )
+    context_manager = ExecutionContextManager()
+    records_manager = ExecutionRecordsManager()
+    latest_execution_ids: dict[str, str | None] = {}
+    service = WorkflowExecutionService(
+        context_manager=context_manager,
+        records_manager=records_manager,
+        workflow_graphs={graph.workflow_id: graph},
+        latest_execution_ids=latest_execution_ids,
+        assessment_same_output_max_evaluations=2,
+    )
+
+    execution_id = service.run_workflow(graph.workflow_id)
+    context = context_manager.get_context(execution_id)
+
+    assert context.node_states.get("judge") == "FAILED"
+    assert context.node_states.get("publish") is None
+
+    judge_record = records_manager.get_node_record(execution_id, "judge")
+    assert judge_record.status == "FAILED"
+    assert judge_record.error_message is not None
+    assert "assessment evaluation limit exceeded" in judge_record.error_message
+
+    workflow_record = records_manager.get_workflow_record(execution_id)
+    assert workflow_record.status == "FAILED"
 
 
 def test_execution_service_marks_failed_when_llm_executor_errors() -> None:

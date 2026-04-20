@@ -6,7 +6,14 @@
   <div>
     <h1 class="h3 mb-1">Node Detail</h1>
     <h2 class="h4 mb-1 fw-bold">{{ node.node_name }}</h2>
-    <p class="text-muted mb-0">{{ node.node_type or '-' }}{% if node.task %} / {{ node.task }}{% endif %}</p>
+    <p class="text-muted mb-0">
+      {{ node.node_type or '-' }}
+      {% if node.node_type == 'human_gate' %}
+        / {{ node.human_gate_task or 'approval' }}
+      {% elif node.task %}
+        / {{ node.task }}
+      {% endif %}
+    </p>
   </div>
   <div class="d-flex align-items-center gap-2">
     <a class="btn btn-outline-secondary btn-sm" href="{{ node_list_path }}">Back to Node List</a>
@@ -30,11 +37,93 @@
   <div class="card-body">
     <h3 class="h5 mb-3">Input / Output</h3>
     <h4 class="h6">Input Preview</h4>
-    <pre class="code-block">{{ node.input_preview or "No input preview" }}</pre>
+    <div class="mb-3">
+      <div id="input-preview" class="preview-render code-block js-markdown-mermaid-preview is-collapsed">{{ node.input_preview or "No input preview" }}</div>
+      <button type="button" class="btn btn-sm btn-link px-0 js-preview-toggle" data-target="input-preview" hidden>全文表示</button>
+    </div>
     <h4 class="h6 mt-3">Output Preview</h4>
-    <pre class="code-block">{{ node.output_preview or "No output preview" }}</pre>
+    <div>
+      <div id="output-preview" class="preview-render code-block js-markdown-mermaid-preview is-collapsed">{{ node.output_preview or "No output preview" }}</div>
+      <button type="button" class="btn btn-sm btn-link px-0 js-preview-toggle" data-target="output-preview" hidden>全文表示</button>
+    </div>
   </div>
 </div>
+
+{% if node.node_type == 'human_gate' and (node.status == 'WAITING_HUMAN') %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="h5 mb-3">Human Action</h3>
+    {% if node.human_gate_instructions %}
+      <div class="alert alert-info py-2 mb-3">
+        <strong>Instructions:</strong> {{ node.human_gate_instructions }}
+      </div>
+    {% endif %}
+    {% if node.human_gate_required_fields %}
+      <div class="mb-3">
+        <p class="small text-muted mb-1">Required Fields</p>
+        <div class="d-flex flex-wrap gap-2">
+          {% for field_name in node.human_gate_required_fields %}
+            <span class="badge text-bg-light border">{{ field_name }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+    {% if node.human_gate_task in ['entry_input', 'human_task'] %}
+      <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ node.node_id }}/submit" class="d-flex flex-column gap-2" enctype="multipart/form-data">
+        <input type="hidden" name="next" value="{{ node_list_path }}">
+        <label class="form-label mb-0" for="human_input_text">Input Text</label>
+        <textarea id="human_input_text" name="human_input_text" class="form-control" rows="4" placeholder="human input"></textarea>
+        {% if node.human_gate_allow_files %}
+          <label class="form-label mb-0" for="human_input_file">Input File (optional)</label>
+          <input id="human_input_file" name="human_input_file" class="form-control" type="file" accept=".txt,.md,.csv,.json,.yaml,.yml,.log,.docx,.pdf">
+          <div class="form-text">対応形式: txt / md / csv / json / yaml / yml / log / docx / pdf（アップロード時にテキスト化）</div>
+        {% endif %}
+        <label class="form-label mb-0" for="human_comment_submit">Comment (optional)</label>
+        <textarea id="human_comment_submit" name="comment" class="form-control" rows="2" placeholder="comment"></textarea>
+        <button type="submit" class="btn btn-primary align-self-start">Submit</button>
+      </form>
+    {% else %}
+      <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ node.node_id }}/approve" class="d-flex flex-column gap-2">
+        <input type="hidden" name="next" value="{{ node_list_path }}">
+        <label class="form-label mb-0">Decision</label>
+        {% set options = node.human_gate_approval_options if node.human_gate_approval_options else ['承認', '否認'] %}
+        {% for option in options %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="decision_option" id="decision_option_{{ loop.index }}" value="{{ option }}" {% if loop.first %}checked{% endif %}>
+            <label class="form-check-label" for="decision_option_{{ loop.index }}">{{ option }}</label>
+          </div>
+        {% endfor %}
+        <label class="form-label mb-0" for="human_comment_approval">Comment (optional)</label>
+        <textarea id="human_comment_approval" name="comment" class="form-control" rows="2" placeholder="comment"></textarea>
+        <button type="submit" class="btn btn-success align-self-start">Submit Decision</button>
+      </form>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+{% if node.human_input %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="h5 mb-3">Human Input</h3>
+    <pre class="code-block">{{ node.human_input | tojson(indent=2) }}</pre>
+  </div>
+</div>
+{% endif %}
+
+{% if node.selected_option or node.human_comment %}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <h3 class="h5 mb-3">Human Decision</h3>
+    {% if node.selected_option %}
+      <p class="mb-2"><strong>Selected Option:</strong> {{ node.selected_option }}</p>
+    {% endif %}
+    {% if node.human_comment %}
+      <p class="mb-0"><strong>Comment:</strong> {{ node.human_comment }}</p>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
 
 {% include "_logs_panel.html" %}
 {% include "_adapter_panel.html" %}
@@ -72,4 +161,11 @@
   </div>
 </div>
 </div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3.2.6/dist/purify.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<script src="{{ url_for('static', filename='js/node_detail_preview.js') }}"></script>
 {% endblock %}

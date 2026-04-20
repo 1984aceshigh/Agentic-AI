@@ -142,6 +142,1282 @@
         }
       ],
       "summary": null
+    },
+    {
+      "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+      "workflow_id": "sample_workflow",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T03:23:34.419222Z",
+      "finished_at": "2026-04-20T03:23:55.408531Z",
+      "node_records": [
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "start_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:34.461515Z",
+          "finished_at": "2026-04-20T03:23:36.048208Z",
+          "input_preview": "中国の故事成語を1つ出力してください。\n\nOutput format:\n故事成語以外のテキストは出力厳禁",
+          "output_preview": "画蛇添足",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "node_04",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:36.053994Z",
+          "finished_at": "2026-04-20T03:23:38.184306Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  }\n]",
+          "output_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分からの予定です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "first_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:36.055610Z",
+          "finished_at": "2026-04-20T03:23:42.898138Z",
+          "input_preview": "指定の故事成語について、歴史や意味を解説してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: 画蛇添足",
+          "output_preview": "「画蛇添足（がだてんそく）」は、中国の古典に由来する故事成語で、無駄なことをして余計な手間をかけることを意味します。この成語の背景には、以下のような伝説があります。\n\n### 歴史的背景\nこの成語は、中国の戦国時代に書かれた『戦国策』に由来しています。物語は、ある宴会での出来事から始まります。宴会の主催者が、参加者に対して「誰かが蛇を描く競争をしよう」と提案しました。参加者たちはそれぞれ蛇を描き始めましたが、一人の男が他の人よりも早く描き終えました。彼は自分の蛇が完成したことに満足し、他の参加者が描いているのを見て、さらに自分の蛇に足を描き加えました。\n\nしかし、彼が足を描き加えたことで、彼の蛇は本来の蛇の形から逸脱し、逆に不自然なものになってしまいました。最終的に、彼は他の参加者に負けてしまい、無駄な手を加えたことで自分の作品を台無しにしてしまったのです。\n\n### 意味\n「画蛇添足」は、必要のないことをして、かえって物事を悪くすることを指します。特に、すでに完成したものに無駄な手を加えることが、全体の質を損なうことを警告する意味合いがあります。この成語は、ビジネスや日常生活においても、過剰な手を加えることの危険性を示す際に使われます。\n\n### まとめ\n「画蛇添足」は、無駄な努力や余計なことをすることの愚かさを教えてくれる教訓的な成語です。物事はシンプルに保つことが重要であり、必要以上の手を加えることが逆効果になることを示しています。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "second_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:36.057861Z",
+          "finished_at": "2026-04-20T03:23:37.472872Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nOutput format:\n故事成語以外のテキストは不要",
+          "output_preview": "申し訳ありませんが、その情報は提供できません。具体的な提出物の期限や説明会の日時については、関連する公式の情報源や担当者にお問い合わせください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "review",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:42.904773Z",
+          "finished_at": "2026-04-20T03:23:46.480549Z",
+          "input_preview": "入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。\n\nInput definition:\n[参照ノード]\n- second_node.result: 申し訳ありませんが、その情報は提供できません。具体的な提出物の期限や説明会の日時については、関連する公式の情報源や担当者にお問い合わせください。\n\nAssessment options:\n- True\n- False\n\nReturn one option as selected_option.\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": -0.07013510475963043,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": -0.2871335626863006,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  }\n]",
+          "output_preview": "selected_option: False\n\nコメント: 提供されたテキストは、特定の提出物の期限や説明会の日時に関する情報を含んでおり、参照ノードの内容とは異なります。参照ノードは「その情報は提供できません」と述べていますが、実際には具体的な日付や連絡先が示されています。したがって、テキストの内容は参照ノードの主張と矛盾しているため、評価結果は「False」となります。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=assessment executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "node_05",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:46.488202Z",
+          "finished_at": "2026-04-20T03:23:48.401359Z",
+          "input_preview": "何か勇気づけられることわざを一つ教えてください",
+          "output_preview": "「七転び八起き」ということわざがあります。これは、何度失敗をしても決してあきらめずに努力し続けることの大切さを示しています。人生には困難がつきものですが、立ち上がって前に進む勇気を持つことが重要です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+          "node_id": "human",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:23:48.408884Z",
+          "finished_at": "2026-04-20T03:23:55.403224Z",
+          "input_preview": "human_gate task=approval",
+          "output_preview": "承認",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T03:26:24.419090Z",
+      "finished_at": "2026-04-20T03:27:24.405658Z",
+      "node_records": [
+        {
+          "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T03:26:24.439264Z",
+          "finished_at": "2026-04-20T03:27:24.404199Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T04:02:47.117531Z",
+      "finished_at": "2026-04-20T04:03:03.287556Z",
+      "node_records": [
+        {
+          "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:02:47.141760Z",
+          "finished_at": "2026-04-20T04:03:03.285809Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+      "workflow_id": "sample_workflow",
+      "workflow_version": null,
+      "status": "WAITING_HUMAN",
+      "started_at": "2026-04-20T04:27:46.102251Z",
+      "finished_at": null,
+      "node_records": [
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "start_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:46.131807Z",
+          "finished_at": "2026-04-20T04:27:48.162226Z",
+          "input_preview": "中国の故事成語を1つ出力してください。\n\nOutput format:\n故事成語以外のテキストは出力厳禁",
+          "output_preview": "一石二鳥",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "node_04",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:48.167595Z",
+          "finished_at": "2026-04-20T04:27:51.583527Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  }\n]",
+          "output_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分からの予定です。説明会はWeb会議による方法で開催されます。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "second_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:48.168300Z",
+          "finished_at": "2026-04-20T04:27:50.019058Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nOutput format:\n故事成語以外のテキストは不要",
+          "output_preview": "申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当者にお問い合わせください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "first_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:48.169020Z",
+          "finished_at": "2026-04-20T04:27:57.322864Z",
+          "input_preview": "指定の故事成語について、歴史や意味を解説してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: 一石二鳥",
+          "output_preview": "「一石二鳥」という故事成語は、ある行動や努力によって二つの目的を同時に達成することを意味します。この表現は、効率的に物事を進めることの重要性を示しています。\n\n### 歴史的背景\n「一石二鳥」という表現は、中国の古典文学に由来しています。特に、古代の狩猟文化において、1つの石を投げることで2羽の鳥を捕まえることができるという状況から生まれたと考えられています。この成語は、狩猟の技術や戦略を象徴するものであり、古代の人々が効率的に資源を利用することの重要性を理解していたことを示しています。\n\n### 意味\nこの成語は、日常生活やビジネス、学問など、さまざまな場面で使われます。例えば、あるプロジェクトを進めることで、同時に別の目標も達成できる場合に「一石二鳥」と表現します。効率的な行動や計画を立てることが、時間やリソースの節約につながることを示唆しています。\n\n### 使用例\n- 新しいマーケティング戦略を導入することで、売上を増やしつつブランドの認知度も高めることができた。まさに一石二鳥だ。\n- 旅行を兼ねてビジネスミーティングを行うことで、仕事とリフレッシュを同時に達成した。これも一石二鳥の例だ。\n\nこのように、「一石二鳥」は、効率的な行動を評価する際に非常に便利な表現です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "review",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:57.328030Z",
+          "finished_at": "2026-04-20T04:27:59.881612Z",
+          "input_preview": "入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。\n\nInput definition:\n[参照ノード]\n- second_node.result: 申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当者にお問い合わせください。\n\nAssessment options:\n- True\n- False\n\nReturn one option as selected_option.\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": -0.07013510475963043,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": -0.2871335626863006,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  }\n]",
+          "output_preview": "selected_option: False\n\nコメント: 提供されたテキストは、金融庁の企画競争に関する公告の一部であり、具体的な情報や手続きについて詳細に記載されています。しかし、参照ノードの内容は「申し訳ありませんが、その具体的な情報は提供できません」と述べており、これはテキストの内容と矛盾しています。したがって、評価結果は「False」となります。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=assessment executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "node_05",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:59.886257Z",
+          "finished_at": "2026-04-20T04:28:01.621759Z",
+          "input_preview": "何か勇気づけられることわざを一つ教えてください",
+          "output_preview": "「七転び八起き」ということわざがあります。これは、たとえ何度失敗しても諦めずに立ち上がり続けることの大切さを示しています。困難に直面しても、再挑戦する勇気を忘れないようにしましょう。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+          "node_id": "human",
+          "node_type": "human_gate",
+          "status": "WAITING_HUMAN",
+          "started_at": "2026-04-20T04:28:01.625480Z",
+          "finished_at": null,
+          "input_preview": "human_gate task=approval",
+          "output_preview": null,
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": true,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T04:27:58.674171Z",
+      "finished_at": "2026-04-20T04:28:10.943135Z",
+      "node_records": [
+        {
+          "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:27:58.697558Z",
+          "finished_at": "2026-04-20T04:28:08.825891Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+          "node_id": "node2",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T04:28:08.843567Z",
+          "finished_at": "2026-04-20T04:28:10.938067Z",
+          "input_preview": "前工程からのインプットを要約してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: (not found)",
+          "output_preview": "- **text**: 前工程からのインプットに関する情報は、参照ノード「start_node.result」が見つからないという内容です。このため、具体的なデータや結果が提供されていない状態です。要約すると、必要なインプットが欠如しているということになります。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T05:49:06.036189Z",
+      "finished_at": "2026-04-20T05:49:25.044934Z",
+      "node_records": [
+        {
+          "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T05:49:06.064169Z",
+          "finished_at": "2026-04-20T05:49:16.531732Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+          "node_id": "node2",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T05:49:16.551619Z",
+          "finished_at": "2026-04-20T05:49:25.032935Z",
+          "input_preview": "前工程からのインプットを要約してください。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  企画競争に関する公告 \n \n  下記のとおり企画競争に付します。 \n  令和８年２月 26 日                 支出負担行為担当官           \n    金融庁総合政策局秘書 課長 八木 瑞枝   \n \n  記 \n  １．企画競争に付する事項 \n  金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \n \n  ２．企画競争に参加する者に必要な資格等に関する事項 \n  （１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\n  又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\n  ある場合に該当する。 \n  （２）予算決算及び会計令第71 条の規定に該当しない者であること。 \n  （３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\n  提供等」で関東・甲信越地域の資格を有する者であること。 \n  (４)過去に同種又は類似の業務の実績があること。 \n \n  ３．参加要領等の交付 \n  調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\n  争参加申込み等とする。 \n  企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\n  電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\n  子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\n  こと（電子メールが使用できない者については、別途事前に相談すること） 。 \n  参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \n  申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n \n  ４．企画競争参加申込み及び企画書等の提出期限 \n  企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\n  和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \n  所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n  受付時間：平日9：30～12：00 及び13：00～17：30 \n  提出書類：企画競争参加要領のとおり \n  申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\n  等によることとする。 \n \n  ５．企画競争に関する説明会 \n  （１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \n  （説明会の時間は参加申込者に対して当庁から通知する。 ） \n  （２）開催場所：Web 会議による方法にて開催する。 \n  （説明会への参加方法は参加申込者に対して当庁から通知する。 ） \n  （３）説明事項：業務の趣旨、内容、日程等 \n  （４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\n  00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\n  参加は任意とする。 \n \n  ６．企画書の無効 \n  本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \n \n  ７．その他 \n  （１）電子メールを使用する際の留意事項 \n  ・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\n  とすること。 \n  （２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\n  ること。 \n \n  以上",
+          "output_preview": "- **text**: この公告は、金融庁が金融経済教育の普及・啓発を目的としたイベントの企画競争を実施することを告知しています。以下は主なポイントの要約です。\n\n1. **企画競争の目的**: 全国各地での金融経済教育に関するイベントの実施及び企画業務。\n\n2. **参加資格**:\n   - 予算決算及び会計令第70条及び71条に該当しないこと。\n   - 内閣府競争参加資格において「役務の提供等」の業種区分で関東・甲信越地域の資格を有すること。\n   - 過去に同種または類似の業務の実績があること。\n\n3. **参加要領の交付**: デジタル化の観点から、対面ではなく電子メールで参加要領を交付。申込は指定のメールアドレスに必要事項を記載して送信。\n\n4. **申込み及び提出期限**: 参加希望者は、参加要領に従い、必要書類を令和8年3月13日までに提出。\n\n5. **説明会**: 令和8年3月6日にWeb会議形式で開催。参加希望者は事前に申し込みが必要。\n\n6. **無効な企画書**: 資格のない者の企画書は無効。\n\n7. **電子メールの留意事項**: 添付ファイルは1回で10MBまで。\n\n詳細は指定の連絡先に問い合わせることが求められています。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T12:49:33.136979Z",
+      "finished_at": "2026-04-20T12:49:50.236672Z",
+      "node_records": [
+        {
+          "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:49:33.168320Z",
+          "finished_at": "2026-04-20T12:49:43.248072Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+          "node_id": "node2",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:49:43.264772Z",
+          "finished_at": "2026-04-20T12:49:50.230736Z",
+          "input_preview": "前工程からのインプットを要約してください。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  企画競争に関する公告 \n \n  下記のとおり企画競争に付します。 \n  令和８年２月 26 日                 支出負担行為担当官           \n    金融庁総合政策局秘書 課長 八木 瑞枝   \n \n  記 \n  １．企画競争に付する事項 \n  金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \n \n  ２．企画競争に参加する者に必要な資格等に関する事項 \n  （１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\n  又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\n  ある場合に該当する。 \n  （２）予算決算及び会計令第71 条の規定に該当しない者であること。 \n  （３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\n  提供等」で関東・甲信越地域の資格を有する者であること。 \n  (４)過去に同種又は類似の業務の実績があること。 \n \n  ３．参加要領等の交付 \n  調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\n  争参加申込み等とする。 \n  企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\n  電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\n  子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\n  こと（電子メールが使用できない者については、別途事前に相談すること） 。 \n  参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \n  申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n \n  ４．企画競争参加申込み及び企画書等の提出期限 \n  企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\n  和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \n  所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n  受付時間：平日9：30～12：00 及び13：00～17：30 \n  提出書類：企画競争参加要領のとおり \n  申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\n  等によることとする。 \n \n  ５．企画競争に関する説明会 \n  （１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \n  （説明会の時間は参加申込者に対して当庁から通知する。 ） \n  （２）開催場所：Web 会議による方法にて開催する。 \n  （説明会への参加方法は参加申込者に対して当庁から通知する。 ） \n  （３）説明事項：業務の趣旨、内容、日程等 \n  （４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\n  00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\n  参加は任意とする。 \n \n  ６．企画書の無効 \n  本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \n \n  ７．その他 \n  （１）電子メールを使用する際の留意事項 \n  ・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\n  とすること。 \n  （２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\n  ること。 \n \n  以上",
+          "output_preview": "- **text**: この公告は、金融庁が金融経済教育の普及・啓発を目的としたイベントの企画競争を実施することを告知しています。以下は主なポイントの要約です。\n\n1. **企画競争の目的**: 全国各地での金融経済教育に関するイベントの実施及び企画業務。\n\n2. **参加資格**:\n   - 予算決算及び会計令第70条及び71条に該当しないこと。\n   - 内閣府競争参加資格において「役務の提供等」の業種区分で関東・甲信越地域の資格を有すること。\n   - 過去に同種または類似の業務の実績があること。\n\n3. **参加要領の交付**: デジタル化の観点から、対面ではなく電子メールで参加要領を交付。申込は指定のメールアドレスに必要事項を記載して送信。\n\n4. **申込み及び提出期限**: 参加希望者は、参加要領に従い、必要書類を令和8年3月13日までに提出。\n\n5. **説明会**: 令和8年3月6日にWeb会議形式で開催。参加希望者は事前に申し込みが必要。\n\n6. **無効な企画書**: 資格のない者の企画書は無効とされる。\n\n7. **電子メールの留意事項**: 添付ファイルは1回で10MBまで。\n\n詳細は指定の連絡先に問い合わせることが求められています。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T12:55:22.184504Z",
+      "finished_at": "2026-04-20T12:55:39.164863Z",
+      "node_records": [
+        {
+          "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:55:22.217054Z",
+          "finished_at": "2026-04-20T12:55:31.487192Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+          "node_id": "node2",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:55:31.505036Z",
+          "finished_at": "2026-04-20T12:55:39.158388Z",
+          "input_preview": "前工程からのインプットを要約してください。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  企画競争に関する公告 \n \n  下記のとおり企画競争に付します。 \n  令和８年２月 26 日                 支出負担行為担当官           \n    金融庁総合政策局秘書 課長 八木 瑞枝   \n \n  記 \n  １．企画競争に付する事項 \n  金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \n \n  ２．企画競争に参加する者に必要な資格等に関する事項 \n  （１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\n  又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\n  ある場合に該当する。 \n  （２）予算決算及び会計令第71 条の規定に該当しない者であること。 \n  （３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\n  提供等」で関東・甲信越地域の資格を有する者であること。 \n  (４)過去に同種又は類似の業務の実績があること。 \n \n  ３．参加要領等の交付 \n  調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\n  争参加申込み等とする。 \n  企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\n  電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\n  子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\n  こと（電子メールが使用できない者については、別途事前に相談すること） 。 \n  参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \n  申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n \n  ４．企画競争参加申込み及び企画書等の提出期限 \n  企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\n  和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \n  所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \n  金融庁総合政策局総合政策課 \n  （代表）03-3506-0000（内線）3824 \n  （メール）fukyu@fsa.go.jp \n  受付時間：平日9：30～12：00 及び13：00～17：30 \n  提出書類：企画競争参加要領のとおり \n  申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\n  等によることとする。 \n \n  ５．企画競争に関する説明会 \n  （１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \n  （説明会の時間は参加申込者に対して当庁から通知する。 ） \n  （２）開催場所：Web 会議による方法にて開催する。 \n  （説明会への参加方法は参加申込者に対して当庁から通知する。 ） \n  （３）説明事項：業務の趣旨、内容、日程等 \n  （４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\n  00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\n  参加は任意とする。 \n \n  ６．企画書の無効 \n  本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \n \n  ７．その他 \n  （１）電子メールを使用する際の留意事項 \n  ・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\n  とすること。 \n  （２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\n  ること。 \n \n  以上",
+          "output_preview": "- **text**: この公告は、金融庁が金融経済教育の普及・啓発を目的としたイベントの企画競争を実施することを告知しています。以下は主なポイントの要約です。\n\n1. **企画競争の目的**: 全国各地での金融経済教育に関するイベントの実施及び企画業務。\n\n2. **参加資格**:\n   - 予算決算及び会計令第70条及び71条に該当しないこと。\n   - 内閣府競争参加資格において「役務の提供等」の業種区分で関東・甲信越地域の資格を有すること。\n   - 過去に同種または類似の業務の実績があること。\n\n3. **参加要領の交付**: デジタル化の観点から、対面ではなく電子メールで参加要領を交付。申込は指定のメールアドレスに必要事項を記載して送信。\n\n4. **申込み及び提出期限**: 参加希望者は、参加要領に従い、必要書類を令和8年3月13日までに提出。\n\n5. **説明会**: 令和8年3月6日にWeb会議形式で開催。参加希望者は事前に申し込みが必要。\n\n6. **無効な企画書**: 資格のない者の企画書は無効とされる。\n\n7. **電子メールの留意事項**: 添付ファイルは1回で10MBまで。\n\n詳細は指定の連絡先に問い合わせることが求められています。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+      "workflow_id": "sample_workflow",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T12:59:00.018155Z",
+      "finished_at": "2026-04-20T12:59:21.576033Z",
+      "node_records": [
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "start_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:00.091465Z",
+          "finished_at": "2026-04-20T12:59:01.140976Z",
+          "input_preview": "中国の故事成語を1つ出力してください。\n\nOutput format:\n故事成語以外のテキストは出力厳禁",
+          "output_preview": "画蛇添足",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "first_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:01.149872Z",
+          "finished_at": "2026-04-20T12:59:08.722601Z",
+          "input_preview": "指定の故事成語について、歴史や意味を解説してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: 画蛇添足",
+          "output_preview": "「画蛇添足（がだてんそく）」は、中国の古典に由来する故事成語で、無駄なことをして余計な手間をかけることを意味します。この成語の背景には、以下のような伝説があります。\n\n### 歴史的背景\nこの成語は、中国の戦国時代に書かれた『戦国策』に由来しています。物語は、ある宴会での出来事から始まります。宴会の参加者たちが、酒を飲みながら競争をすることになりました。競争の内容は、誰が最初に蛇を描けるかというものでした。\n\nある参加者が見事に蛇を描き上げた後、もう一人の参加者がその絵に足を描き加えようとしました。しかし、その足を描き加えたことで、蛇の形が崩れてしまい、結局その絵は蛇ではなくなってしまいました。このことから、「画蛇添足」という言葉が生まれ、無駄なことをして本来の目的を損なうことを指すようになりました。\n\n### 意味\n「画蛇添足」は、必要のないことをして、かえって物事を台無しにすることを警告する成語です。特に、何かを完成させた後に余計な手を加えることで、逆にその価値を下げてしまうことを示しています。\n\n### 使用例\nこの成語は、ビジネスや日常生活の中で、過剰な手を加えることが逆効果になる場合に使われることが多いです。例えば、プロジェクトが順調に進んでいるときに、無理に変更を加えたり、余計な機能を追加したりすることが「画蛇添足」にあたります。\n\nこのように、「画蛇添足」は、シンプルさや本質を大切にすることの重要性を教えてくれる成語です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "node_04",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:01.151911Z",
+          "finished_at": "2026-04-20T12:59:03.803758Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  }\n]",
+          "output_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分からの予定です。説明会はWeb会議による方法で開催されます。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "second_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:01.154045Z",
+          "finished_at": "2026-04-20T12:59:02.570396Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nOutput format:\n故事成語以外のテキストは不要",
+          "output_preview": "申し訳ありませんが、その情報は提供できません。具体的な提出物の期限や説明会の日時については、関連する公式の情報源や担当者にお問い合わせください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "review",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:08.728828Z",
+          "finished_at": "2026-04-20T12:59:10.352092Z",
+          "input_preview": "入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。\n\nInput definition:\n[参照ノード]\n- second_node.result: 申し訳ありませんが、その情報は提供できません。具体的な提出物の期限や説明会の日時については、関連する公式の情報源や担当者にお問い合わせください。\n\nAssessment options:\n- True\n- False\n\nReturn one option as selected_option.\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": -0.07013510475963043,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": -0.2871335626863006,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  }\n]",
+          "output_preview": "selected_option: False\n\nコメント: 提供された情報は、特定の提出物の期限や説明会の日時に関する具体的な詳細を含んでおらず、公式の情報源や担当者に問い合わせるように指示しています。したがって、入力されたテキストの内容は正確ではありません。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=assessment executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "node_05",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:10.359793Z",
+          "finished_at": "2026-04-20T12:59:12.093717Z",
+          "input_preview": "何か勇気づけられることわざを一つ教えてください",
+          "output_preview": "「七転び八起き」ということわざがあります。これは、何度失敗してもまた立ち上がる勇気を持つことの大切さを表しています。人生において困難や挫折はつきものですが、あきらめずに前進し続けることが大切です。励ましになることと思います。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "human",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:12.099961Z",
+          "finished_at": "2026-04-20T12:59:18.950598Z",
+          "input_preview": "human_gate task=approval",
+          "output_preview": "承認",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+          "node_id": "extract",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T12:59:19.002838Z",
+          "finished_at": "2026-04-20T12:59:21.567287Z",
+          "input_preview": "extract by llm node\n\nInput definition:\n[参照ノード]\n- node_04.result: 「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分からの予定です。説明会はWeb会議による方法で開催されます。\n- review.assessment_content:\n  selected_option: False\n\n  コメント: 提供された情報は、特定の提出物の期限や説明会の日時に関する具体的な詳細を含んでおらず、公式の情報源や担当者に問い合わせるように指示しています。したがって、入力されたテキストの内容は正確ではありません。\n- review.selected_option: False",
+          "output_preview": "- **text**: Based on the provided input, here is the extracted information:\n\n### Event Submission Deadline\n- **Deadline for Submission**: March 13, 2026 (Friday) at 17:00\n\n### Information Session\n- **Date and Time of Information Session**: March 6, 2026 (Friday) at 11:00\n- **Format**: Web conference\n\n### Review Assessment\n- **Selected Option**: False\n- **Comment**: The provided information lacks specific details regarding the submission deadline and the date of the information session. It suggests contacting official sources or responsible parties for accurate information, indicating that the content may not be reliable.",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+      "workflow_id": "sample_workflow",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T13:00:28.883619Z",
+      "finished_at": "2026-04-20T13:00:56.350359Z",
+      "node_records": [
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "start_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:28.923178Z",
+          "finished_at": "2026-04-20T13:00:30.138979Z",
+          "input_preview": "中国の故事成語を1つ出力してください。\n\nOutput format:\n故事成語以外のテキストは出力厳禁",
+          "output_preview": "一石二鳥",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "node_04",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:30.148091Z",
+          "finished_at": "2026-04-20T13:00:32.791661Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  }\n]",
+          "output_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分から（予定）です。説明会はWeb会議による方法で開催されます。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "first_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:30.150326Z",
+          "finished_at": "2026-04-20T13:00:40.675220Z",
+          "input_preview": "指定の故事成語について、歴史や意味を解説してください。\n\nInput definition:\n[参照ノード]\n- start_node.result: 一石二鳥",
+          "output_preview": "「一石二鳥」という故事成語は、ある行動や努力によって二つの目的を同時に達成することを意味します。この表現は、効率的に物事を進めることの重要性を示しています。\n\n### 歴史的背景\n「一石二鳥」という表現は、中国の古典文学に由来しています。具体的には、古代の狩猟文化に関連しており、石を投げて二羽の鳥を同時に捕まえることから来ています。このような行動は、狩猟の技術や戦略を示すものであり、限られた資源や時間を有効に活用することの重要性を強調しています。\n\n### 意味\nこの成語は、日常生活やビジネス、学習など、さまざまな場面で使われます。例えば、あるプロジェクトを進める際に、一つの作業を行うことで複数の成果を得ることができる場合に「一石二鳥」と表現します。効率的な行動を促す言葉として、特にビジネスシーンでよく用いられます。\n\n### 使い方の例\n- 「この新しいマーケティング戦略は、売上を上げるだけでなく、ブランドの認知度も高めるので、一石二鳥だ。」\n- 「この勉強法は、知識を深めるだけでなく、試験対策にもなるから、一石二鳥だね。」\n\nこのように、「一石二鳥」は、効率的な行動や戦略を評価する際に非常に便利な表現です。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "second_node",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:30.154206Z",
+          "finished_at": "2026-04-20T13:00:31.355239Z",
+          "input_preview": "「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」の提出物提出期限と説明会の開催日時を教えて\n\nOutput format:\n故事成語以外のテキストは不要",
+          "output_preview": "申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当機関にお問い合わせください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "review",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:40.679480Z",
+          "finished_at": "2026-04-20T13:00:43.234909Z",
+          "input_preview": "入力されたテキストの内容が合っているか確認して評価結果をコメントしてください。\n\nInput definition:\n[参照ノード]\n- second_node.result: 申し訳ありませんが、その具体的な情報は提供できません。詳細については、関連する公式の情報源や担当機関にお問い合わせください。\n\nAssessment options:\n- True\n- False\n\nReturn one option as selected_option.\n\nRAG context:\n[\n  {\n    \"chunk_id\": \"fsa-chunk-2\",\n    \"document_id\": \"fsa\",\n    \"text\": \"する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申込み等とする。 \\n企画競争参加要領等の交付を希望する者は、下記申込先に連絡し、指定されたメールアドレス宛の\\n電子メール本文にその旨記載し、令和８年３月12 日（木）17 時00 分までに送信すること。なお、電\\n子メールには、会社名、住所、所属、役職、担当者氏名、電話番号、電子メールアドレスを明記する\\nこと（電子メールが使用できない者については、別途事前に相談すること） 。 \\n参加要領等の交付は、電子メールにて依頼者（担当者1 名）へ返信するものとする。 \\n申込先：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 2\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-4\",\n    \"document_id\": \"fsa\",\n    \"text\": \"会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣旨、内容、日程等 \\n（４） 申込方法：参加を希望する者は、 電子メール本文にその旨記載し、 令和８年３月２日（月）17 時\\n00 分までに、企画競争参加要領に記載の電子メールアドレスに送信すること。なお、説明会への\\n参加は任意とする。 \\n \\n６．企画書の無効 \\n本公告に示した企画競争に必要な資格のない者の企画書は、無効とする。 \\n \\n７．その他 \\n（１）電子メールを使用する際の留意事項 \\n・ 当方向けの電子メールについては、 １回で10 メガバイトまでの情報 （添付ファイルを含む）\\nとすること。 \\n（２）企画競争参加申込書及び募集内容等の詳細については、３．参加要領等の交付先まで照会す\\nること。 \\n \\n以上\",\n    \"score\": 0.0,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 4\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-3\",\n    \"document_id\": \"fsa\",\n    \"text\": \"4 \\n（メール）fukyu@fsa.go.jp \\n \\n４．企画競争参加申込み及び企画書等の提出期限 \\n企画競争に参加を希望する者は、３．にて配布する参加要領等に記載された所定の提出物を、令\\n和８年３月13 日（金）17 時00 分までに、電子メール又は郵送（必着）提出すること。 \\n所在地 ：東京都千代田区霞が関３－２－１（中央合同庁舎７号館） \\n金融庁総合政策局総合政策課 \\n（代表）03-3506-0000（内線）3824 \\n（メール）fukyu@fsa.go.jp \\n受付時間：平日9：30～12：00 及び13：00～17：30 \\n提出書類：企画競争参加要領のとおり \\n申込要領：その他本件企画競争に関する詳細は、公示の日より上記にて配布する企画競争参加要領\\n等によることとする。 \\n \\n５．企画競争に関する説明会 \\n（１）開催日時：令和８年３月６日（金）11 時00 分～（予定） \\n（説明会の時間は参加申込者に対して当庁から通知する。 ） \\n（２）開催場所：Web 会議による方法にて開催する。 \\n（説明会への参加方法は参加申込者に対して当庁から通知する。 ） \\n（３）説明事項：業務の趣\",\n    \"score\": -0.07013510475963043,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 3\n    }\n  },\n  {\n    \"chunk_id\": \"fsa-chunk-1\",\n    \"document_id\": \"fsa\",\n    \"text\": \"企画競争に関する公告 \\n \\n下記のとおり企画競争に付します。 \\n令和８年２月 26 日                 支出負担行為担当官           \\n  金融庁総合政策局秘書 課長 八木 瑞枝   \\n \\n記 \\n１．企画競争に付する事項 \\n金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務 \\n \\n２．企画競争に参加する者に必要な資格等に関する事項 \\n（１） 予算決算及び会計令第70 条の規定に該当しない者であること。 なお、 未成年者、 被保佐人、\\n又は被補助人であって、契約締結のために必要な同意を得ている者は、同条中、特別の理由が\\nある場合に該当する。 \\n（２）予算決算及び会計令第71 条の規定に該当しない者であること。 \\n（３）令和07・08・09 年度内閣府競争参加資格（全省庁統一資格）において、業種区分が「役務の\\n提供等」で関東・甲信越地域の資格を有する者であること。 \\n(４)過去に同種又は類似の業務の実績があること。 \\n \\n３．参加要領等の交付 \\n調達事務のデジタル化の取り組みを推進する観点から、対面によらない参加要領等の交付、企画競\\n争参加申\",\n    \"score\": -0.2871335626863006,\n    \"metadata\": {\n      \"source_filename\": \"20260226-2.pdf\",\n      \"index\": 1\n    }\n  }\n]",
+          "output_preview": "selected_option: False\n\nコメント: 提供されたテキストは、金融庁の企画競争に関する公告の一部であり、具体的な情報を提供する内容ではありません。したがって、「申し訳ありませんが、その具体的な情報は提供できません」という文は、テキストの内容と一致しないため、評価結果は「False」となります。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=assessment executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "node_05",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:43.242126Z",
+          "finished_at": "2026-04-20T13:00:44.984269Z",
+          "input_preview": "何か勇気づけられることわざを一つ教えてください",
+          "output_preview": "「七転び八起き」ということわざはいかがでしょうか。これは、何度失敗してもあきらめずに立ち上がることの大切さを示しています。どんな困難な状況でも、勇気を持って再び挑戦することが重要だというメッセージを含んでいます。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "human",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:44.992383Z",
+          "finished_at": "2026-04-20T13:00:52.553269Z",
+          "input_preview": "human_gate task=approval",
+          "output_preview": "承認",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+          "node_id": "extract",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:00:52.606516Z",
+          "finished_at": "2026-04-20T13:00:56.342701Z",
+          "input_preview": "extract by llm node\n\nInput definition:\n[参照ノード]\n- node_04.result: 「金融経済教育の普及・啓発を目的とした全国各地でのイベント実施及び企画業務」に関する提出物の提出期限は、令和8年3月13日（金）17時00分までです。また、説明会の開催日時は、令和8年3月6日（金）11時00分から（予定）です。説明会はWeb会議による方法で開催されます。\n- review.assessment_content:\n  selected_option: False\n\n  コメント: 提供されたテキストは、金融庁の企画競争に関する公告の一部であり、具体的な情報を提供する内容ではありません。したがって、「申し訳ありませんが、その具体的な情報は提供できません」という文は、テキストの内容と一致しないため、評価結果は「False」となります。\n- review.selected_option: False",
+          "output_preview": "- **text**: Based on the provided input, here is the extracted information:\n\n### Event Details\n- **Submission Deadline**: 令和8年3月13日（金）17時00分\n- **Information Session Date and Time**: 令和8年3月6日（金）11時00分（予定）\n- **Format of Information Session**: Web会議による方法\n\n### Review Assessment\n- **Selected Option**: False\n- **Comment**: The provided text is part of an announcement regarding a planning competition by the Financial Services Agency and does not provide specific information. Therefore, the statement \"申し訳ありませんが、その具体的な情報は提供できません\" does not align with the content of the text, resulting in an evaluation of \"False\".",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T13:15:08.469263Z",
+      "finished_at": "2026-04-20T13:16:37.222227Z",
+      "node_records": [
+        {
+          "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:15:08.500561Z",
+          "finished_at": "2026-04-20T13:16:26.805091Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+          "node_id": "node2",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:16:26.841268Z",
+          "finished_at": "2026-04-20T13:16:37.211968Z",
+          "input_preview": "あなたは業務フロー分析の専門家です。\r\n与えられた業務記述書など、業務をどのように行なっているかの情報から、mermaid表記の業務フローを作成してください。\r\nその際、工程や担い手などその業務の理解に最適と思われるグループがある場合は、サブグラフとして表示してください。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmermaid記法",
+          "output_preview": "以下は、提供された業務記述書に基づいて作成した業務フローのmermaid表記です。業務の各工程や担い手をサブグラフとして表示しています。\n\n```mermaid\ngraph TD\n    A[運営委員会議事録作成] --> B[事前準備]\n    B --> C[書記2名体制で議事録を交互に担当]\n    C --> D[議事録担当書記がドラフトを用意]\n    D --> E[議場で議事進行と同時に議事録作成]\n    E --> F[議事を録音（スマホのボイスメモ使用）]\n    F --> G[運営委員会終了後]\n    \n    subgraph 議事録作成プロセス\n        G --> H[議事録担当書記が内容確認を依頼]\n        H --> I[内容確認後、Google Driveに格納]\n        I --> J[運営委員全員に議事録内容確認を依頼]\n        J --> K[確認終了後、ファイル名からdraft表記を外す]\n        K --> L[当月の議事録対応完了]\n    end\n\n    F -->|生成AI導入の議論なし| G\n```\n\nこのフローは、運営委員会の議事録作成プロセスを視覚的に表現しています。各工程がどのように連携しているかを示し、特に議事録作成に関わる重要なステップをサブグラフとしてまとめています。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T13:50:54.635716Z",
+      "finished_at": "2026-04-20T13:51:20.773887Z",
+      "node_records": [
+        {
+          "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:50:54.670353Z",
+          "finished_at": "2026-04-20T13:51:03.355051Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+          "node_id": "node3",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:51:03.398509Z",
+          "finished_at": "2026-04-20T13:51:14.008299Z",
+          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
+          "output_preview": "# 業務記述書: 運営委員会議事録作成\n\n## 1. 業務概要\n運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、確認を経て最終的な議事録を完成させることを目的としています。\n\n## 2. 業務工程\n\n### 2.1 事前準備\n- **担い手**: 書記2名\n- **内容**: \n  - 運営委員会の議事録を交互に担当する体制を整える。\n  - 議事録担当書記は運営委員会進行表を基に議事録ドラフトを準備。\n\n### 2.2 議事録作成\n- **担い手**: 議事録担当書記\n- **内容**:\n  - 議場にて、事前に用意したドラフトを用いて議事進行と同時に議事録を作成。\n  - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n### 2.3 議事録確認\n- **担い手**: 議事録担当書記、もう一方の書記、運営委員全員\n- **内容**:\n  - 運営委員会終了後、議事録担当書記が作成した議事録をメールでもう一方の書記に内容確認を依頼。\n  - 内容確認後、議事録担当書記がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n  - 運営委員全員にメールで議事録内容確認を依頼。\n\n### 2.4 議事録最終化\n- **担い手**: 議事録担当書記\n- **内容**:\n  - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了。\n\n## 3. 時系列\n1. **事前準備**: 書記2名が体制を整え、議事録ドラフトを準備。\n2. **議事録作成**: 議場で議事進行に合わせて議事録を作成し、録音を行う。\n3. **議事録確認**: 議事録をメールで確認依頼し、Google Driveに格納。\n4. **議事録最終化**: 確認後、ファイル名を修正し、議事録作成を完了。\n\n## 4. 特記事項\n- 生成AIなどによる議事録自動作成については、今期は特に導入の是非の議論は行わない。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+          "node_id": "node4",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:51:14.017753Z",
+          "finished_at": "2026-04-20T13:51:20.764928Z",
+          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。\n\nInput definition:\n[参照ノード]\n- node3.result:\n  # 業務記述書: 運営委員会議事録作成\n\n  ## 1. 業務概要\n  運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、確認を経て最終的な議事録を完成させることを目的としています。\n\n  ## 2. 業務工程\n\n  ### 2.1 事前準備\n  - **担い手**: 書記2名\n  - **内容**: \n    - 運営委員会の議事録を交互に担当する体制を整える。\n    - 議事録担当書記は運営委員会進行表を基に議事録ドラフトを準備。\n\n  ### 2.2 議事録作成\n  - **担い手**: 議事録担当書記\n  - **内容**:\n    - 議場にて、事前に用意したドラフトを用いて議事進行と同時に議事録を作成。\n    - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n  ### 2.3 議事録確認\n  - **担い手**: 議事録担当書記、もう一方の書記、運営委員全員\n  - **内容**:\n    - 運営委員会終了後、議事録担当書記が作成した議事録をメールでもう一方の書記に内容確認を依頼。\n    - 内容確認後、議事録担当書記がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n    - 運営委員全員にメールで議事録内容確認を依頼。\n\n  ### 2.4 議事録最終化\n  - **担い手**: 議事録担当書記\n  - **内容**:\n    - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了。\n\n  ## 3. 時系列\n  1. **事前準備**: 書記2名が体制を整え、議事録ドラフトを準備。\n  2. **議事録作成**: 議場で議事進行に合わせて議事録を作成し、録音を行う。\n  3. **議事録確認**: 議事録をメールで確認依頼し、Google Driveに格納。\n  4. **議事録最終化**: 確認後、ファイル名を修正し、議事録作成を完了。\n\n  ## 4. 特記事項\n  - 生成AIなどによる議事録自動作成については、今期は特に導入の是非の議論は行わない。\n\nOutput format:\nmermaid",
+          "output_preview": "- **text**: ```mermaid\ngraph TD\n    A[事前準備] --> B[議事録作成]\n    B --> C[議事録確認]\n    C --> D[議事録最終化]\n\n    subgraph 事前準備\n        A1[書記2名が体制を整える]\n        A2[議事録ドラフトを準備]\n    end\n\n    subgraph 議事録作成\n        B1[議場で議事進行に合わせて議事録を作成]\n        B2[議事を録音（スマホのボイスメモを使用）]\n    end\n\n    subgraph 議事録確認\n        C1[議事録をメールで確認依頼]\n        C2[議事録ドラフトと録音ファイルをGoogle Driveに格納]\n        C3[運営委員全員に議事録内容確認を依頼]\n    end\n\n    subgraph 議事録最終化\n        D1[ファイル名から「draft」表記を外す]\n        D2[当月の議事録対応を完了]\n    end\n\n    A --> A1\n    A --> A2\n    B --> B1\n    B --> B2\n    C --> C1\n    C --> C2\n    C --> C3\n    D --> D1\n    D --> D2\n```",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T13:53:02.059577Z",
+      "finished_at": "2026-04-20T13:53:25.584887Z",
+      "node_records": [
+        {
+          "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:53:02.092780Z",
+          "finished_at": "2026-04-20T13:53:09.030987Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+          "node_id": "node3",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:53:09.072752Z",
+          "finished_at": "2026-04-20T13:53:20.676676Z",
+          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
+          "output_preview": "# 業務記述書: 運営委員会議事録作成\n\n## 1. 業務概要\n運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、最終的に運営委員全員に確認を依頼する流れで進行します。\n\n## 2. 工程\n\n### 2.1 事前準備\n- **担当者**: 書記2名\n- **内容**: 運営委員会12回の議事録を交互に担当する体制を整える。\n\n### 2.2 議事録ドラフト作成\n- **担当者**: 議事録担当書記\n- **内容**: 運営委員会進行表を基に議事録のドラフトを用意する。\n\n### 2.3 議事録作成\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 議場で事前に用意したドラフトを用いて、議事進行と同時に議事録を作成。\n  - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n### 2.4 議事録確認依頼\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 運営委員会終了後、作成した議事録をメールでもう一方の書記に内容確認を依頼。\n\n### 2.5 議事録の格納と確認依頼\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 内容確認後、Google Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n  - 運営委員全員にメールで議事録内容確認を依頼。\n\n### 2.6 議事録の最終化\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了。\n\n## 3. 担い手\n- 書記2名（交互に議事録を担当）\n- 議事録担当書記（議事録ドラフト作成、確認依頼、最終化）\n\n## 4. 時系列\n1. 事前準備\n2. 議事録ドラフト作成\n3. 議事録作成\n4. 議事録確認依頼\n5. 議事録の格納と確認依頼\n6. 議事録の最終化\n\n## 5. 特記事項\n- 生成AIなどによる議事録自動作成については、今期は特に導入是非の議論なし。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+          "node_id": "node4",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:53:20.687377Z",
+          "finished_at": "2026-04-20T13:53:25.577430Z",
+          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。\n\nInput definition:\n[参照ノード]\n- node3.result:\n  # 業務記述書: 運営委員会議事録作成\n\n  ## 1. 業務概要\n  運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、最終的に運営委員全員に確認を依頼する流れで進行します。\n\n  ## 2. 工程\n\n  ### 2.1 事前準備\n  - **担当者**: 書記2名\n  - **内容**: 運営委員会12回の議事録を交互に担当する体制を整える。\n\n  ### 2.2 議事録ドラフト作成\n  - **担当者**: 議事録担当書記\n  - **内容**: 運営委員会進行表を基に議事録のドラフトを用意する。\n\n  ### 2.3 議事録作成\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 議場で事前に用意したドラフトを用いて、議事進行と同時に議事録を作成。\n    - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n  ### 2.4 議事録確認依頼\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 運営委員会終了後、作成した議事録をメールでもう一方の書記に内容確認を依頼。\n\n  ### 2.5 議事録の格納と確認依頼\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 内容確認後、Google Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n    - 運営委員全員にメールで議事録内容確認を依頼。\n\n  ### 2.6 議事録の最終化\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了。\n\n  ## 3. 担い手\n  - 書記2名（交互に議事録を担当）\n  - 議事録担当書記（議事録ドラフト作成、確認依頼、最終化）\n\n  ## 4. 時系列\n  1. 事前準備\n  2. 議事録ドラフト作成\n  3. 議事録作成\n  4. 議事録確認依頼\n  5. 議事録の格納と確認依頼\n  6. 議事録の最終化\n\n  ## 5. 特記事項\n  - 生成AIなどによる議事録自動作成については、今期は特に導入是非の議論なし。\n\nOutput format:\nmermaid",
+          "output_preview": "- **text**: ```mermaid\nworkflow TD\n    A[事前準備] --> B[議事録ドラフト作成]\n    B --> C[議事録作成]\n    C --> D[議事録確認依頼]\n    D --> E[議事録の格納と確認依頼]\n    E --> F[議事録の最終化]\n\n    subgraph 事前準備\n        A1[書記2名が交互に担当体制を整える]\n    end\n\n    subgraph 議事録ドラフト作成\n        B1[運営委員会進行表を基にドラフトを用意]\n    end\n\n    subgraph 議事録作成\n        C1[議場でドラフトを用いて議事録を作成]\n        C2[議事を録音（スマホのボイスメモ使用）]\n    end\n\n    subgraph 議事録確認依頼\n        D1[運営委員会終了後、メールで内容確認依頼]\n    end\n\n    subgraph 議事録の格納と確認依頼\n        E1[内容確認後、Google Driveにドラフトと録音ファイルを格納]\n        E2[運営委員全員にメールで確認依頼]\n    end\n\n    subgraph 議事録の最終化\n        F1[確認終了後、ファイル名から「draft」を外す]\n    end\n```",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=extract executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "SUCCEEDED",
+      "started_at": "2026-04-20T13:54:46.394439Z",
+      "finished_at": "2026-04-20T13:55:26.537002Z",
+      "node_records": [
+        {
+          "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:54:46.429777Z",
+          "finished_at": "2026-04-20T13:54:53.832588Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+          "node_id": "node3",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:54:53.880003Z",
+          "finished_at": "2026-04-20T13:55:19.561731Z",
+          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
+          "output_preview": "# 業務記述書: 運営委員会議事録作成\n\n## 1. 業務概要\n運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、最終的に運営委員全員に確認を依頼する流れで行われます。\n\n## 2. 工程\n\n### 2.1 事前準備\n- **担当者**: 書記2名\n- **内容**: 運営委員会12回の議事録を交互に担当する体制を整える。\n\n### 2.2 議事録ドラフト作成\n- **担当者**: 議事録担当書記\n- **内容**: 運営委員会進行表を基に議事録のドラフトを用意する。\n\n### 2.3 議事録作成\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 議場で事前に用意したドラフトを用いて、議事進行と同時に議事録を作成する。\n  - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n### 2.4 議事録確認依頼\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 運営委員会終了後、作成した議事録をメールでもう一方の書記に内容確認を依頼する。\n\n### 2.5 議事録の格納と確認依頼\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 内容確認後、Google Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n  - 運営委員全員にメールで議事録内容確認を依頼する。\n\n### 2.6 議事録の最終化\n- **担当者**: 議事録担当書記\n- **内容**: \n  - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了する。\n\n## 3. 担い手\n- 書記2名（交互に議事録を担当）\n- 議事録担当書記（議事録ドラフト作成、確認依頼、最終化）\n\n## 4. 時系列\n1. 事前準備\n2. 議事録ドラフト作成\n3. 議事録作成\n4. 議事録確認依頼\n5. 議事録の格納と確認依頼\n6. 議事録の最終化\n\n## 5. 特記事項\n- 今期は生成AIなどによる議事録自動作成についての導入は議論されていない。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+          "node_id": "node4",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-20T13:55:19.572415Z",
+          "finished_at": "2026-04-20T13:55:26.525459Z",
+          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。\n\nInput definition:\n[参照ノード]\n- node3.result:\n  # 業務記述書: 運営委員会議事録作成\n\n  ## 1. 業務概要\n  運営委員会の議事録を作成するプロセスを記述します。この業務は、議事録担当書記が議事進行に合わせて議事録を作成し、最終的に運営委員全員に確認を依頼する流れで行われます。\n\n  ## 2. 工程\n\n  ### 2.1 事前準備\n  - **担当者**: 書記2名\n  - **内容**: 運営委員会12回の議事録を交互に担当する体制を整える。\n\n  ### 2.2 議事録ドラフト作成\n  - **担当者**: 議事録担当書記\n  - **内容**: 運営委員会進行表を基に議事録のドラフトを用意する。\n\n  ### 2.3 議事録作成\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 議場で事前に用意したドラフトを用いて、議事進行と同時に議事録を作成する。\n    - 正確性を確保するため、議事を録音（スマホのボイスメモを使用）。\n\n  ### 2.4 議事録確認依頼\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 運営委員会終了後、作成した議事録をメールでもう一方の書記に内容確認を依頼する。\n\n  ### 2.5 議事録の格納と確認依頼\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 内容確認後、Google Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n    - 運営委員全員にメールで議事録内容確認を依頼する。\n\n  ### 2.6 議事録の最終化\n  - **担当者**: 議事録担当書記\n  - **内容**: \n    - 確認が終了した段階で、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了する。\n\n  ## 3. 担い手\n  - 書記2名（交互に議事録を担当）\n  - 議事録担当書記（議事録ドラフト作成、確認依頼、最終化）\n\n  ## 4. 時系列\n  1. 事前準備\n  2. 議事録ドラフト作成\n  3. 議事録作成\n  4. 議事録確認依頼\n  5. 議事録の格納と確認依頼\n  6. 議事録の最終化\n\n  ## 5. 特記事項\n  - 今期は生成AIなどによる議事録自動作成についての導入は議論されていない。\n\nOutput format:\nmermaid",
+          "output_preview": "```mermaid\nworkflow TD\n    A[事前準備] --> B[議事録ドラフト作成]\n    B --> C[議事録作成]\n    C --> D[議事録確認依頼]\n    D --> E[議事録の格納と確認依頼]\n    E --> F[議事録の最終化]\n\n    subgraph 事前準備\n        A1[書記2名が交互に担当体制を整える]\n    end\n\n    subgraph 議事録ドラフト作成\n        B1[運営委員会進行表を基にドラフトを用意]\n    end\n\n    subgraph 議事録作成\n        C1[議場でドラフトを用いて議事録を作成]\n        C2[議事を録音（スマホのボイスメモ使用）]\n    end\n\n    subgraph 議事録確認依頼\n        D1[運営委員会終了後、メールで内容確認依頼]\n    end\n\n    subgraph 議事録の格納と確認依頼\n        E1[内容確認後、Google Driveにドラフトと録音ファイルを格納]\n        E2[運営委員全員にメールで確認依頼]\n    end\n\n    subgraph 議事録の最終化\n        F1[確認終了後、ファイル名から「draft」を外す]\n        F2[当月の議事録対応を完了]\n    end\n```",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
     }
   ],
   "events": {
@@ -246,6 +1522,1434 @@
         "event_type": "workflow_status_changed",
         "timestamp": "2026-04-18T16:28:56.102055Z",
         "execution_id": "9b90f999-5799-49f0-a644-097e1480938b",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "549b92b7-334b-42e1-915f-26d05557b1d4": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:34.461544Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:36.048243Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:36.054021Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "node_04",
+        "message": "Node started: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:36.055627Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "first_node",
+        "message": "Node started: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:36.057876Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "second_node",
+        "message": "Node started: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:37.472887Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "second_node",
+        "message": "Node succeeded: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:38.184320Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "node_04",
+        "message": "Node succeeded: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:42.898146Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "first_node",
+        "message": "Node succeeded: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:42.904805Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "review",
+        "message": "Node started: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:46.480558Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "review",
+        "message": "Node succeeded: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:46.488235Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "node_05",
+        "message": "Node started: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:48.401373Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "node_05",
+        "message": "Node succeeded: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:23:48.408906Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "human",
+        "message": "Node started: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T03:23:48.421633Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "human",
+        "message": "Node waiting for human action: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T03:23:48.425431Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:23:55.403233Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "human",
+        "message": "Node succeeded: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T03:23:55.408552Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_approved",
+        "timestamp": "2026-04-20T03:23:55.415022Z",
+        "execution_id": "549b92b7-334b-42e1-915f-26d05557b1d4",
+        "node_id": "human",
+        "message": "Node approved with option '承認'.",
+        "payload_ref": null
+      }
+    ],
+    "27373d20-243b-446b-9648-1cc23ac8d6e8": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T03:26:24.439312Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T03:26:24.444930Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T03:26:24.447231Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T03:27:24.404212Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T03:27:24.405661Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T03:27:24.406711Z",
+        "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      }
+    ],
+    "d4d56d87-76d3-4e72-a7f6-80b329de9357": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:02:47.141812Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T04:02:47.146466Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:02:47.147810Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:03:03.285820Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:03:03.287560Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T04:03:03.288692Z",
+        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      }
+    ],
+    "644e3e20-f6a8-4ade-b91a-b0daa0650548": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:46.131847Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:27:48.162269Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:48.167619Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "node_04",
+        "message": "Node started: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:48.168314Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "second_node",
+        "message": "Node started: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:48.169029Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "first_node",
+        "message": "Node started: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:27:50.019072Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "second_node",
+        "message": "Node succeeded: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:27:51.583539Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "node_04",
+        "message": "Node succeeded: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:27:57.322879Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "first_node",
+        "message": "Node succeeded: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:57.328052Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "review",
+        "message": "Node started: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:27:59.881625Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "review",
+        "message": "Node succeeded: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:59.886277Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "node_05",
+        "message": "Node started: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:28:01.622041Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "node_05",
+        "message": "Node succeeded: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:28:01.625500Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "human",
+        "message": "Node started: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T04:28:01.632939Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": "human",
+        "message": "Node waiting for human action: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:28:01.636469Z",
+        "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      }
+    ],
+    "a41d287a-d8cf-44ef-8805-017c874033bf": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:27:58.697594Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T04:27:58.714589Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:27:58.718011Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:28:08.825899Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:28:08.827990Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T04:28:08.829829Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:28:08.830786Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T04:28:08.843585Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "node2",
+        "message": "Node started: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T04:28:10.938080Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": "node2",
+        "message": "Node succeeded: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T04:28:10.943138Z",
+        "execution_id": "a41d287a-d8cf-44ef-8805-017c874033bf",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "e0a63405-e995-43ad-851a-e44c3ac2d8de": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T05:49:06.064199Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T05:49:06.070069Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T05:49:06.072258Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T05:49:16.531750Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T05:49:16.534398Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T05:49:16.536522Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T05:49:16.537643Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T05:49:16.551638Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "node2",
+        "message": "Node started: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T05:49:25.032951Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": "node2",
+        "message": "Node succeeded: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T05:49:25.044941Z",
+        "execution_id": "e0a63405-e995-43ad-851a-e44c3ac2d8de",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "8d6983ca-5bc9-4b39-9251-bc92a8fdd026": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:49:33.168342Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T12:49:33.173697Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:49:33.175827Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:49:43.248078Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:49:43.250285Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T12:49:43.252144Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:49:43.253076Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:49:43.264791Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "node2",
+        "message": "Node started: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:49:50.230744Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": "node2",
+        "message": "Node succeeded: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:49:50.236676Z",
+        "execution_id": "8d6983ca-5bc9-4b39-9251-bc92a8fdd026",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "0116f94b-02e8-4c63-a2a9-5691d9c54976": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:55:22.217078Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T12:55:22.229208Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:55:22.231797Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:55:31.487202Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:55:31.490126Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T12:55:31.492469Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:55:31.493421Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:55:31.505057Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "node2",
+        "message": "Node started: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:55:39.158396Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": "node2",
+        "message": "Node succeeded: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:55:39.164867Z",
+        "execution_id": "0116f94b-02e8-4c63-a2a9-5691d9c54976",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "58b4ec7b-584f-4197-9518-fe05d880ef62": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:00.091486Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:01.140989Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:01.149900Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "first_node",
+        "message": "Node started: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:01.151935Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "node_04",
+        "message": "Node started: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:01.154070Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "second_node",
+        "message": "Node started: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:02.570404Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "second_node",
+        "message": "Node succeeded: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:03.803766Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "node_04",
+        "message": "Node succeeded: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:08.722611Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "first_node",
+        "message": "Node succeeded: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:08.728855Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "review",
+        "message": "Node started: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:10.352102Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "review",
+        "message": "Node succeeded: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:10.359823Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "node_05",
+        "message": "Node started: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:12.093727Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "node_05",
+        "message": "Node succeeded: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:12.099993Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "human",
+        "message": "Node started: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T12:59:12.116894Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "human",
+        "message": "Node waiting for human action: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:59:12.123120Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:18.950606Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "human",
+        "message": "Node succeeded: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:59:18.956450Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_approved",
+        "timestamp": "2026-04-20T12:59:18.962450Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "human",
+        "message": "Node approved with option '承認'.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:59:18.964811Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T12:59:19.002859Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "extract",
+        "message": "Node started: extract",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T12:59:21.567294Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": "extract",
+        "message": "Node succeeded: extract",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T12:59:21.576038Z",
+        "execution_id": "58b4ec7b-584f-4197-9518-fe05d880ef62",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "c67b7938-b579-427d-a3b8-e5ecaebaed96": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:28.923197Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:30.138991Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:30.148117Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "node_04",
+        "message": "Node started: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:30.150347Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "first_node",
+        "message": "Node started: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:30.154225Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "second_node",
+        "message": "Node started: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:31.355248Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "second_node",
+        "message": "Node succeeded: second_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:32.791673Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "node_04",
+        "message": "Node succeeded: node_04",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:40.675226Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "first_node",
+        "message": "Node succeeded: first_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:40.679498Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "review",
+        "message": "Node started: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:43.234918Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "review",
+        "message": "Node succeeded: review",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:43.242147Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "node_05",
+        "message": "Node started: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:44.984279Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "node_05",
+        "message": "Node succeeded: node_05",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:44.992409Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "human",
+        "message": "Node started: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T13:00:45.007634Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "human",
+        "message": "Node waiting for human action: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:00:45.011919Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:52.553277Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "human",
+        "message": "Node succeeded: human",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:00:52.560718Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_approved",
+        "timestamp": "2026-04-20T13:00:52.567555Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "human",
+        "message": "Node approved with option '承認'.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:00:52.571718Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:00:52.606535Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "extract",
+        "message": "Node started: extract",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:00:56.342709Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": "extract",
+        "message": "Node succeeded: extract",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:00:56.350363Z",
+        "execution_id": "c67b7938-b579-427d-a3b8-e5ecaebaed96",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "e5170467-cebb-4cee-b9c9-cbba29915910": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:15:08.500586Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T13:15:08.512752Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:15:08.517148Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:16:26.805100Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:16:26.813646Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T13:16:26.821584Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:16:26.825353Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:16:26.841286Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "node2",
+        "message": "Node started: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:16:37.211981Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": "node2",
+        "message": "Node succeeded: node2",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:16:37.222231Z",
+        "execution_id": "e5170467-cebb-4cee-b9c9-cbba29915910",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "567bfa52-2d91-499e-9641-3d88af885545": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:50:54.670389Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T13:50:54.686156Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:50:54.693289Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:51:03.355061Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:51:03.363636Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T13:51:03.370772Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:51:03.374924Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:51:03.398528Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "node3",
+        "message": "Node started: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:51:14.008309Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "node3",
+        "message": "Node succeeded: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:51:14.017777Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "node4",
+        "message": "Node started: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:51:20.764939Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": "node4",
+        "message": "Node succeeded: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:51:20.773890Z",
+        "execution_id": "567bfa52-2d91-499e-9641-3d88af885545",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "e895387f-8d37-4d27-a31c-631176f9d28c": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:53:02.092887Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T13:53:02.109520Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:53:02.114852Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:53:09.030996Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:53:09.038636Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T13:53:09.046234Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:53:09.050094Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:53:09.072771Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "node3",
+        "message": "Node started: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:53:20.676688Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "node3",
+        "message": "Node succeeded: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:53:20.687399Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "node4",
+        "message": "Node started: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:53:25.577440Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": "node4",
+        "message": "Node succeeded: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:53:25.584890Z",
+        "execution_id": "e895387f-8d37-4d27-a31c-631176f9d28c",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      }
+    ],
+    "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:54:46.429798Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-20T13:54:46.444635Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:54:46.449564Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:54:53.832599Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:54:53.844777Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-20T13:54:53.854618Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:54:53.858282Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:54:53.880023Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "node3",
+        "message": "Node started: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:55:19.561746Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "node3",
+        "message": "Node succeeded: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-20T13:55:19.572441Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "node4",
+        "message": "Node started: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-20T13:55:26.525467Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
+        "node_id": "node4",
+        "message": "Node succeeded: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-20T13:55:26.537006Z",
+        "execution_id": "2b1b45aa-cda2-4f25-9a9c-5a0418cdb054",
         "node_id": null,
         "message": "Workflow status changed to SUCCEEDED",
         "payload_ref": null

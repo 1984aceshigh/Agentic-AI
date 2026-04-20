@@ -234,6 +234,15 @@ def test_invalid_on_reject_ref_returns_error() -> None:
     assert any(issue.code == "invalid_on_reject_ref" for issue in issues)
 
 
+def test_invalid_human_gate_task_returns_error() -> None:
+    spec = make_spec()
+    spec.nodes[1].config = {"task": "manual_review"}
+
+    issues = validate_workflow_spec(spec)
+
+    assert any(issue.code == "invalid_human_gate_task" for issue in issues)
+
+
 def test_invalid_llm_task_returns_warning() -> None:
     spec = make_spec()
     spec.nodes[0].config["task"] = "review"

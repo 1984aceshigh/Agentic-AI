@@ -11,7 +11,7 @@
             <span>{{ card.node_name }}</span>
             {% endif %}
           </h2>
-          <p class="text-muted small mb-0">{{ card.node_type or '-' }}{% if card.task %} / {{ card.task }}{% endif %}</p>
+          <p class="text-muted small mb-0">{{ card.node_type or '-' }}{% if card.node_type == 'human_gate' %} / {{ card.human_gate_task or 'approval' }}{% elif card.task %} / {{ card.task }}{% endif %}</p>
         </div>
         <span class="badge rounded-pill status-badge status-{{ card.status|lower }}">{{ card.status }}</span>
       </header>
@@ -42,14 +42,16 @@
         {% endif %}
 
         {% if has_detail and (card.requires_human_action or card.status == 'WAITING_HUMAN') %}
-        <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/approve" class="d-inline m-0">
-          <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
-          <button type="submit" class="btn btn-sm btn-success">Approve</button>
-        </form>
-        <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/reject" class="d-inline m-0">
-          <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
-          <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
-        </form>
+          {% if card.node_type != 'human_gate' %}
+          <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/approve" class="d-inline m-0">
+            <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
+            <button type="submit" class="btn btn-sm btn-success">Approve</button>
+          </form>
+          <form method="post" action="/actions/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes/{{ card.node_id }}/reject" class="d-inline m-0">
+            <input type="hidden" name="next" value="/workflows/{{ workflow_id }}/executions/{{ execution_id }}/nodes?status=waiting_human">
+            <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+          </form>
+          {% endif %}
         {% endif %}
 
         {% if has_detail and card.status == 'FAILED' %}

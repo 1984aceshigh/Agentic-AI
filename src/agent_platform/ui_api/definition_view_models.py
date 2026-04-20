@@ -37,12 +37,17 @@ class InputDefinitionCandidateView(_BaseViewModel):
     node_name: str
     output_key: str
     ref_expression: str
+    node_type: str = ''
+    node_task: str | None = None
+    visual_class: str = 'node-type-default'
 
 
 class EdgeConnectionNodeView(_BaseViewModel):
     node_id: str
     node_name: str
     node_type: str
+    node_task: str | None = None
+    visual_class: str = 'node-type-default'
 
 
 class RAGDatasetOptionView(_BaseViewModel):
@@ -59,7 +64,13 @@ class NodeEditorView(_BaseViewModel):
     node_type: str = ''
     group: str | None = None
     is_llm_node: bool = False
+    is_human_gate_node: bool = False
     llm_task: str = 'generate'
+    human_gate_task: str = 'approval'
+    human_gate_approval_options: str = ''
+    human_gate_approval_option_list: list[str] = Field(default_factory=list)
+    human_gate_approval_routes: str = ''
+    human_gate_approval_route_map: dict[str, list[str]] = Field(default_factory=dict)
     llm_temperature: str = ''
     llm_prompt: str = ''
     llm_input_definition: str = ''

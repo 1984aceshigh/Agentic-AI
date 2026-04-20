@@ -82,8 +82,19 @@ class UIHumanGateServiceAdapter:
     def __init__(self, service: HumanGateService) -> None:
         self._service = service
 
-    def approve_node(self, execution_id: str, node_id: str, comment: str | None = None) -> None:
-        self._service.approve(execution_id=execution_id, node_id=node_id, comment=comment)
+    def approve_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        comment: str | None = None,
+        decision_option: str | None = None,
+    ) -> None:
+        self._service.approve_node(
+            execution_id=execution_id,
+            node_id=node_id,
+            comment=comment,
+            decision_option=decision_option,
+        )
 
     def reject_node(
         self,
@@ -96,6 +107,20 @@ class UIHumanGateServiceAdapter:
             execution_id=execution_id,
             node_id=node_id,
             fallback_node_id=fallback_node_id,
+            comment=comment,
+        )
+
+    def submit_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: dict[str, object] | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self._service.submit(
+            execution_id=execution_id,
+            node_id=node_id,
+            human_input=human_input,
             comment=comment,
         )
 
@@ -157,6 +182,7 @@ def build_app():
         openai_api_key=runtime_llm_config.openai_api_key,
         openai_model=runtime_llm_config.openai_model,
         llm_default_provider=runtime_llm_config.provider,
+        assessment_same_output_max_evaluations=runtime_llm_config.assessment_same_output_max_evaluations,
         rag_dataset_service=rag_dataset_service,
         rag_node_binding_service=rag_node_binding_service,
     )

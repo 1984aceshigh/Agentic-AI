@@ -10,6 +10,7 @@ from .adapter_validator import validate_profile_contracts
 
 SUPPORTED_SCHEMA_VERSION = "0.1"
 SUPPORTED_LLM_TASKS = {"generate", "assessment", "extract"}
+SUPPORTED_HUMAN_GATE_TASKS = {"entry_input", "human_task", "approval"}
 SUPPORTED_EXTRACT_OUTPUT_FORMATS = {"json", "yaml", "markdown", "plain_text"}
 
 
@@ -528,6 +529,17 @@ def _validate_node_configs(spec: WorkflowSpec) -> list[ValidationIssue]:
                         )
 
         elif node.type is NodeType.HUMAN_GATE:
+            task = node.config.get("task")
+            if task is not None and (not isinstance(task, str) or task not in SUPPORTED_HUMAN_GATE_TASKS):
+                issues.append(
+                    _issue(
+                        code="invalid_human_gate_task",
+                        message=f"Node '{node.id}' has invalid human_gate task '{task}'.",
+                        severity=IssueSeverity.ERROR,
+                        location=f"{location_prefix}.task",
+                        related_node_id=node.id,
+                    )
+                )
             gate_type = node.config.get("gate_type")
             if gate_type is not None and gate_type not in {"approval", "review"}:
                 issues.append(

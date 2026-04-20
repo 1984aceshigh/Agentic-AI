@@ -118,8 +118,11 @@ def build_state_graph(
             continue
 
         path_map = {node_id: node_id for node_id in to_nodes}
+        path_map["__halted__"] = END
 
         def _route(state: Phase1LangGraphState, *, _from_node: str = from_node, _to_nodes: list[str] = to_nodes) -> str:
+            if bool(state.get("halted")):
+                return "__halted__"
             overrides = state.get("next_node_overrides")
             if isinstance(overrides, dict):
                 override_target = overrides.get(_from_node)

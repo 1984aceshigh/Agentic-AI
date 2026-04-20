@@ -2,3 +2,6 @@ llm:
   provider: openai
   openai_model: gpt-4o-mini
   openai_api_key: ""
+
+assessment:
+  same_output_max_evaluations: 3

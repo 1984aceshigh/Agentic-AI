@@ -149,6 +149,9 @@ def add_node(workflow_id: str):
             'node_name': payload.get('node_name'),
             'node_type': payload.get('node_type'),
             'group': payload.get('group'),
+            'human_gate_task': payload.get('human_gate_task'),
+            'human_gate_approval_options': payload.get('human_gate_approval_options'),
+            'human_gate_approval_routes': payload.get('human_gate_approval_routes'),
             'llm_task': payload.get('llm_task'),
             'llm_temperature': payload.get('llm_temperature'),
             'llm_prompt': payload.get('llm_prompt'),
@@ -195,6 +198,9 @@ def update_node(workflow_id: str, node_id: str):
             'node_name': payload.get('node_name'),
             'node_type': payload.get('node_type'),
             'group': payload.get('group'),
+            'human_gate_task': payload.get('human_gate_task'),
+            'human_gate_approval_options': payload.get('human_gate_approval_options'),
+            'human_gate_approval_routes': payload.get('human_gate_approval_routes'),
             'llm_task': payload.get('llm_task'),
             'llm_temperature': payload.get('llm_temperature'),
             'llm_prompt': payload.get('llm_prompt'),
@@ -320,6 +326,29 @@ def add_edge(workflow_id: str):
                 if target_text not in routes[option_text]:
                     routes[option_text].append(target_text)
         updated_yaml = get_definition_editor_service().set_assessment_routes(
+            yaml_text,
+            from_node_id,
+            routes,
+        )
+    elif edge_mode == 'set_human_gate_approval_routes':
+        if request.is_json:
+            options = payload.get('approval_route_option')
+            targets = payload.get('approval_route_to_node')
+            option_list = [str(item) for item in options] if isinstance(options, list) else []
+            target_list = [str(item) for item in targets] if isinstance(targets, list) else []
+        else:
+            option_list = [item for item in request.form.getlist('approval_route_option')]
+            target_list = [item for item in request.form.getlist('approval_route_to_node')]
+        routes: dict[str, list[str]] = {}
+        for idx, option in enumerate(option_list):
+            target = target_list[idx] if idx < len(target_list) else ''
+            option_text = str(option).strip()
+            target_text = str(target).strip()
+            if option_text and target_text:
+                routes.setdefault(option_text, [])
+                if target_text not in routes[option_text]:
+                    routes[option_text].append(target_text)
+        updated_yaml = get_definition_editor_service().set_human_gate_approval_routes(
             yaml_text,
             from_node_id,
             routes,

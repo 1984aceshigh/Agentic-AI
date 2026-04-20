@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from typing import Any, Mapping
 
 
@@ -61,6 +62,7 @@ class HumanGateService:
     def mark_waiting(self, execution_id: str, node_id: str, comment: str | None = None) -> None:
         self._records_manager.mark_node_waiting_human(execution_id, node_id)
         self._set_context_node_state(execution_id, node_id, WAITING_HUMAN)
+        self._refresh_workflow_status(execution_id)
         self._append_event(
             execution_id=execution_id,
             event_type="human_gate_waiting",
@@ -75,11 +77,91 @@ class HumanGateService:
             output_preview=comment,
         )
         self._set_context_node_state(execution_id, node_id, SUCCEEDED)
+        self._refresh_workflow_status(execution_id)
         self._append_event(
             execution_id=execution_id,
             event_type="human_gate_approved",
             node_id=node_id,
             message=comment or "Node was approved by human.",
+        )
+        return SUCCEEDED
+
+    def decide(
+        self,
+        execution_id: str,
+        node_id: str,
+        decision_option: str,
+        comment: str | None = None,
+    ) -> str:
+        selected_option = str(decision_option or "").strip()
+        if not selected_option:
+            raise ValueError("decision_option is required.")
+
+        approval_routes = self._get_approval_routes(execution_id=execution_id, node_id=node_id)
+        next_node = approval_routes.get(selected_option)
+        if isinstance(next_node, list):
+            next_node = next((str(item).strip() for item in next_node if str(item).strip()), None)
+        elif isinstance(next_node, str):
+            next_node = next_node.strip() or None
+        else:
+            next_node = None
+
+        self._records_manager.complete_node_record(
+            execution_id,
+            node_id,
+            output_preview=comment or selected_option,
+        )
+        self._set_context_node_state(execution_id, node_id, SUCCEEDED)
+        self._set_context_node_output(
+            execution_id,
+            node_id,
+            {
+                "selected_option": selected_option,
+                "next_node": next_node,
+                "human_comment": comment,
+                "human_gate_submission": "approved",
+            },
+        )
+        self._refresh_workflow_status(execution_id)
+        self._append_event(
+            execution_id=execution_id,
+            event_type="human_gate_approved",
+            node_id=node_id,
+            message=comment or f"Node approved with option '{selected_option}'.",
+            payload_ref=next_node,
+        )
+        return SUCCEEDED
+
+    def submit(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: Mapping[str, Any] | None = None,
+        comment: str | None = None,
+    ) -> str:
+        payload = dict(human_input or {})
+        self._records_manager.complete_node_record(
+            execution_id,
+            node_id,
+            output_preview=comment or ("submitted" if payload else None),
+        )
+        self._set_context_node_state(execution_id, node_id, SUCCEEDED)
+        self._set_context_node_output(
+            execution_id,
+            node_id,
+            {
+                "result": self._build_submission_result(payload),
+                "human_input": payload,
+                "human_comment": comment,
+                "human_gate_submission": "submitted",
+            },
+        )
+        self._refresh_workflow_status(execution_id)
+        self._append_event(
+            execution_id=execution_id,
+            event_type="human_gate_submitted",
+            node_id=node_id,
+            message=comment or "Node input submitted by human.",
         )
         return SUCCEEDED
 
@@ -102,6 +184,7 @@ class HumanGateService:
             error_message=comment or f"Rejected by human gate. fallback={target_node_id}",
         )
         self._set_context_node_state(execution_id, node_id, FAILED)
+        self._refresh_workflow_status(execution_id)
         self._append_event(
             execution_id=execution_id,
             event_type="human_gate_rejected",
@@ -167,6 +250,84 @@ class HumanGateService:
         if callable(update_node_state):
             update_node_state(execution_id, node_id, status)
 
+    def _set_context_node_output(self, execution_id: str, node_id: str, output: Mapping[str, Any]) -> None:
+        if self._context_manager is None:
+            return
+        set_node_output = getattr(self._context_manager, "set_node_output", None)
+        if callable(set_node_output):
+            set_node_output(execution_id, node_id, dict(output))
+
+    def _refresh_workflow_status(self, execution_id: str) -> None:
+        get_workflow_record = getattr(self._records_manager, "get_workflow_record", None)
+        set_workflow_status = getattr(self._records_manager, "set_workflow_status", None)
+        if not callable(get_workflow_record) or not callable(set_workflow_status):
+            return
+
+        workflow_record = get_workflow_record(execution_id)
+        node_records = list(getattr(workflow_record, "node_records", []) or [])
+        statuses = {
+            str(getattr(record, "status", "")).strip().upper()
+            for record in node_records
+            if str(getattr(record, "status", "")).strip()
+        }
+
+        if "FAILED" in statuses:
+            workflow_status = FAILED
+        elif WAITING_HUMAN in statuses:
+            workflow_status = WAITING_HUMAN
+        elif "RUNNING" in statuses:
+            workflow_status = "RUNNING"
+        else:
+            workflow_status = SUCCEEDED
+
+        set_workflow_status(execution_id, workflow_status)
+
+    # UI adapters compatibility methods
+    def approve_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        comment: str | None = None,
+        decision_option: str | None = None,
+    ) -> None:
+        if decision_option is not None and str(decision_option).strip():
+            self.decide(
+                execution_id=execution_id,
+                node_id=node_id,
+                decision_option=str(decision_option),
+                comment=comment,
+            )
+            return
+        self.approve(execution_id=execution_id, node_id=node_id, comment=comment)
+
+    def reject_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        fallback_node_id: str | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self.reject(
+            execution_id=execution_id,
+            node_id=node_id,
+            fallback_node_id=fallback_node_id,
+            comment=comment,
+        )
+
+    def submit_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: Mapping[str, Any] | None = None,
+        comment: str | None = None,
+    ) -> None:
+        self.submit(
+            execution_id=execution_id,
+            node_id=node_id,
+            human_input=human_input,
+            comment=comment,
+        )
+
     def _append_event(
         self,
         execution_id: str,
@@ -182,3 +343,37 @@ class HumanGateService:
             message=message,
             payload_ref=payload_ref,
         )
+
+    def _build_submission_result(self, payload: Mapping[str, Any]) -> str:
+        """Build a generic `result` field so downstream ref:<node>.result works.
+
+        Priority:
+        1) explicit text fields (text / input_text)
+        2) uploaded file text
+        3) compact JSON fallback
+        """
+        for key in ("text", "input_text"):
+            value = payload.get(key)
+            if isinstance(value, str) and value.strip():
+                return value.strip()
+
+        file_value = payload.get("file")
+        if isinstance(file_value, Mapping):
+            file_text = file_value.get("text")
+            if isinstance(file_text, str) and file_text.strip():
+                return file_text.strip()
+
+        if not payload:
+            return ""
+        try:
+            return json.dumps(dict(payload), ensure_ascii=False, default=str)
+        except Exception:
+            return str(payload)
+
+    def _get_approval_routes(self, execution_id: str, node_id: str) -> dict[str, Any]:
+        node_configs = self._node_configs_by_execution.get(execution_id, {})
+        config = node_configs.get(node_id, {})
+        routes = config.get("approval_routes")
+        if isinstance(routes, dict):
+            return dict(routes)
+        return {}

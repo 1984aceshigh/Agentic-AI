@@ -7,6 +7,7 @@ nodes:
     task: generate
     output_format: 故事成語以外のテキストは出力厳禁
     extract_output_format: json
+    temperature: 1.1
   id: start_node
   name: Start Node
   type: llm
@@ -64,6 +65,14 @@ nodes:
   id: node_05
   name: node_05
   type: llm
+- config:
+    task: approval
+    approval_options:
+    - 承認
+    - 否認
+  id: human
+  name: Human
+  type: human_gate
 edges:
 - from: start_node
   to: first_node
@@ -77,3 +86,5 @@ edges:
   to: extract
 - from: review
   to: node_05
+- from: node_05
+  to: human

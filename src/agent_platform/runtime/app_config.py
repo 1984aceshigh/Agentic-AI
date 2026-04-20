@@ -12,6 +12,7 @@ class RuntimeLLMConfig:
     provider: str = "dummy"
     openai_model: str = "gpt-4o-mini"
     openai_api_key: str | None = None
+    assessment_same_output_max_evaluations: int = 3
 
 
 def load_runtime_llm_config(config_path: Path) -> RuntimeLLMConfig:
@@ -27,9 +28,14 @@ def load_runtime_llm_config(config_path: Path) -> RuntimeLLMConfig:
     if not isinstance(llm_data, dict):
         llm_data = {}
 
+    assessment_data = file_data.get("assessment")
+    if not isinstance(assessment_data, dict):
+        assessment_data = {}
+
     file_provider = _as_text(llm_data.get("provider"))
     file_model = _as_text(llm_data.get("openai_model"))
     file_api_key = _as_text(llm_data.get("openai_api_key"))
+    file_assessment_limit = _as_int(assessment_data.get("same_output_max_evaluations"))
 
     provider = (
         _as_text(os.getenv("AGENT_PLATFORM_LLM_PROVIDER"))
@@ -38,11 +44,19 @@ def load_runtime_llm_config(config_path: Path) -> RuntimeLLMConfig:
     ).strip().lower()
     openai_model = _as_text(os.getenv("OPENAI_MODEL")) or file_model or "gpt-4o-mini"
     openai_api_key = _as_text(os.getenv("OPENAI_API_KEY")) or file_api_key
+    assessment_same_output_max_evaluations = _as_int(
+        os.getenv("AGENT_PLATFORM_ASSESSMENT_SAME_OUTPUT_MAX_EVALUATIONS")
+    )
+    if assessment_same_output_max_evaluations is None:
+        assessment_same_output_max_evaluations = file_assessment_limit
+    if assessment_same_output_max_evaluations is None or assessment_same_output_max_evaluations < 1:
+        assessment_same_output_max_evaluations = 3
 
     return RuntimeLLMConfig(
         provider=provider,
         openai_model=openai_model,
         openai_api_key=openai_api_key,
+        assessment_same_output_max_evaluations=assessment_same_output_max_evaluations,
     )
 
 
@@ -51,3 +65,15 @@ def _as_text(value: object) -> str | None:
         return None
     text = str(value).strip()
     return text or None
+
+
+def _as_int(value: object) -> int | None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if not text:
+        return None
+    try:
+        return int(text)
+    except (TypeError, ValueError):
+        return None

@@ -1,36 +1,49 @@
-# Agentic AI プロジェクト利用マニュアル
+# Agentic AI USER MANUAL（全面改訂版）
 
-このドキュメントは、本リポジトリ（`agenticai`）の**ローカル実行方法**と、Web UI / API の基本的な使い方をまとめたものです。  
-対象は「まず動かして全体像を確認したい」利用者です。
-
----
-
-## 1. 前提環境
-
-- Python: **3.12**（`Pipfile` の `python_version = "3.12"`）
-- OS: macOS / Linux / Windows（Python が動けば可）
-
-依存パッケージ例（抜粋）:
-
-- flask
-- pydantic
-- pyyaml
-- networkx
-- langgraph
-- openai
+本書は、現時点の実装（実行UI / 定義編集UI / 実行サービス / RAG連携 / API群）を前提に、
+**「このリポジトリをローカルで運用するための実務手順」**をまとめた最新版です。
 
 ---
 
-## 2. セットアップ
+## 1. このプロジェクトでできること
 
-### 方法A: pipenv を使う（推奨）
+本プロジェクトは、YAMLで定義したワークフローを以下の一連で扱えます。
+
+1. 定義を作成・編集・検証（Graph Editor / YAML）
+2. 実行（Run）
+3. 実行結果を一覧・詳細で確認
+4. Human Gate ノードで承認 / 差し戻し
+5. 途中ノードから再実行（rerun）
+6. RAGデータセットをアップロードし、ノードに紐付け
+
+---
+
+## 2. 前提環境
+
+- Python **3.12**
+- macOS / Linux / Windows（Python実行可能であれば可）
+
+主要依存（抜粋）:
+
+- Flask
+- Pydantic
+- PyYAML
+- NetworkX
+- LangGraph
+- OpenAI SDK
+
+---
+
+## 3. セットアップ
+
+### 3.1 pipenv（推奨）
 
 ```bash
 pipenv install
 pipenv shell
 ```
 
-### 方法B: pip を使う
+### 3.2 venv + pip
 
 ```bash
 python -m venv .venv
@@ -40,156 +53,215 @@ pip install -r requirements.txt
 
 ---
 
-## 3. アプリ起動
-
-トップディレクトリ（このファイルがある場所）で以下を実行します。
+## 4. 起動
 
 ```bash
 PYTHONPATH=src python src/run_ui.py
 ```
 
-起動後、ブラウザで以下にアクセス:
+主な入口:
 
 - `http://127.0.0.1:5000/workflows`
+- `http://127.0.0.1:5000/executions`
 - `http://127.0.0.1:5000/workflow-definitions`
+- `http://127.0.0.1:5000/rag-datasets`
 
-`run_ui.py` はサンプルのワークフロー状態をメモリ上に作成し、Flask UI を起動します。
+### 4.1 起動時に内部で行われること
 
-> 現在の `run_ui.py` は、`create_app(...)` に対して Fake サービスではなく、
-> `HumanGateService` / `WorkflowExecutionService` / `RerunService` 系の実サービスを注入します。
-> さらに、`data/workflow_definitions/active/` 配下の定義を読み込んでグラフを構築します
-> （定義がない場合のみ `sample_workflow` をフォールバック利用）。
+- `data/workflow_definitions/active/` のYAMLを読み込み、検証通過したものを GraphModel 化
+- 読み込み対象がない場合のみフォールバックの `sample_workflow` を使用
+- 実サービスをDIしてFlask起動
+  - `WorkflowExecutionService`
+  - `HumanGateService`
+  - `ExecutionRecordsManager`
+  - `ExecutionContextManager`
+  - `RAGDatasetService`
+  - `RAGNodeBindingService`
 
-### OpenAI 接続（本番相当設定）
+---
 
-LLM ノードで OpenAI を使う場合は、`config/runtime.yaml` で設定できます。
+## 5. LLMランタイム設定（runtime.yaml + 環境変数）
+
+`config/runtime.yaml`:
 
 ```yaml
 llm:
-  provider: openai   # openai / dummy
+  provider: openai
   openai_model: gpt-4o-mini
   openai_api_key: ""
+
+assessment:
+  same_output_max_evaluations: 3
 ```
 
-- `provider: openai` なら OpenAI を既定利用
-- `provider: dummy` ならダミーを既定利用
-- `openai_api_key` は空にして、環境変数で上書きしてもOK
+### 5.1 優先順位
 
-環境変数は `runtime.yaml` より優先されます。必要なら起動前に以下を設定してください。
+環境変数 > `runtime.yaml` > デフォルト
+
+- `AGENT_PLATFORM_LLM_PROVIDER`（`openai` / `dummy`）
+- `OPENAI_MODEL`
+- `OPENAI_API_KEY`
+- `AGENT_PLATFORM_ASSESSMENT_SAME_OUTPUT_MAX_EVALUATIONS`
+
+### 5.2 例
 
 ```bash
-export OPENAI_API_KEY="<your_api_key>"
-export OPENAI_MODEL="gpt-4o-mini"
-export AGENT_PLATFORM_LLM_PROVIDER="openai"
+export AGENT_PLATFORM_LLM_PROVIDER=openai
+export OPENAI_MODEL=gpt-4o-mini
+export OPENAI_API_KEY=<your_key>
 PYTHONPATH=src python src/run_ui.py
 ```
 
-- `AGENT_PLATFORM_LLM_PROVIDER`
-  - `openai`: OpenAI アダプタを既定利用
-  - `dummy`（既定値）: ダミー応答アダプタを既定利用
-- ノード個別に `config.provider: openai` を指定した場合は、そのノードは OpenAI を優先します。
+---
+
+## 6. Web UI ガイド
+
+## 6.1 実行系UI
+
+- `/workflows` : ワークフロー一覧、Runボタン、Graph/Nodesへの導線
+- `/executions` : 実行履歴一覧（workflow_id フィルタ、削除）
+- `/executions/<execution_id>` : 実行詳細（ノード結果の表）
+- `/workflows/<workflow_id>/executions/<execution_id>/nodes` : ノード一覧（statusフィルタ）
+- `/workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>` : ノード詳細
+  - 入出力プレビュー
+  - ログ
+  - Adapter情報
+  - Memory/RAGパネル
+  - Event history
+- `/workflows/<workflow_id>/graph` : Mermaidグラフ表示 + Run導線
+
+## 6.2 定義編集UI
+
+- `/workflow-definitions` : 定義一覧（archive/clone/delete）
+- `/workflow-definitions/new` : 新規作成
+- `/workflow-definitions/<workflow_id>/graph-editor` : Graph Editor
+- `/rag-datasets` : RAGデータセット管理
+
+Graph Editor の主要機能:
+
+- ノード追加 / 更新 / 削除
+- エッジ追加 / 置換 / 削除
+- LLM task 切替（`generate` / `assessment` / `extract`）
+- assessment options と routes の編集
+- extract fields / output format の編集
+- YAML生編集 + Validate + Save
+- workflow metadata（workflow_id/workflow_name）更新
 
 ---
 
-## 4. 主要画面（Web UI）
+## 7. 実行時ノードタイプ（現行ランタイム）
 
-### 4.1 ワークフロー一覧
+`WorkflowExecutionService` のデフォルトレジストリで実行対象となるノードタイプ:
 
-- `GET /workflows`
-- 各 workflow のサマリーを表示
+- `llm`
+- `human_gate`
+- `api`
+- `mcp`
 
-### 4.2 ノード一覧
-
-- `GET /workflows/<workflow_id>/executions/<execution_id>/nodes`
-- `?status=FAILED` のようにステータス絞り込み可能
-
-### 4.3 ノード詳細
-
-- `GET /workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>`
-- ログ、入出力プレビュー、状態を確認
-
-### 4.4 グラフ表示
-
-- `GET /workflows/<workflow_id>/graph`
-- Mermaid 形式でワークフロー構造を表示
-
-### 4.5 定義エディタ
-
-- `GET /workflow-definitions`
-- `GET /workflow-definitions/new`
-- `GET /workflow-definitions/<workflow_id>/edit`
-
-ワークフロー YAML の新規作成、編集、バリデーション、複製、アーカイブ操作が可能です。
+> 注意:
+> `memory_read` / `memory_write` 等の実装ファイルは存在しますが、
+> 現行のデフォルト実行レジストリには登録されていません。
 
 ---
 
-## 5. 主要 API
+## 8. LLMノード仕様（現行）
 
-## 5.1 実行状態参照 API
+`llm` ノードは `config.task` により挙動が切り替わります。
+
+- `generate` : 生成
+- `assessment` : 判定（`assessment_options`, `assessment_routes` を使用可）
+- `extract` : 抽出（`extract_fields`, `extract_output_format` を使用可）
+
+### 8.1 assessment の補足
+
+- 応答テキストから option を推定し `selected_option` を出力
+- `assessment_routes` があれば `next_node` を決定
+- 同一入力での評価ループ抑止として `same_output_max_evaluations` 制限を適用
+
+### 8.2 extract の補足
+
+- `extract_fields` を使って構造化抽出
+- 出力フォーマット: `json` / `yaml` / `markdown` / `plain_text`
+
+### 8.3 RAG / Memory（LLM内連携）
+
+- `config.rag.profile` に紐づく retriever から hit を取得
+- ノード詳細画面で rag hits を可視化
+- `memory.read` / `memory.write` 設定キーは実装されていますが、
+  現行の `run_ui.py` 既定構成では MemoryStore 未注入のため、そのままでは利用できません
+
+---
+
+## 9. Human Gate 運用
+
+Human Gate ノード到達時:
+
+- ノードステータス `WAITING_HUMAN`
+- ワークフローステータスも待機系へ
+
+操作API:
+
+- Approve: 後続へ進行
+- Reject: `fallback_node_id` 付き差し戻し可（または定義側 `on_reject`）
+
+---
+
+## 10. RAGデータセット運用
+
+`/rag-datasets` で:
+
+- ファイルアップロード（抽出→分割→インデックス）
+- データセット一覧確認
+- 削除
+
+保持先:
+
+- カタログ: `data/rag/datasets.json`
+- 実体: `data/rag/datasets/`
+- アップロード原本: `data/rag/uploads/`
+- ノード紐付け: `data/rag/node_bindings.json`
+
+Graph Editor でノードに `rag_dataset` を指定すると、実行時に `config.rag.profile` へ反映されます。
+
+---
+
+## 11. 主要HTTPエンドポイント
+
+## 11.1 参照API（`/api`）
 
 - `GET /api/workflows`
 - `GET /api/workflows/<workflow_id>/executions/<execution_id>/nodes`
+- `GET /api/executions`
+- `GET /api/executions/<execution_id>`
 
-## 5.2 実行操作 API（Actions）
-
-- `POST /actions/workflows/<workflow_id>/run`
-  - body 例: `{"global_inputs": {...}}`
-- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>/approve`
-- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>/reject`
-- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/rerun`
-  - body 例: `{"from_node_id": "step3"}`
-
-## 5.3 ワークフロー定義 API
+定義API:
 
 - `GET /api/workflow-definitions`
 - `GET /api/workflow-definitions/<workflow_id>`
 - `POST /api/workflow-definitions/validate`
+- `GET /api/workflow-definitions/<workflow_id>/graph-editor-state`
+
+## 11.2 実行操作（`/actions`）
+
+- `POST /actions/workflows/<workflow_id>/run`
+- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>/approve`
+- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/nodes/<node_id>/reject`
+- `POST /actions/workflows/<workflow_id>/executions/<execution_id>/rerun`
+- `POST /actions/executions/<execution_id>/delete`
+
+## 11.3 定義操作（`/actions/workflow-definitions`）
+
+- validate / create / save / clone / archive / delete
+- update metadata
+- add/update/delete node
+- add/delete edge
+- rag dataset upload/delete
 
 ---
 
-## 6. ワークフロー定義ファイル配置
+## 12. よく使うコマンド例
 
-定義ファイルは以下ディレクトリで管理されます。
-
-- 有効: `data/workflow_definitions/active/`
-- アーカイブ: `data/workflow_definitions/archived/`
-
-`FileWorkflowDefinitionRepository` がこの2ディレクトリを読み書きします。
-
----
-
-## 7. GUI実行ユースケース（2ノードの簡単な流れ）
-
-ここでは、**2ノード構成（生成 → 人手確認）**のイメージで、GUI上でタスクを実行・確認する流れを説明します。
-
-- ノード1: `llm_generate`（下書き作成）
-- ノード2: `human_gate`（承認/差し戻し）
-
-### 7.1 画面遷移と実行の流れ
-
-1. ブラウザで `http://127.0.0.1:5000/workflows` を開き、対象ワークフローを選択します。  
-2. 一覧画面から実行（Run）を行うと、新しい `execution_id` が発行されます。  
-3. ノード一覧（`/workflows/<workflow_id>/executions/<execution_id>/nodes`）へ移動し、状態を確認します。
-   - `llm_generate` が `SUCCEEDED`
-   - `human_gate` が `WAITING_HUMAN`
-4. `human_gate` ノード詳細画面を開き、ログや出力内容を確認します。
-5. 必要に応じて以下を実行します。
-   - **Approve**: 承認して後続へ進める
-   - **Reject**: 差し戻し（必要なら fallback ノード指定）
-
-### 7.2 何を確認すればよいか
-
-- ノード一覧でステータスが期待どおり遷移しているか
-- ノード詳細で `input/output/log` が業務上妥当か
-- 承認/差し戻し操作のあと、一覧と詳細の表示が更新されるか
-
-この一連の操作を通して、GUIでの「実行 → 確認 → 人手判断」の基本ループを確認できます。
-
----
-
-## 8. よく使う操作例
-
-### 8.1 ワークフローを実行する（HTTP）
+### 12.1 実行開始
 
 ```bash
 curl -X POST http://127.0.0.1:5000/actions/workflows/sample_workflow/run \
@@ -197,7 +269,7 @@ curl -X POST http://127.0.0.1:5000/actions/workflows/sample_workflow/run \
   -d '{"global_inputs":{"topic":"release note"}}'
 ```
 
-### 8.2 失敗ノードから再実行する
+### 12.2 ノードから再実行
 
 ```bash
 curl -X POST http://127.0.0.1:5000/actions/workflows/sample_workflow/executions/<execution_id>/rerun \
@@ -205,7 +277,7 @@ curl -X POST http://127.0.0.1:5000/actions/workflows/sample_workflow/executions/
   -d '{"from_node_id":"step3"}'
 ```
 
-### 8.3 定義 YAML を検証する
+### 12.3 定義バリデーション
 
 ```bash
 curl -X POST http://127.0.0.1:5000/api/workflow-definitions/validate \
@@ -215,19 +287,43 @@ curl -X POST http://127.0.0.1:5000/api/workflow-definitions/validate \
 
 ---
 
-## 9. テスト実行
+## 13. データ配置
+
+- 実行記録: `data/runtime/execution_records.json`
+- ワークフロー定義（有効）: `data/workflow_definitions/active/`
+- ワークフロー定義（アーカイブ）: `data/workflow_definitions/archived/`
+- RAG関連: `data/rag/`
+
+---
+
+## 14. テスト
 
 ```bash
 PYTHONPATH=src pytest -q
 ```
 
-統合テスト例:
+代表テスト:
 
+- `tests/integration/test_phase2_runtime_flow.py`
 - `tests/integration/test_phase4_flask_ui_flow.py`
 
 ---
 
-## 10. 補足
+## 15. 現状の制約・注意点
 
-- `src/run_ui.py` は Fake サービスではなく、実サービス（Human Gate / Rerun / Execution）を `create_app(...)` に注入する構成です。
-- OpenAI を使う場合は、`OPENAI_API_KEY` と `AGENT_PLATFORM_LLM_PROVIDER=openai` を設定してください。
+- 実行はサーバープロセス内で同期的に進む実装（外部ジョブキューではない）
+- 実行可能ノードタイプはデフォルトでは `llm/human_gate/api/mcp`
+- 定義に含めた全機能が常に実行レジストリへ自動登録されるわけではない
+- memory機能を有効活用するには、MemoryStore を実行サービスへ注入する拡張が別途必要
+- OpenAI利用時はAPIキー未設定だと実行時に失敗する可能性がある
+
+---
+
+## 16. クイックスタート（最短手順）
+
+1. `PYTHONPATH=src python src/run_ui.py`
+2. `/workflow-definitions` で定義を確認 or 新規作成
+3. `/workflows` で Run
+4. `/workflows/<workflow_id>/executions/<execution_id>/nodes` で進行確認
+5. `WAITING_HUMAN` ノードがあれば approve/reject 実施
+6. 必要なら `/executions` で履歴を監査

@@ -45,8 +45,9 @@ def test_build_mermaid_from_minimal_graph_model() -> None:
     mermaid = build_mermaid(graph)
 
     assert isinstance(mermaid, str)
-    assert 'step1["Step 1\\n(llm)"]' in mermaid
+    assert 'step1["Step 1\\n(llm)"]:::node-task-generate' in mermaid
     assert "step1 --> step2" in mermaid
+    assert "classDef node-task-generate" in mermaid
 
 
 
@@ -69,7 +70,7 @@ def test_build_mermaid_node_line_returns_expected_format() -> None:
 
     line = build_mermaid_node_line(node)
 
-    assert line == 'step1["Task Understanding\\n(llm)"]'
+    assert line == 'step1["Task Understanding\\n(llm)"]:::node-task-generate'
 
 
 
@@ -93,7 +94,7 @@ def test_build_mermaid_edge_line_with_label_returns_expected_format() -> None:
 def test_group_less_nodes_are_rendered_at_top_level() -> None:
     mermaid = build_mermaid(make_graph_model())
 
-    assert "    step1[\"Step 1\\n(llm)\"]" in mermaid
+    assert "    step1[\"Step 1\\n(llm)\"]:::node-task-generate" in mermaid
     assert "subgraph" not in mermaid
 
 
@@ -108,8 +109,8 @@ def test_nodes_in_same_group_are_wrapped_in_subgraph() -> None:
     mermaid = build_mermaid(graph)
 
     assert '    subgraph group_1["review"]' in mermaid
-    assert "        step1[\"Step 1\\n(llm)\"]" in mermaid
-    assert "        step2[\"Step 2\\n(human_gate)\"]" in mermaid
+    assert "        step1[\"Step 1\\n(llm)\"]:::node-task-generate" in mermaid
+    assert "        step2[\"Step 2\\n(human_gate)\"]:::node-type-human_gate" in mermaid
     assert "    end" in mermaid
 
 
@@ -121,10 +122,10 @@ def test_grouped_and_ungrouped_nodes_can_coexist() -> None:
 
     mermaid = build_mermaid(graph)
 
-    assert "    step1[\"Step 1\\n(llm)\"]" in mermaid
-    assert "    step2[\"Step 2\\n(human_gate)\"]" in mermaid
+    assert "    step1[\"Step 1\\n(llm)\"]:::node-task-generate" in mermaid
+    assert "    step2[\"Step 2\\n(human_gate)\"]:::node-type-human_gate" in mermaid
     assert '    subgraph group_1["review"]' in mermaid
-    assert "        step3[\"Step 3\\n(llm)\"]" in mermaid
+    assert "        step3[\"Step 3\\n(llm)\"]:::node-task-generate" in mermaid
 
 
 
@@ -146,10 +147,18 @@ def test_node_output_order_is_deterministic() -> None:
     mermaid = build_mermaid(graph)
     lines = mermaid.splitlines()
 
-    assert lines[1] == '    a["A\\n(llm)"]'
-    assert lines[2] == '    c["C\\n(llm)"]'
+    assert lines[1] == '    a["A\\n(llm)"]:::node-task-generate'
+    assert lines[2] == '    c["C\\n(llm)"]:::node-task-generate'
     assert lines[3] == '    subgraph group_1["g1"]'
-    assert lines[4] == '        b["B\\n(llm)"]'
+    assert lines[4] == '        b["B\\n(llm)"]:::node-task-generate'
+
+
+def test_build_mermaid_node_line_uses_task_specific_class_for_assessment() -> None:
+    node = GraphNode(id="judge", type="llm", name="Judge", config={"task": "assessment"})
+
+    line = build_mermaid_node_line(node)
+
+    assert line == 'judge["Judge\\n(llm)"]:::node-task-assessment'
 
 
 

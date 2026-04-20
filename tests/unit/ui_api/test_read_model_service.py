@@ -363,6 +363,129 @@ def test_build_node_cards_legacy_llm_review_maps_to_assessment_task() -> None:
     assert cards[0].task == "assessment"
 
 
+def test_build_node_cards_human_gate_exposes_human_gate_task() -> None:
+    service, context_manager, records_manager = build_service()
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="entry",
+        end_nodes=["entry"],
+        direction="TD",
+        nodes={
+            "entry": GraphNode(
+                id="entry",
+                type="human_gate",
+                name="Entry Input",
+                config={"task": "entry_input"},
+            ),
+        },
+        edges=[],
+    )
+
+    context = context_manager.create_context(workflow_id=graph.workflow_id)
+    execution_id = context.execution_id
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    records_manager.start_node_record(execution_id, "entry", "human_gate")
+    records_manager.mark_node_waiting_human(execution_id, "entry")
+
+    cards = service.build_node_cards(graph, execution_id)
+
+    assert len(cards) == 1
+    assert cards[0].human_gate_task == "entry_input"
+
+
+def test_build_node_detail_human_gate_exposes_approval_options_and_decision() -> None:
+    service, context_manager, records_manager = build_service()
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="review",
+        end_nodes=["review"],
+        direction="TD",
+        nodes={
+            "review": GraphNode(
+                id="review",
+                type="human_gate",
+                name="Human Review",
+                config={"task": "approval", "approval_options": ["承認", "否認"]},
+            ),
+        },
+        edges=[],
+    )
+
+    context = context_manager.create_context(workflow_id=graph.workflow_id)
+    execution_id = context.execution_id
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    records_manager.start_node_record(execution_id, "review", "human_gate")
+    records_manager.complete_node_record(execution_id, "review", output_preview="approved")
+    context_manager.update_node_state(execution_id, "review", "SUCCEEDED")
+    context_manager.set_node_output(
+        execution_id,
+        "review",
+        {
+            "selected_option": "承認",
+            "human_comment": "looks good",
+        },
+    )
+
+    detail = service.build_node_detail(graph, execution_id, "review")
+
+    assert detail.human_gate_task == "approval"
+    assert detail.human_gate_approval_options == ["承認", "否認"]
+    assert detail.human_gate_required_fields == []
+    assert detail.human_gate_allow_files is False
+    assert detail.human_gate_instructions is None
+    assert detail.selected_option == "承認"
+    assert detail.human_comment == "looks good"
+
+
+def test_build_node_detail_human_gate_entry_input_exposes_required_fields_and_instructions() -> None:
+    service, context_manager, records_manager = build_service()
+    graph = GraphModel(
+        workflow_id="sample_workflow",
+        workflow_name="Sample Workflow",
+        start_node="entry",
+        end_nodes=["entry"],
+        direction="TD",
+        nodes={
+            "entry": GraphNode(
+                id="entry",
+                type="human_gate",
+                name="Entry Input",
+                config={
+                    "task": "entry_input",
+                    "required_fields": ["input_text", "input_file"],
+                    "allow_files": True,
+                    "instructions": "Please provide initial business input.",
+                },
+            ),
+        },
+        edges=[],
+    )
+
+    context = context_manager.create_context(workflow_id=graph.workflow_id)
+    execution_id = context.execution_id
+    records_manager.create_workflow_record(execution_id=execution_id, workflow_id=graph.workflow_id)
+    records_manager.start_node_record(execution_id, "entry", "human_gate")
+    records_manager.mark_node_waiting_human(execution_id, "entry")
+    context_manager.set_node_output(
+        execution_id,
+        "entry",
+        {
+            "required_fields": ["input_text", "input_file"],
+            "allow_files": True,
+            "instructions": "Please provide initial business input.",
+        },
+    )
+
+    detail = service.build_node_detail(graph, execution_id, "entry")
+
+    assert detail.human_gate_task == "entry_input"
+    assert detail.human_gate_required_fields == ["input_text", "input_file"]
+    assert detail.human_gate_allow_files is True
+    assert detail.human_gate_instructions == "Please provide initial business input."
+
+
 
 def test_build_graph_view_returns_mermaid_text() -> None:
     service, graph, _ = prepare_execution()

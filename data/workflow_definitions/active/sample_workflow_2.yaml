@@ -1,0 +1,50 @@
+workflow_id: sample_workflow_2
+workflow_name: Sample Workflow 2
+version: 0.1.0
+nodes:
+- config:
+    task: entry_input
+    approval_options:
+    - 承認
+    - 否認
+  id: start_node
+  name: Start Node
+  type: human_gate
+- id: end_node
+  name: End Node
+  type: human_gate
+- config:
+    task: generate
+    temperature: 0.0
+    extract_output_format: markdown
+    prompt: "あなたは業務フロー分析の専門家です。\r\n与えられた業務記述書など、業務をどのように行なっているかの情報から、mermaid表記の業務フローを作成してください。\r\
+      \nその際、工程や担い手などその業務の理解に最適と思われるグループがある場合は、サブグラフとして表示してください。"
+    output_format: mermaid記法
+  id: node2
+  name: Node 2
+  type: llm
+- config:
+    task: generate
+    temperature: 0.0
+    extract_output_format: json
+    prompt: "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。"
+    input_definition: '[参照ノード: start_node.result]'
+    output_format: markdown
+  id: node3
+  name: Node 3
+  type: llm
+- config:
+    task: generate
+    temperature: 0.0
+    extract_output_format: markdown
+    prompt: "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。"
+    input_definition: '[参照ノード: node3.result]'
+    output_format: mermaid
+  id: node4
+  name: Node 4
+  type: llm
+edges:
+- from: start_node
+  to: node3
+- from: node3
+  to: node4

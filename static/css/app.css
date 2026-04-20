@@ -73,3 +73,79 @@ pre {
   word-break: break-word;
   overflow-x: visible;
 }
+
+.node-detail-page .preview-render.is-collapsed {
+  max-height: calc(1.5em * 10 + 1.5rem);
+  overflow: hidden;
+}
+
+.node-detail-page .preview-render {
+  white-space: normal;
+}
+
+.node-detail-page .preview-render pre,
+.node-detail-page .preview-render code {
+  white-space: pre-wrap;
+}
+
+.node-detail-page .preview-render > *:last-child {
+  margin-bottom: 0;
+}
+
+.node-visual-chip {
+  border-width: 1px !important;
+}
+
+.node-visual-chip.node-type-default {
+  background: #f8f9fa;
+  border-color: #adb5bd !important;
+  color: #212529;
+}
+
+.node-visual-chip.node-type-llm,
+.node-visual-chip.node-task-generate {
+  background: #e7f1ff;
+  border-color: #3d8bfd !important;
+  color: #052c65;
+}
+
+.node-visual-chip.node-task-assessment {
+  background: #fff3cd;
+  border-color: #ffca2c !important;
+  color: #664d03;
+}
+
+.node-visual-chip.node-task-extract {
+  background: #e2f7ea;
+  border-color: #2f9e63 !important;
+  color: #0f5132;
+}
+
+.node-visual-chip.node-type-human_gate {
+  background: #f8d7da;
+  border-color: #dc3545 !important;
+  color: #842029;
+}
+
+.node-visual-chip.node-type-api {
+  background: #f3e8ff;
+  border-color: #845ef7 !important;
+  color: #432874;
+}
+
+.node-visual-chip.node-type-mcp {
+  background: #e2f3f5;
+  border-color: #0aa2c0 !important;
+  color: #055160;
+}
+
+.llm-input-ref-chip {
+  border-width: 1px !important;
+}
+
+.rag-dataset-chip {
+  border-width: 1px !important;
+  background: #e0f2fe;
+  border-color: #38bdf8 !important;
+  color: #0c4a6e;
+}

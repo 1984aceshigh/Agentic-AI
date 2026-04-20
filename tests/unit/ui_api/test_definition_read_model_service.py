@@ -192,6 +192,12 @@ edges:
     assert view.selected_node_editor is not None
     assert [item.node_id for item in view.selected_node_editor.edge_connection_candidates] == ['draft', 'publish']
     assert [item.node_id for item in view.selected_node_editor.selected_outgoing_connections] == ['publish']
+    draft_candidate = view.selected_node_editor.edge_connection_candidates[0]
+    publish_candidate = view.selected_node_editor.edge_connection_candidates[1]
+    assert draft_candidate.node_task == 'generate'
+    assert draft_candidate.visual_class == 'node-task-generate'
+    assert publish_candidate.node_task is None
+    assert publish_candidate.visual_class == 'node-type-llm'
 
 
 def test_build_graph_editor_view_sets_selected_rag_dataset_from_node_binding(tmp_path) -> None:
@@ -244,6 +250,77 @@ edges: []
 
     assert view.selected_node_editor is not None
     assert view.selected_node_editor.llm_task == 'assessment'
+
+
+def test_build_graph_editor_view_exposes_human_gate_task_for_human_gate_node() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: review
+    name: Review
+    type: human_gate
+    config:
+      task: human_task
+edges: []
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='review',
+    )
+
+    assert view.selected_node_editor is not None
+    assert view.selected_node_editor.is_human_gate_node is True
+    assert view.selected_node_editor.human_gate_task == 'human_task'
+
+
+def test_build_graph_editor_view_exposes_human_gate_approval_options_and_routes() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: gate
+    name: Gate
+    type: human_gate
+    config:
+      task: approval
+      approval_options:
+        - 承認
+        - 差戻し
+      approval_routes:
+        承認: publish
+        差戻し: revise
+  - id: publish
+    name: Publish
+    type: llm
+  - id: revise
+    name: Revise
+    type: llm
+edges:
+  - from: gate
+    to: publish
+  - from: gate
+    to: revise
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='gate',
+    )
+
+    assert view.selected_node_editor is not None
+    assert view.selected_node_editor.human_gate_task == 'approval'
+    assert view.selected_node_editor.human_gate_approval_option_list == ['承認', '差戻し']
+    assert view.selected_node_editor.human_gate_approval_options == '承認\n差戻し'
+    assert view.selected_node_editor.human_gate_approval_route_map == {
+        '承認': ['publish'],
+        '差戻し': ['revise'],
+    }
 
 
 def test_build_graph_editor_view_exposes_extended_llm_config_fields() -> None:

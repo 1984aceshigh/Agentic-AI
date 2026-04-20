@@ -25,6 +25,7 @@ class HumanGateService(Protocol):
         execution_id: str,
         node_id: str,
         comment: str | None = None,
+        decision_option: str | None = None,
     ) -> None: ...
 
     def reject_node(
@@ -32,6 +33,14 @@ class HumanGateService(Protocol):
         execution_id: str,
         node_id: str,
         fallback_node_id: str | None = None,
+        comment: str | None = None,
+    ) -> None: ...
+
+    def submit_node(
+        self,
+        execution_id: str,
+        node_id: str,
+        human_input: dict[str, object] | None = None,
         comment: str | None = None,
     ) -> None: ...
 
@@ -58,6 +67,13 @@ class ExecutionService(Protocol):
         workflow_id: str,
         execution_id: str,
         from_node_id: str,
+    ) -> str: ...
+
+    def resume_workflow(
+        self,
+        *,
+        workflow_id: str,
+        execution_id: str,
     ) -> str: ...
 
 

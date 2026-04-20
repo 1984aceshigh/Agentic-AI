@@ -38,6 +38,11 @@ def build_mermaid(graph: GraphModel) -> str:
         label = assessment_edge_labels.get((edge.from_node, edge.to_node))
         lines.append(f"    {build_mermaid_edge_line(edge, label=label)}")
 
+    class_defs = _build_mermaid_class_defs()
+    if class_defs:
+        lines.append("")
+        lines.extend([f"    {line}" for line in class_defs])
+
     return "\n".join(lines)
 
 
@@ -46,7 +51,7 @@ def build_mermaid_node_line(node: GraphNode) -> str:
         raise MermaidBuildError("node.id must not be empty")
 
     label = f"{escape_mermaid_label(node.name)}\\n({node.type.value})"
-    return f'{node.id}["{label}"]'
+    return f'{node.id}["{label}"]:::{_resolve_mermaid_node_class(node)}'
 
 
 def build_mermaid_edge_line(edge: GraphEdge, *, label: str | None = None) -> str:
@@ -123,3 +128,29 @@ def _sanitize_mermaid_edge_label(label: str) -> str:
     text = text.replace('"', "'")
     text = text.replace("[", "［").replace("]", "］")
     return text.strip()
+
+
+def _resolve_mermaid_node_class(node: GraphNode) -> str:
+    node_type = str(getattr(node.type, "value", node.type) or "").strip().lower()
+    if node_type == "llm":
+        config = node.config if isinstance(node.config, dict) else {}
+        task = str(config.get("task") or "generate").strip().lower()
+        if task in {"assessment", "extract", "generate"}:
+            return f"node-task-{task}"
+        return "node-type-llm"
+    if node_type in {"api", "human_gate", "mcp"}:
+        return f"node-type-{node_type}"
+    return "node-type-default"
+
+
+def _build_mermaid_class_defs() -> list[str]:
+    return [
+        "classDef node-type-default fill:#f8f9fa,stroke:#adb5bd,color:#212529,stroke-width:1px;",
+        "classDef node-type-llm fill:#e7f1ff,stroke:#3d8bfd,color:#052c65,stroke-width:1px;",
+        "classDef node-task-generate fill:#e7f1ff,stroke:#3d8bfd,color:#052c65,stroke-width:1px;",
+        "classDef node-task-assessment fill:#fff3cd,stroke:#ffca2c,color:#664d03,stroke-width:1px;",
+        "classDef node-task-extract fill:#e2f7ea,stroke:#2f9e63,color:#0f5132,stroke-width:1px;",
+        "classDef node-type-human_gate fill:#f8d7da,stroke:#dc3545,color:#842029,stroke-width:1px;",
+        "classDef node-type-api fill:#f3e8ff,stroke:#845ef7,color:#432874,stroke-width:1px;",
+        "classDef node-type-mcp fill:#e2f3f5,stroke:#0aa2c0,color:#055160,stroke-width:1px;",
+    ]
