@@ -277,11 +277,19 @@ def _collect_input_definition_candidates(
         (index for index, node in enumerate(ordered_nodes) if node['node_id'] == selected_node_id),
         -1,
     )
-    if selected_index <= 0:
+    if selected_index < 0:
         return []
 
+    upstream_node_ids = _collect_upstream_node_ids(parsed, selected_node_id)
+
     candidates: list[InputDefinitionCandidateView] = []
-    for node in ordered_nodes[:selected_index]:
+    for index, node in enumerate(ordered_nodes):
+        node_id = node['node_id']
+        if node_id == selected_node_id:
+            continue
+        if index >= selected_index and node_id not in upstream_node_ids:
+            continue
+
         node_payload = {
             'type': node.get('node_type'),
             'node_type': node.get('node_type'),
@@ -292,16 +300,43 @@ def _collect_input_definition_candidates(
         for output_key in _candidate_output_keys(node):
             candidates.append(
                 InputDefinitionCandidateView(
-                    node_id=node['node_id'],
+                    node_id=node_id,
                     node_name=node['node_name'],
                     output_key=output_key,
-                    ref_expression=f"ref: {node['node_id']}.{output_key}",
+                    ref_expression=f"ref: {node_id}.{output_key}",
                     node_type=str(node.get('node_type') or ''),
                     node_task=node_task,
                     visual_class=visual_class,
                 )
             )
     return candidates
+
+
+def _collect_upstream_node_ids(parsed: dict[str, Any], selected_node_id: str) -> set[str]:
+    edges = parsed.get('edges')
+    if not isinstance(edges, list):
+        return set()
+
+    incoming: dict[str, set[str]] = {}
+    for edge in edges:
+        if not isinstance(edge, dict):
+            continue
+        source = str(edge.get('from') or edge.get('source') or '').strip()
+        target = str(edge.get('to') or edge.get('target') or '').strip()
+        if not source or not target:
+            continue
+        incoming.setdefault(target, set()).add(source)
+
+    visited: set[str] = set()
+    stack = list(incoming.get(selected_node_id, set()))
+    while stack:
+        node_id = stack.pop()
+        if node_id == selected_node_id or node_id in visited:
+            continue
+        visited.add(node_id)
+        stack.extend(incoming.get(node_id, set()))
+
+    return visited
 
 
 def _ordered_node_payloads(parsed: dict[str, Any]) -> list[dict[str, Any]]:

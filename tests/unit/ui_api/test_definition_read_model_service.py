@@ -136,6 +136,38 @@ edges:
     assert 'ref: judge.assessment_content' in refs
 
 
+def test_build_graph_editor_view_collects_upstream_candidates_even_if_declared_after_selected_node() -> None:
+    yaml_text = """
+workflow_id: sample_workflow
+workflow_name: Sample Workflow
+nodes:
+  - id: collector
+    name: Collector
+    type: llm
+  - id: reviewer
+    name: Reviewer
+    type: llm
+  - id: gate
+    name: Gate
+    type: human_gate
+edges:
+  - from: gate
+    to: reviewer
+"""
+    service = _build_service()
+
+    view = service.build_graph_editor_view(
+        yaml_text=yaml_text,
+        selected_tab='nodes',
+        selected_node_id='reviewer',
+    )
+
+    assert view.selected_node_editor is not None
+    refs = [item.ref_expression for item in view.selected_node_editor.input_definition_candidates]
+    assert 'ref: collector.result' in refs
+    assert 'ref: gate.result' in refs
+
+
 def test_build_graph_editor_view_first_node_has_no_input_definition_candidates() -> None:
     yaml_text = """
 workflow_id: sample_workflow

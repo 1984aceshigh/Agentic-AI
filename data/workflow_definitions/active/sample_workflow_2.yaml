@@ -48,3 +48,5 @@ edges:
   to: node3
 - from: node3
   to: node4
+- from: node4
+  to: end_node
