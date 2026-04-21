@@ -55,7 +55,7 @@ def test_add_llm_node_fields_are_saved_into_config():
             'node_type': 'llm',
             'llm_prompt': 'Write a short answer',
             'llm_input_definition': 'topic: string',
-            'llm_output_format': 'json: {"answer": string}',
+            'llm_output_format': 'json',
         },
     )
 
@@ -64,7 +64,44 @@ def test_add_llm_node_fields_are_saved_into_config():
     assert writer['config']['task'] == 'generate'
     assert writer['config']['prompt'] == 'Write a short answer'
     assert writer['config']['input_definition'] == 'topic: string'
-    assert writer['config']['output_format'] == 'json: {"answer": string}'
+    assert writer['config']['output_format'] == 'json'
+
+
+def test_add_llm_node_output_format_alias_plain_text_is_normalized_to_text() -> None:
+    service = DefinitionEditorService()
+
+    updated = service.add_node(
+        SAMPLE_YAML,
+        {
+            'node_id': 'writer_text',
+            'node_name': 'Writer Text',
+            'node_type': 'llm',
+            'llm_output_format': 'plain text',
+        },
+    )
+
+    parsed = yaml.safe_load(updated)
+    writer = next(node for node in parsed['nodes'] if node.get('id') == 'writer_text')
+    assert writer['config']['output_format'] == 'text'
+
+
+def test_add_llm_node_invalid_output_format_raises_value_error() -> None:
+    service = DefinitionEditorService()
+
+    try:
+        service.add_node(
+            SAMPLE_YAML,
+            {
+                'node_id': 'writer_invalid_fmt',
+                'node_name': 'Writer Invalid Fmt',
+                'node_type': 'llm',
+                'llm_output_format': 'xml',
+            },
+        )
+    except ValueError as exc:
+        assert 'llm_output_format must be one of' in str(exc)
+    else:
+        raise AssertionError('Expected ValueError')
 
 
 def test_add_llm_node_llm_task_is_saved_into_config_task():

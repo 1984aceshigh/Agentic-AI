@@ -376,6 +376,7 @@ nodes:
         - company_name
         - invoice_no
       extract_output_format: markdown
+      output_format: plain text
 edges: []
 """
     service = _build_service()
@@ -392,6 +393,7 @@ edges: []
     assert 'pass: publish' in view.selected_node_editor.llm_assessment_routes
     assert view.selected_node_editor.llm_extract_fields == 'company_name\ninvoice_no'
     assert view.selected_node_editor.llm_extract_output_format == 'markdown'
+    assert view.selected_node_editor.llm_output_format == 'text'
 
 
 def test_build_definition_summaries_formats_updated_at_as_yyyy_mm_dd_hh_mm_ss() -> None:

@@ -206,3 +206,88 @@ def test_llm_executor_assessment_routes_match_case_insensitive_keys() -> None:
     assert result.status == "SUCCEEDED"
     assert result.output.get("selected_option") == "False"
     assert result.output.get("next_node") == "node_false"
+
+
+def test_llm_executor_generate_supports_markdown_json_output_format() -> None:
+    adapter = _CaptureAdapter()
+    adapter.complete = lambda request: type("Resp", (), {"text": '{"status": "ok"}', "raw": {}})()  # type: ignore[method-assign]
+    executor = LLMExecutor(default_adapter=adapter)
+    context = DummyContext()
+    node = DummyNode(
+        id="llm_generate_md_json",
+        config={
+            "task": "generate",
+            "prompt": "Generate json",
+            "output_format": "markdown_json",
+        },
+    )
+
+    result = executor.run(spec=None, node=node, context=context)
+
+    assert result.status == "SUCCEEDED"
+    assert result.output.get("output_format") == "markdown_json"
+    assert result.output.get("result", "").startswith("```json\n")
+    assert result.output.get("structured_result") == {"status": "ok"}
+
+
+def test_llm_executor_markdown_mermaid_does_not_double_wrap_when_already_fenced() -> None:
+    adapter = _CaptureAdapter()
+    mermaid_text = "```mermaid\nworkflow TD\n  A --> B\n```"
+    adapter.complete = lambda request: type("Resp", (), {"text": mermaid_text, "raw": {}})()  # type: ignore[method-assign]
+    executor = LLMExecutor(default_adapter=adapter)
+    context = DummyContext()
+    node = DummyNode(
+        id="llm_generate_md_mermaid",
+        config={
+            "task": "generate",
+            "prompt": "Generate mermaid",
+            "output_format": "markdown_mermaid",
+        },
+    )
+
+    result = executor.run(spec=None, node=node, context=context)
+
+    assert result.status == "SUCCEEDED"
+    assert result.output.get("result") == "```mermaid\nflowchart TD\n  A --> B\n```"
+
+
+def test_llm_executor_markdown_mermaid_extracts_block_from_mixed_text() -> None:
+    adapter = _CaptureAdapter()
+    mixed_text = "Here is diagram\n```mermaid\nworkflow TD\n  A --> B\n```\nthanks"
+    adapter.complete = lambda request: type("Resp", (), {"text": mixed_text, "raw": {}})()  # type: ignore[method-assign]
+    executor = LLMExecutor(default_adapter=adapter)
+    context = DummyContext()
+    node = DummyNode(
+        id="llm_generate_md_mermaid_mixed",
+        config={
+            "task": "generate",
+            "prompt": "Generate mermaid",
+            "output_format": "markdown_mermaid",
+        },
+    )
+
+    result = executor.run(spec=None, node=node, context=context)
+
+    assert result.status == "SUCCEEDED"
+    assert result.output.get("result") == "```mermaid\nflowchart TD\n  A --> B\n```"
+
+
+def test_llm_executor_markdown_mermaid_unwraps_nested_markdown_mermaid_fence() -> None:
+    adapter = _CaptureAdapter()
+    nested = "```mermaid\n```markdown_mermaid\nworkflow TD\n  A --> B\n```\n```"
+    adapter.complete = lambda request: type("Resp", (), {"text": nested, "raw": {}})()  # type: ignore[method-assign]
+    executor = LLMExecutor(default_adapter=adapter)
+    context = DummyContext()
+    node = DummyNode(
+        id="llm_generate_md_mermaid_nested",
+        config={
+            "task": "generate",
+            "prompt": "Generate mermaid",
+            "output_format": "markdown_mermaid",
+        },
+    )
+
+    result = executor.run(spec=None, node=node, context=context)
+
+    assert result.status == "SUCCEEDED"
+    assert result.output.get("result") == "```mermaid\nflowchart TD\n  A --> B\n```"

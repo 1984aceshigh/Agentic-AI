@@ -7,6 +7,16 @@
   ('assessment', 'assessment: 入力を評価し、判断・分類するタスクです'),
   ('extract', 'extract: 入力から構造化情報を抽出するタスクです')
 ] %}
+{% set llm_output_format_options = [
+  ('text', 'text (プレーンテキスト)'),
+  ('markdown', 'markdown'),
+  ('json', 'json'),
+  ('yaml', 'yaml'),
+  ('mermaid', 'mermaid'),
+  ('markdown_json', 'markdown + json code block'),
+  ('markdown_yaml', 'markdown + yaml code block'),
+  ('markdown_mermaid', 'markdown + mermaid code block')
+] %}
 {% set human_gate_task_options = [
   ('entry_input', 'entry_input: 業務の入り口として初期入力を受け取る'),
   ('human_task', 'human_task: ワークフロー内で人が作業を実施する'),
@@ -167,7 +177,11 @@
           </div>
           <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_output_format</label>
-            <textarea class="form-control form-control-sm" rows="3" name="llm_output_format"></textarea>
+            <select class="form-select form-select-sm" name="llm_output_format">
+              {% for fmt_value, fmt_label in llm_output_format_options %}
+              <option value="{{ fmt_value }}" {% if fmt_value == 'text' %}selected{% endif %}>{{ fmt_label }}</option>
+              {% endfor %}
+            </select>
           </div>
           <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="assessment">
             <label class="form-label">assessment options (1行1項目 / カンマ区切り可)</label>
@@ -295,7 +309,11 @@
           </div>
           <div class="col-12 node-type-section" data-node-type-section="llm">
             <label class="form-label">llm_output_format</label>
-            <textarea class="form-control form-control-sm" rows="3" name="llm_output_format">{{ editor.selected_node_editor.llm_output_format }}</textarea>
+            <select class="form-select form-select-sm" name="llm_output_format">
+              {% for fmt_value, fmt_label in llm_output_format_options %}
+              <option value="{{ fmt_value }}" {% if editor.selected_node_editor.llm_output_format == fmt_value %}selected{% endif %}>{{ fmt_label }}</option>
+              {% endfor %}
+            </select>
           </div>
           <div class="col-12 node-type-section llm-task-section" data-node-type-section="llm" data-llm-task-section="assessment">
             <label class="form-label">assessment options (1行1項目 / カンマ区切り可)</label>

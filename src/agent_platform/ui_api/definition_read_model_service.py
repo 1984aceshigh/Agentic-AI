@@ -198,7 +198,7 @@ class DefinitionReadModelService:
             llm_temperature=_stringify_scalar(config.get('temperature')),
             llm_prompt=str(config.get('prompt') or ''),
             llm_input_definition=str(config.get('input_definition') or ''),
-            llm_output_format=str(config.get('output_format') or ''),
+            llm_output_format=_normalize_llm_output_format(config.get('output_format')),
             llm_assessment_options='\n'.join(_string_list(config.get('assessment_options'))),
             llm_assessment_option_list=_string_list(config.get('assessment_options')),
             llm_assessment_routes=_dump_yaml_mapping(config.get('assessment_routes')),
@@ -520,6 +520,29 @@ def _normalize_extract_output_format(raw_value: Any) -> str:
         normalized = 'plain_text'
     if normalized not in {'json', 'yaml', 'markdown', 'plain_text'}:
         return 'json'
+    return normalized
+
+
+def _normalize_llm_output_format(raw_value: Any) -> str:
+    normalized = str(raw_value or 'text').strip().lower().replace(' ', '_').replace('-', '_')
+    alias_map = {
+        'plain_text': 'text',
+        'md_json': 'markdown_json',
+        'md_yaml': 'markdown_yaml',
+        'md_mermaid': 'markdown_mermaid',
+    }
+    normalized = alias_map.get(normalized, normalized)
+    if normalized not in {
+        'json',
+        'yaml',
+        'markdown',
+        'mermaid',
+        'text',
+        'markdown_json',
+        'markdown_yaml',
+        'markdown_mermaid',
+    }:
+        return 'text'
     return normalized
 
 

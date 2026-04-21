@@ -37,9 +37,9 @@ nodes:
     task: generate
     temperature: 0.0
     extract_output_format: markdown
-    prompt: "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。"
+    prompt: "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。なお、業務記述書でフローとして読み取れるものは、フローとして記述し、単独でどこにもつながらない工程は極力作らないようにしてください。"
     input_definition: '[参照ノード: node3.result]'
-    output_format: mermaid
+    output_format: markdown_mermaid
   id: node4
   name: Node 4
   type: llm

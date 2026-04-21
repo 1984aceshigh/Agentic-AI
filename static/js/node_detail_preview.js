@@ -35,11 +35,28 @@
   };
 
   const normalizeMermaidText = (text) => {
-    const normalized = normalizePreviewText(text)
+    let normalized = normalizePreviewText(text)
       .replace(/\n[\t ]*\n[\t\n ]+/g, "\n\n")
       .trim();
 
-    return normalized.replace(/^workflow(\s+(TD|LR|BT|RL)\b)/i, "flowchart$1");
+    for (let i = 0; i < 3; i += 1) {
+      const wrappedMatch = normalized.match(/^```\s*[a-zA-Z0-9_+-]*\s*\n([\s\S]*?)\n```\s*$/);
+      if (!wrappedMatch) {
+        break;
+      }
+      normalized = normalizePreviewText(wrappedMatch[1] || "").trim();
+    }
+
+    normalized = normalized
+      .replace(/\n[\t ]*\n[\t\n ]+/g, "\n\n")
+      .trim();
+
+    normalized = normalized.replace(/^```\s*[a-zA-Z0-9_+-]*\s*\n/i, "");
+    normalized = normalized.replace(/\n```\s*$/i, "");
+
+    normalized = normalized.replace(/^workflow(\s+(TD|LR|BT|RL)\b)/i, "flowchart$1");
+    normalized = normalized.replace(/^(mermaid|markdown_mermaid)\s*\n/i, "");
+    return normalized;
   };
 
   const extractFencedMermaidBlocks = (text) => {
@@ -55,6 +72,16 @@
       match = regex.exec(source);
     }
     return blocks;
+  };
+
+  const replaceMermaidNodeWithSource = (mermaidNode, fallbackSource = "") => {
+    const source = normalizeMermaidText(
+      fallbackSource || mermaidNode.dataset.originalSource || mermaidNode.textContent || "",
+    );
+    const pre = document.createElement("pre");
+    pre.className = "code-block";
+    pre.textContent = `\`\`\`mermaid\n${source}\n\`\`\``;
+    mermaidNode.replaceWith(pre);
   };
 
   const updateToggleState = (previewNode) => {
@@ -96,6 +123,7 @@
         const mermaidContainer = document.createElement("div");
         mermaidContainer.className = "mermaid";
         mermaidContainer.textContent = block;
+        mermaidContainer.dataset.originalSource = block;
         fragment.appendChild(mermaidContainer);
       });
       node.replaceChildren(fragment);
@@ -107,6 +135,7 @@
       const mermaidContainer = document.createElement("div");
       mermaidContainer.className = "mermaid";
       mermaidContainer.textContent = normalizeMermaidText(rawText);
+      mermaidContainer.dataset.originalSource = mermaidContainer.textContent;
       node.replaceChildren(mermaidContainer);
       updateToggleState(node);
       return;
@@ -128,6 +157,7 @@
       const mermaidContainer = document.createElement("div");
       mermaidContainer.className = "mermaid";
       mermaidContainer.textContent = normalizeMermaidText(codeNode.textContent || "");
+      mermaidContainer.dataset.originalSource = mermaidContainer.textContent;
       preNode.parentElement.replaceChild(mermaidContainer, preNode);
     });
 
@@ -158,14 +188,53 @@
         securityLevel: "loose",
       });
 
-      const mermaidNodes = document.querySelectorAll(".js-markdown-mermaid-preview .mermaid");
-      if (mermaidNodes.length && typeof window.mermaid.run === "function") {
-        window.mermaid.run({ nodes: mermaidNodes }).finally(() => {
+      const mermaidNodes = Array.from(document.querySelectorAll(".js-markdown-mermaid-preview .mermaid"));
+
+      const renderNodesSafely = async () => {
+        const canRenderDirectly = typeof window.mermaid.render === "function";
+        const canRun = typeof window.mermaid.run === "function";
+        if (!canRenderDirectly && !canRun) {
+          return;
+        }
+
+        let renderSeq = 0;
+        for (const mermaidNode of mermaidNodes) {
+          const source = normalizeMermaidText(
+            mermaidNode.dataset.originalSource || mermaidNode.textContent || "",
+          );
+          mermaidNode.dataset.originalSource = source;
+
+          try {
+            if (canRenderDirectly) {
+              renderSeq += 1;
+              const renderId = `node-detail-mermaid-${Date.now()}-${renderSeq}`;
+              const rendered = await window.mermaid.render(renderId, source);
+              if (typeof rendered === "string") {
+                mermaidNode.innerHTML = rendered;
+              } else if (rendered && typeof rendered.svg === "string") {
+                mermaidNode.innerHTML = rendered.svg;
+                if (typeof rendered.bindFunctions === "function") {
+                  rendered.bindFunctions(mermaidNode);
+                }
+              } else {
+                throw new Error("Unexpected mermaid.render result");
+              }
+            } else {
+              mermaidNode.textContent = source;
+              await window.mermaid.run({ nodes: [mermaidNode] });
+            }
+          } catch (_error) {
+            replaceMermaidNodeWithSource(mermaidNode, source);
+          }
+        }
+      };
+
+      renderNodesSafely()
+        .finally(() => {
           previewNodes.forEach((previewNode) => {
             updateToggleState(previewNode);
           });
         });
-      }
     } catch (error) {
       console.warn("Failed to render mermaid preview", error);
     }

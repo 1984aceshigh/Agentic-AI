@@ -61,12 +61,34 @@ class OpenAIChatCompletionAdapter(LLMCompletionAdapter):
             messages.append({"role": "system", "content": request.system_prompt})
         messages.append({"role": "user", "content": request.prompt})
 
-        response = client.chat.completions.create(
-            model=model,
-            messages=messages,
-            temperature=request.temperature,
-            max_tokens=request.max_tokens,
-        )
+        create_kwargs: dict[str, Any] = {
+            "model": model,
+            "messages": messages,
+        }
+        if request.temperature is not None and _should_send_temperature(model=model, temperature=request.temperature):
+            create_kwargs["temperature"] = request.temperature
+        if request.max_tokens is not None:
+            # gpt-5 系モデルは chat.completions で max_tokens ではなく
+            # max_completion_tokens を受け付けるため切り替える。
+            if _uses_max_completion_tokens(model):
+                create_kwargs["max_completion_tokens"] = request.max_tokens
+            else:
+                create_kwargs["max_tokens"] = request.max_tokens
+
+        response = client.chat.completions.create(**create_kwargs)
         content = (response.choices[0].message.content or "").strip()
         raw = response.model_dump(mode="python") if hasattr(response, "model_dump") else {"response": str(response)}
         return LLMCompletionResponse(text=content, raw=raw)
+
+
+def _uses_max_completion_tokens(model: str) -> bool:
+    normalized = model.strip().lower()
+    return normalized.startswith("gpt-5")
+
+
+def _should_send_temperature(*, model: str, temperature: float) -> bool:
+    # gpt-5 系は現時点で temperature の自由指定を受け付けず、
+    # 指定すると 400 unsupported_value となるため未送信にする。
+    if _uses_max_completion_tokens(model):
+        return False
+    return True

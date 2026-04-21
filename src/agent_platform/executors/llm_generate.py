@@ -6,6 +6,8 @@ import textwrap
 from collections.abc import Mapping
 from typing import Any
 
+import yaml
+
 from agent_platform.executors.base import BaseNodeExecutor, ExecutorResult
 from agent_platform.integrations.llm_adapters import (
     DummyEchoLLMAdapter,
@@ -18,6 +20,16 @@ class LLMGenerateExecutor(BaseNodeExecutor):
     """LLM-backed executor for llm_generate nodes."""
 
     node_type = "llm_generate"
+    _SUPPORTED_OUTPUT_FORMATS = {
+        "json",
+        "yaml",
+        "markdown",
+        "mermaid",
+        "text",
+        "markdown_json",
+        "markdown_yaml",
+        "markdown_mermaid",
+    }
 
     def __init__(
         self,
@@ -62,8 +74,14 @@ class LLMGenerateExecutor(BaseNodeExecutor):
                 )
             )
 
-            output: dict[str, Any] = {"result": response.text}
-            structured = self._parse_structured_output(response.text, output_format)
+            normalized_output_format = self._normalize_output_format(output_format)
+            rendered_result = self._render_output(text=response.text, output_format=normalized_output_format)
+
+            output: dict[str, Any] = {
+                "result": rendered_result,
+                "output_format": normalized_output_format,
+            }
+            structured = self._parse_structured_output(rendered_result, normalized_output_format)
             if structured is not None:
                 output["structured_result"] = structured
 
@@ -207,13 +225,120 @@ class LLMGenerateExecutor(BaseNodeExecutor):
             sections.append(f"Output format:\n{output_format}")
         return "\n\n".join(sections)
 
+    def _normalize_output_format(self, output_format: str | None) -> str:
+        normalized = str(output_format or "text").strip().lower().replace("-", "_").replace(" ", "_")
+        alias_map = {
+            "plain_text": "text",
+            "md_json": "markdown_json",
+            "md_yaml": "markdown_yaml",
+            "md_mermaid": "markdown_mermaid",
+        }
+        normalized = alias_map.get(normalized, normalized)
+        if normalized in self._SUPPORTED_OUTPUT_FORMATS:
+            return normalized
+        return "text"
+
+    def _render_output(self, *, text: str, output_format: str) -> str:
+        if output_format == "markdown_json":
+            if self._is_fenced_code_block_for_language(text, "json"):
+                return text
+            extracted_json = self._extract_first_fenced_code_block_for_language(text, "json")
+            if extracted_json is not None:
+                return f"```json\n{extracted_json}\n```"
+            return f"```json\n{text}\n```"
+        if output_format == "markdown_yaml":
+            if self._is_fenced_code_block_for_language(text, "yaml"):
+                return text
+            extracted_yaml = self._extract_first_fenced_code_block_for_language(text, "yaml")
+            if extracted_yaml is not None:
+                return f"```yaml\n{extracted_yaml}\n```"
+            return f"```yaml\n{text}\n```"
+        if output_format == "markdown_mermaid":
+            normalized_mermaid = self._normalize_mermaid_text(self._extract_mermaid_payload(text))
+            return f"```mermaid\n{normalized_mermaid}\n```"
+        if output_format == "mermaid":
+            return self._normalize_mermaid_text(self._extract_mermaid_payload(text))
+        return text
+
+    def _is_fenced_code_block_for_language(self, text: str, language: str) -> bool:
+        pattern = re.compile(
+            rf"^```\s*{re.escape(language)}\s*\n[\s\S]*\n```\s*$",
+            re.IGNORECASE,
+        )
+        return bool(pattern.match(text.strip()))
+
+    def _extract_first_fenced_code_block_for_language(self, text: str, language: str) -> str | None:
+        pattern = re.compile(
+            rf"```\s*{re.escape(language)}\s*\n(?P<body>[\s\S]*?)\n```",
+            re.IGNORECASE,
+        )
+        match = pattern.search(text)
+        if match is None:
+            return None
+        return str(match.group("body")).strip()
+
+    def _extract_mermaid_payload(self, text: str) -> str:
+        candidate = self._extract_first_fenced_code_block_for_language(text, "mermaid")
+        if candidate is not None:
+            return candidate
+
+        generic_fence = re.search(r"```\s*(?P<lang>[^`\n]*)\n(?P<body>[\s\S]*?)\n```", text, re.IGNORECASE)
+        if generic_fence is not None:
+            lang = str(generic_fence.group("lang") or "").strip().lower()
+            body = str(generic_fence.group("body") or "")
+            if "mermaid" in lang:
+                return body
+
+        return text
+
+    def _normalize_mermaid_text(self, text: str) -> str:
+        normalized = text.replace("\r\n", "\n").replace("\r", "\n")
+        for _ in range(3):
+            wrapped = re.match(r"^```\s*[a-zA-Z0-9_+-]*\s*\n(?P<body>[\s\S]*?)\n```\s*$", normalized.strip())
+            if wrapped is None:
+                break
+            normalized = str(wrapped.group("body"))
+
+        lines = [line.rstrip() for line in normalized.split("\n")]
+        while lines and not lines[0].strip():
+            lines.pop(0)
+        while lines and not lines[-1].strip():
+            lines.pop()
+        if lines and re.match(r"^```\s*[a-zA-Z0-9_+-]*\s*$", lines[0].strip()):
+            lines = lines[1:]
+        if lines and lines[-1].strip() == "```":
+            lines = lines[:-1]
+        if lines and lines[0].strip().lower() in {"mermaid", "markdown_mermaid"}:
+            lines = lines[1:]
+        if lines:
+            lines[0] = re.sub(r"^workflow(\s+(TD|LR|BT|RL)\b)", r"flowchart\1", lines[0], flags=re.IGNORECASE)
+        return "\n".join(lines).strip()
+
+    def _unwrap_markdown_code_block(self, text: str) -> str:
+        match = re.match(r"^```[a-zA-Z0-9_+-]*\n(?P<body>[\s\S]*?)\n```\s*$", text.strip())
+        if match is None:
+            return text
+        return str(match.group("body"))
+
     def _parse_structured_output(self, text: str, output_format: str | None) -> Any | None:
         if not output_format:
             return None
-        normalized = output_format.strip().lower()
-        if "json" not in normalized:
+        normalized = self._normalize_output_format(output_format)
+        payload = self._unwrap_markdown_code_block(text)
+
+        if normalized in {"json", "markdown_json"}:
+            try:
+                return json.loads(payload)
+            except Exception:
+                return None
+
+        if normalized in {"yaml", "markdown_yaml"}:
+            try:
+                parsed = yaml.safe_load(payload)
+            except Exception:
+                return None
+            if isinstance(parsed, (dict, list)):
+                return parsed
             return None
-        try:
-            return json.loads(text)
-        except Exception:
-            return None
+
+        return None

@@ -6,6 +6,14 @@ from typing import Any
 from agent_platform.executors.llm_generate import LLMGenerateExecutor
 
 
+class _CaptureAdapter:
+    def __init__(self, text: str) -> None:
+        self._text = text
+
+    def complete(self, request):
+        return type('Resp', (), {'text': self._text, 'raw': {}})()
+
+
 @dataclass
 class DummyContext:
     global_inputs: dict[str, Any] = field(default_factory=dict)
@@ -77,3 +85,77 @@ def test_llm_generate_executor_resolves_multi_node_reference_block() -> None:
     assert "[参照ノード]" in result.input_preview
     assert "- planner.schema: topic: string" in result.input_preview
     assert "- writer.result: draft content" in result.input_preview
+
+
+def test_llm_generate_executor_parses_json_output() -> None:
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter('{"answer":"ok"}'))
+    context = DummyContext()
+    node = DummyNode(id='task_understanding', config={'prompt': 'Generate', 'output_format': 'json'})
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('output_format') == 'json'
+    assert result.output.get('structured_result') == {'answer': 'ok'}
+
+
+def test_llm_generate_executor_parses_yaml_from_markdown_code_block_output() -> None:
+    yaml_text = 'company: ACME\namount: 1000'
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter(yaml_text))
+    context = DummyContext()
+    node = DummyNode(
+        id='task_understanding',
+        config={'prompt': 'Generate', 'output_format': 'markdown_yaml'},
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('output_format') == 'markdown_yaml'
+    assert result.output.get('result', '').startswith('```yaml\n')
+    assert result.output.get('structured_result') == {'company': 'ACME', 'amount': 1000}
+
+
+def test_llm_generate_executor_markdown_mermaid_does_not_double_wrap_when_already_fenced() -> None:
+    mermaid_text = '```mermaid\nworkflow TD\n  A --> B\n```'
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter(mermaid_text))
+    context = DummyContext()
+    node = DummyNode(
+        id='task_understanding',
+        config={'prompt': 'Generate', 'output_format': 'markdown_mermaid'},
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('result') == '```mermaid\nflowchart TD\n  A --> B\n```'
+
+
+def test_llm_generate_executor_markdown_mermaid_extracts_block_from_mixed_text() -> None:
+    mixed_text = '説明文\n```mermaid\nworkflow LR\n  A --> B\n```\n以上'
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter(mixed_text))
+    context = DummyContext()
+    node = DummyNode(
+        id='task_understanding',
+        config={'prompt': 'Generate', 'output_format': 'markdown_mermaid'},
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('result') == '```mermaid\nflowchart LR\n  A --> B\n```'
+
+
+def test_llm_generate_executor_markdown_mermaid_unwraps_nested_markdown_mermaid_fence() -> None:
+    nested_text = '```mermaid\n```markdown_mermaid\nworkflow TD\n  A --> B\n```\n```'
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter(nested_text))
+    context = DummyContext()
+    node = DummyNode(
+        id='task_understanding',
+        config={'prompt': 'Generate', 'output_format': 'markdown_mermaid'},
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('result') == '```mermaid\nflowchart TD\n  A --> B\n```'

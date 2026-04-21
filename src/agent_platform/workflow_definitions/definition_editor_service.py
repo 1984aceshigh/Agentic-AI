@@ -8,6 +8,16 @@ import yaml
 
 LLM_TASK_CHOICES = {'generate', 'assessment', 'extract'}
 EXTRACT_OUTPUT_FORMAT_CHOICES = {'json', 'yaml', 'markdown', 'plain_text'}
+LLM_OUTPUT_FORMAT_CHOICES = {
+    'json',
+    'yaml',
+    'markdown',
+    'mermaid',
+    'text',
+    'markdown_json',
+    'markdown_yaml',
+    'markdown_mermaid',
+}
 HUMAN_GATE_TASK_CHOICES = {'entry_input', 'human_task', 'approval'}
 DEFAULT_APPROVAL_OPTIONS = ['承認', '否認']
 
@@ -294,7 +304,7 @@ class DefinitionEditorService:
                 config['task'] = 'generate'
             self._apply_optional_config_text(config, 'prompt', node_payload.get('llm_prompt'))
             self._apply_optional_config_text(config, 'input_definition', node_payload.get('llm_input_definition'))
-            self._apply_optional_config_text(config, 'output_format', node_payload.get('llm_output_format'))
+            self._apply_optional_llm_output_format(config, node_payload.get('llm_output_format'))
             self._apply_optional_config_float(config, 'temperature', node_payload.get('llm_temperature'))
             self._apply_optional_assessment_options(config, node_payload.get('llm_assessment_options'))
             self._apply_optional_assessment_routes(config, node_payload.get('llm_assessment_routes'))
@@ -504,6 +514,33 @@ class DefinitionEditorService:
         if normalized not in EXTRACT_OUTPUT_FORMAT_CHOICES:
             raise ValueError('llm_extract_output_format must be one of json/yaml/markdown/plain_text.')
         config['extract_output_format'] = normalized
+
+    def _apply_optional_llm_output_format(self, config: dict[str, Any], raw_value: Any) -> None:
+        if raw_value is None:
+            return
+        normalized = self._normalize_llm_output_format(raw_value)
+        if normalized is None:
+            config.pop('output_format', None)
+            return
+        config['output_format'] = normalized
+
+    def _normalize_llm_output_format(self, raw_value: Any) -> str | None:
+        normalized = str(raw_value or '').strip().lower().replace(' ', '_').replace('-', '_')
+        if not normalized:
+            return None
+        alias_map = {
+            'plain_text': 'text',
+            'md_json': 'markdown_json',
+            'md_yaml': 'markdown_yaml',
+            'md_mermaid': 'markdown_mermaid',
+        }
+        normalized = alias_map.get(normalized, normalized)
+        if normalized not in LLM_OUTPUT_FORMAT_CHOICES:
+            raise ValueError(
+                'llm_output_format must be one of '
+                'json/yaml/markdown/mermaid/text/markdown_json/markdown_yaml/markdown_mermaid.'
+            )
+        return normalized
 
     def _normalize_llm_task(self, raw_task: Any) -> str:
         normalized = str(raw_task or '').strip().lower()
