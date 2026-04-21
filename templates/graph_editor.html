@@ -55,11 +55,11 @@
                   <input type="hidden" name="save_after_update" value="1">
                   <div class="col-12">
                     <label class="form-label">workflow_id</label>
-                    <input class="form-control form-control-sm" type="text" name="workflow_id" value="{{ editor.workflow_id }}">
+                    <input class="form-control form-control-sm" type="text" name="workflow_id" value="{{ editor.workflow_id }}" required>
                   </div>
                   <div class="col-12">
                     <label class="form-label">workflow_name</label>
-                    <input class="form-control form-control-sm" type="text" name="workflow_name" value="{{ editor.workflow_name }}">
+                    <input class="form-control form-control-sm" type="text" name="workflow_name" value="{{ editor.workflow_name }}" required>
                   </div>
                   <div class="col-12 d-grid">
                     <button class="btn btn-outline-primary btn-sm" type="submit">Save Metadata</button>
@@ -108,15 +108,15 @@
           <input type="hidden" name="save_after_update" value="1">
           <div class="col-12">
             <label class="form-label">node_id</label>
-            <input class="form-control form-control-sm" type="text" name="node_id">
+            <input class="form-control form-control-sm" type="text" name="node_id" required>
           </div>
           <div class="col-12">
             <label class="form-label">node_name</label>
-            <input class="form-control form-control-sm" type="text" name="node_name">
+            <input class="form-control form-control-sm" type="text" name="node_name" required>
           </div>
           <div class="col-12">
             <label class="form-label">node_type</label>
-            <select class="form-select form-select-sm node-type-select" name="node_type">
+            <select class="form-select form-select-sm node-type-select" name="node_type" required>
               {% for node_type in node_type_options %}
               <option value="{{ node_type }}">{{ node_type }}</option>
               {% endfor %}
@@ -237,15 +237,15 @@
           <input type="hidden" name="save_after_update" value="1">
           <div class="col-12">
             <label class="form-label">node_id</label>
-            <input class="form-control form-control-sm" type="text" name="node_id" value="{{ editor.selected_node_editor.node_id }}">
+            <input class="form-control form-control-sm" type="text" name="node_id" value="{{ editor.selected_node_editor.node_id }}" required>
           </div>
           <div class="col-12">
             <label class="form-label">node_name</label>
-            <input class="form-control form-control-sm" type="text" name="node_name" value="{{ editor.selected_node_editor.node_name }}">
+            <input class="form-control form-control-sm" type="text" name="node_name" value="{{ editor.selected_node_editor.node_name }}" required>
           </div>
           <div class="col-12">
             <label class="form-label">node_type</label>
-            <select class="form-select form-select-sm node-type-select" name="node_type">
+            <select class="form-select form-select-sm node-type-select" name="node_type" required>
               {% for node_type in node_type_options %}
               <option value="{{ node_type }}" {% if editor.selected_node_editor.node_type == node_type %}selected{% endif %}>{{ node_type }}</option>
               {% endfor %}
@@ -360,6 +360,8 @@
         <div class="graph-node-actions d-grid mt-2">
             <form method="post" action="/actions/workflow-definitions/{{ editor.workflow_id }}/graph/delete-node/{{ editor.selected_node_editor.node_id }}">
               <input type="hidden" name="yaml_text" value="{{ editor.yaml_text }}">
+              <input type="hidden" name="selected_tab" value="nodes">
+              <input type="hidden" name="save_after_update" value="1">
               <button type="submit" class="btn btn-outline-danger btn-sm w-100" {% if not editor.selected_node_editor.deletable %}disabled{% endif %}>Delete Node</button>
             </form>
         </div>

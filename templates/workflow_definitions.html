@@ -23,16 +23,16 @@
 
 <section class="card border-0 shadow-sm">
   <div class="table-responsive">
-    <table class="table table-hover align-middle mb-0">
+    <table class="table table-hover align-middle mb-0" data-enhanced-table data-page-size="10">
       <thead class="table-light">
         <tr>
-          <th>workflow_id</th>
-          <th>name</th>
-          <th>version</th>
-          <th>updated</th>
-          <th>status</th>
-          <th>nodes</th>
-          <th>edges</th>
+          <th data-sortable data-sort-type="text">workflow_id</th>
+          <th data-sortable data-sort-type="text">name</th>
+          <th data-sortable data-sort-type="text">version</th>
+          <th data-sortable data-sort-type="date">updated</th>
+          <th data-sortable data-sort-type="text">status</th>
+          <th data-sortable data-sort-type="number">nodes</th>
+          <th data-sortable data-sort-type="number">edges</th>
           <th>actions</th>
         </tr>
       </thead>
@@ -70,7 +70,7 @@
           </td>
         </tr>
         {% else %}
-        <tr>
+        <tr data-empty-row>
           <td colspan="8" class="text-center text-muted py-4">No workflow definitions found.</td>
         </tr>
         {% endfor %}
@@ -78,4 +78,8 @@
     </table>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/table_enhancements.js') }}"></script>
 {% endblock %}

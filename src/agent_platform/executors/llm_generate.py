@@ -312,7 +312,39 @@ class LLMGenerateExecutor(BaseNodeExecutor):
             lines = lines[1:]
         if lines:
             lines[0] = re.sub(r"^workflow(\s+(TD|LR|BT|RL)\b)", r"flowchart\1", lines[0], flags=re.IGNORECASE)
+        lines = self._sanitize_mermaid_lines(lines)
         return "\n".join(lines).strip()
+
+    def _sanitize_mermaid_lines(self, lines: list[str]) -> list[str]:
+        if not lines:
+            return lines
+
+        header = lines[0].strip().lower()
+        is_flowchart = header.startswith("flowchart")
+        if not is_flowchart:
+            return lines
+
+        sanitized: list[str] = []
+        note_pattern = re.compile(
+            r"^\s*note\s+(?:left|right)\s+of\s+\S+\s*:\s*(?P<text>.+)$|^\s*note\s+over\s+\S+\s*:\s*(?P<text_over>.+)$",
+            re.IGNORECASE,
+        )
+
+        for index, line in enumerate(lines):
+            if index == 0:
+                sanitized.append(line)
+                continue
+
+            match = note_pattern.match(line)
+            if match is None:
+                sanitized.append(line)
+                continue
+
+            note_text = str(match.group("text") or match.group("text_over") or "").strip()
+            if note_text:
+                sanitized.append(f"  %% NOTE: {note_text}")
+
+        return sanitized
 
     def _unwrap_markdown_code_block(self, text: str) -> str:
         match = re.match(r"^```[a-zA-Z0-9_+-]*\n(?P<body>[\s\S]*?)\n```\s*$", text.strip())

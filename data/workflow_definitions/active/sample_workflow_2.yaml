@@ -16,16 +16,6 @@ nodes:
 - config:
     task: generate
     temperature: 0.0
-    extract_output_format: markdown
-    prompt: "あなたは業務フロー分析の専門家です。\r\n与えられた業務記述書など、業務をどのように行なっているかの情報から、mermaid表記の業務フローを作成してください。\r\
-      \nその際、工程や担い手などその業務の理解に最適と思われるグループがある場合は、サブグラフとして表示してください。"
-    output_format: mermaid記法
-  id: node2
-  name: Node 2
-  type: llm
-- config:
-    task: generate
-    temperature: 0.0
     extract_output_format: json
     prompt: "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。"
     input_definition: '[参照ノード: start_node.result]'
@@ -38,7 +28,8 @@ nodes:
     temperature: 0.0
     extract_output_format: markdown
     prompt: "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。なお、業務記述書でフローとして読み取れるものは、フローとして記述し、単独でどこにもつながらない工程は極力作らないようにしてください。"
-    input_definition: '[参照ノード: node3.result]'
+    input_definition: "flowchart TDのみ使用 / note構文禁止 / 出力は```mermaid単一ブロックのみ\r\n\r\n\
+      [参照ノード: node3.result]"
     output_format: markdown_mermaid
   id: node4
   name: Node 4

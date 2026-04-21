@@ -31,17 +31,17 @@
 <section class="card border-0 shadow-sm">
   <div class="card-body p-0">
     <div class="table-responsive">
-      <table class="table table-sm table-striped align-middle mb-0">
+      <table class="table table-sm table-striped align-middle mb-0" data-enhanced-table data-page-size="10">
         <thead>
           <tr>
-            <th>execution_id</th>
-            <th>workflow_id</th>
-            <th>status</th>
-            <th>started_at</th>
-            <th>finished_at</th>
-            <th>nodes</th>
-            <th>waiting_human</th>
-            <th>failed</th>
+            <th data-sortable data-sort-type="text">execution_id</th>
+            <th data-sortable data-sort-type="text">workflow_id</th>
+            <th data-sortable data-sort-type="text">status</th>
+            <th data-sortable data-sort-type="date">started_at</th>
+            <th data-sortable data-sort-type="date">finished_at</th>
+            <th data-sortable data-sort-type="number">nodes</th>
+            <th data-sortable data-sort-type="number">waiting_human</th>
+            <th data-sortable data-sort-type="number">failed</th>
             <th></th>
           </tr>
         </thead>
@@ -67,7 +67,7 @@
             </td>
           </tr>
           {% else %}
-          <tr>
+          <tr data-empty-row>
             <td colspan="9" class="text-center text-muted py-4">No executions found.</td>
           </tr>
           {% endfor %}
@@ -76,4 +76,8 @@
     </div>
   </div>
 </section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/table_enhancements.js') }}"></script>
 {% endblock %}

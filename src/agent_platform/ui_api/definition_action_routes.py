@@ -242,6 +242,7 @@ def update_node(workflow_id: str, node_id: str):
 def delete_node(workflow_id: str, node_id: str):
     payload = _get_payload()
     yaml_text = _required_str(payload.get('yaml_text'), 'yaml_text')
+    selected_tab = _optional_str(payload.get('selected_tab')) or 'nodes'
     try:
         updated_yaml = get_definition_editor_service().delete_node(yaml_text, node_id)
         _set_rag_binding_if_available(workflow_id=workflow_id, node_id=node_id, rag_dataset_id=None)
@@ -257,11 +258,18 @@ def delete_node(workflow_id: str, node_id: str):
         if request.is_json:
             return jsonify(editor.model_dump(mode='json')), 400
         return render_template('graph_editor.html', editor=editor), 400
+
+    if _is_truthy(payload.get('save_after_update')):
+        get_workflow_definition_service().save_definition(updated_yaml, workflow_id=workflow_id)
+        if request.is_json:
+            return jsonify({'status': 'ok', 'action': 'delete_node_and_save', 'workflow_id': workflow_id})
+        return redirect(f'/workflow-definitions/{workflow_id}/graph-editor?tab={selected_tab}')
+
     return _render_editor_response(
         workflow_id=workflow_id,
         yaml_text=updated_yaml,
         selected_node_id=None,
-        selected_tab='nodes',
+        selected_tab=selected_tab,
     )
 
 

@@ -149,3 +149,22 @@ pre {
   border-color: #38bdf8 !important;
   color: #0c4a6e;
 }
+
+.table-sortable-header {
+  cursor: pointer;
+  user-select: none;
+}
+
+.table-sortable-header::after {
+  content: ' ↕';
+  color: #6c757d;
+  font-size: 0.85em;
+}
+
+.table-sortable-header[data-sort-direction='asc']::after {
+  content: ' ↑';
+}
+
+.table-sortable-header[data-sort-direction='desc']::after {
+  content: ' ↓';
+}

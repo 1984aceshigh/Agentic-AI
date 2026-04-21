@@ -342,39 +342,6 @@
       "summary": null
     },
     {
-      "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-      "workflow_id": "sample_workflow_2",
-      "workflow_version": null,
-      "status": "SUCCEEDED",
-      "started_at": "2026-04-20T04:02:47.117531Z",
-      "finished_at": "2026-04-20T04:03:03.287556Z",
-      "node_records": [
-        {
-          "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-          "node_id": "start_node",
-          "node_type": "human_gate",
-          "status": "SUCCEEDED",
-          "started_at": "2026-04-20T04:02:47.141760Z",
-          "finished_at": "2026-04-20T04:03:03.285809Z",
-          "input_preview": "human_gate task=entry_input",
-          "output_preview": "submitted",
-          "full_input_ref": null,
-          "full_output_ref": null,
-          "error_message": null,
-          "logs": [
-            "human_gate reached (entry_input); waiting for human action."
-          ],
-          "retry_count": 0,
-          "requires_human_action": false,
-          "adapter_ref": null,
-          "contract": null,
-          "connection_ref": null,
-          "resolved_capabilities": []
-        }
-      ],
-      "summary": null
-    },
-    {
       "execution_id": "644e3e20-f6a8-4ade-b91a-b0daa0650548",
       "workflow_id": "sample_workflow",
       "workflow_version": null,
@@ -2373,105 +2340,6 @@
       "summary": null
     },
     {
-      "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-      "workflow_id": "sample_workflow_2",
-      "workflow_version": null,
-      "status": "WAITING_HUMAN",
-      "started_at": "2026-04-21T05:45:55.029699Z",
-      "finished_at": "2026-04-21T05:46:02.433165Z",
-      "node_records": [
-        {
-          "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-          "node_id": "start_node",
-          "node_type": "human_gate",
-          "status": "SUCCEEDED",
-          "started_at": "2026-04-21T05:45:55.068742Z",
-          "finished_at": "2026-04-21T05:46:02.415678Z",
-          "input_preview": "human_gate task=entry_input",
-          "output_preview": "submitted",
-          "full_input_ref": null,
-          "full_output_ref": null,
-          "error_message": null,
-          "logs": [
-            "human_gate reached (entry_input); waiting for human action."
-          ],
-          "retry_count": 0,
-          "requires_human_action": false,
-          "adapter_ref": null,
-          "contract": null,
-          "connection_ref": null,
-          "resolved_capabilities": []
-        },
-        {
-          "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-          "node_id": "node3",
-          "node_type": "llm",
-          "status": "SUCCEEDED",
-          "started_at": "2026-04-21T05:46:02.474949Z",
-          "finished_at": "2026-04-21T05:46:50.632593Z",
-          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
-          "output_preview": "# 業務記述書：運営委員会議事録作成\n\n目的と範囲\n- 目的: 運営委員会の議事録を正確に作成・共有・保存し、意思決定の記録性と透明性を確保する。\n- 範囲: 運営委員会12回分の議事録の作成、内容確認・配布、Google Drive での保管、当月分の議事録の正式化まで。\n\n担い手（キーパーソン/役割）\n- 書記A・書記B（2名、交互担当）\n  - 役割: 議事録のドラフト作成を主担当。12回分を交互に担当。\n- 議事録担当書記\n  - 役割: 運営委員会進行表をベースに議事録ドラフトを作成。\n- 議事場（運営委員会の場）\n  - 役割: 議事進行と同時に議事録の作成を実施。録音を実施して正確性を担保。\n- 録音担当\n  - 役割: 議事を録音（スマホのボイスメモを使用）して正確性を補完。\n- Google Drive 管理担当\n  - 役割: 議事録ドラフトと録音ファイルを所定フォルダへ格納し、内容確認依頼を周知する通知を発出。\n- 全委員\n  - 役割: 議事録の内容確認を受け、フィードバックを返す。当該月分の議事録の承認を完了させる対象。\n\n主要成果物・出力物\n- 議事録ドラフト（draft 表記付き）\n- 議事録ドラフトと録音ファイルを格納した Google Drive の所定フォルダ\n- 議事録内容確認の依頼メール\n- 当月分の正式な議事録（draft 表記を外したファイル名）\n\n仕様・前提\n- 今期は生成AI等による自動作成の導入については特に議論なし（現状維持）。\n- 議事録は会議進行と同時に作成されるため、ドラフトは事前に用意済みのドラフトを参照する。\n- 正確性確保のため、録音ファイルとドラフトを照合して最終化を行う。\n\n時系列・工程（プロセスの流れ）\n1) 事前準備\n- 書記2名が12回分の議事録を交互担当する体制を確立。\n- 議事録ドラフトの基礎として、運営委員会進行表を用意・参照する準備を整える。\n\n2) 議事場（会議中の作業）\n- 事前に用意したドラフトをベースに、議事進行と同時に議事録を作成。\n- 議事を正確に記録するため、会議内容をスマホのボイスメモで録音する。\n\n3) 今期の方針\n- 生成AIによる自動作成の導入検討は実施せず。\n\n4) 会議終了後の初期対応\n- 議事録担当書記が作成したドラフトについて、もう一方の書記へ内容確認を依頼するメールを送信。\n\n5) 内容確認と共有\n- 内容確認が完了した段階で、議事録担当書記がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n- 運営委員全員へ議事録内容確認を依頼する通知をメールで送付。\n\n6) 完了・正式化\n- 内容確認が終了したら、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了とする。\n\n留意点と品質管理\n- 録音ファイルの活用により、発言の正確性を担保する。\n- Draft 表記を付与したドラフトと、最終確定後のファイル名の差別化で、状態の誤認を防ぐ。\n- AI導入の是非は今期は議論しない前提。\n\n補足\n- 進行表は議事録作成の基盤資料として活用され、ドラフト作成のベースとなる。\n- Google Drive の格納フォルダは所定の場所で管理され、全員へ内容確認依頼の通知が行われる。\n\n以上をもとに、運営委員会議事録作成プロセスを標準化・共有化することで、作業の透明性と記録の正確性を確保します。必要であれば、各役割の担当者名や納期を追加して運用手順書として整備します。",
-          "full_input_ref": null,
-          "full_output_ref": null,
-          "error_message": null,
-          "logs": [
-            "llm task=generate executed"
-          ],
-          "retry_count": 0,
-          "requires_human_action": false,
-          "adapter_ref": null,
-          "contract": null,
-          "connection_ref": null,
-          "resolved_capabilities": []
-        },
-        {
-          "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-          "node_id": "node4",
-          "node_type": "llm",
-          "status": "SUCCEEDED",
-          "started_at": "2026-04-21T05:46:50.655232Z",
-          "finished_at": "2026-04-21T05:48:55.243387Z",
-          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。なお、業務記述書でフローとして読み取れるものは、フローとして記述し、単独でどこにもつながらない工程は極力作らないようにしてください。\n\nInput definition:\n[参照ノード]\n- node3.result:\n  # 業務記述書：運営委員会議事録作成\n\n  目的と範囲\n  - 目的: 運営委員会の議事録を正確に作成・共有・保存し、意思決定の記録性と透明性を確保する。\n  - 範囲: 運営委員会12回分の議事録の作成、内容確認・配布、Google Drive での保管、当月分の議事録の正式化まで。\n\n  担い手（キーパーソン/役割）\n  - 書記A・書記B（2名、交互担当）\n    - 役割: 議事録のドラフト作成を主担当。12回分を交互に担当。\n  - 議事録担当書記\n    - 役割: 運営委員会進行表をベースに議事録ドラフトを作成。\n  - 議事場（運営委員会の場）\n    - 役割: 議事進行と同時に議事録の作成を実施。録音を実施して正確性を担保。\n  - 録音担当\n    - 役割: 議事を録音（スマホのボイスメモを使用）して正確性を補完。\n  - Google Drive 管理担当\n    - 役割: 議事録ドラフトと録音ファイルを所定フォルダへ格納し、内容確認依頼を周知する通知を発出。\n  - 全委員\n    - 役割: 議事録の内容確認を受け、フィードバックを返す。当該月分の議事録の承認を完了させる対象。\n\n  主要成果物・出力物\n  - 議事録ドラフト（draft 表記付き）\n  - 議事録ドラフトと録音ファイルを格納した Google Drive の所定フォルダ\n  - 議事録内容確認の依頼メール\n  - 当月分の正式な議事録（draft 表記を外したファイル名）\n\n  仕様・前提\n  - 今期は生成AI等による自動作成の導入については特に議論なし（現状維持）。\n  - 議事録は会議進行と同時に作成されるため、ドラフトは事前に用意済みのドラフトを参照する。\n  - 正確性確保のため、録音ファイルとドラフトを照合して最終化を行う。\n\n  時系列・工程（プロセスの流れ）\n  1) 事前準備\n  - 書記2名が12回分の議事録を交互担当する体制を確立。\n  - 議事録ドラフトの基礎として、運営委員会進行表を用意・参照する準備を整える。\n\n  2) 議事場（会議中の作業）\n  - 事前に用意したドラフトをベースに、議事進行と同時に議事録を作成。\n  - 議事を正確に記録するため、会議内容をスマホのボイスメモで録音する。\n\n  3) 今期の方針\n  - 生成AIによる自動作成の導入検討は実施せず。\n\n  4) 会議終了後の初期対応\n  - 議事録担当書記が作成したドラフトについて、もう一方の書記へ内容確認を依頼するメールを送信。\n\n  5) 内容確認と共有\n  - 内容確認が完了した段階で、議事録担当書記がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納。\n  - 運営委員全員へ議事録内容確認を依頼する通知をメールで送付。\n\n  6) 完了・正式化\n  - 内容確認が終了したら、議事録ファイル名から「draft」表記を外し、当月の議事録対応を完了とする。\n\n  留意点と品質管理\n  - 録音ファイルの活用により、発言の正確性を担保する。\n  - Draft 表記を付与したドラフトと、最終確定後のファイル名の差別化で、状態の誤認を防ぐ。\n  - AI導入の是非は今期は議論しない前提。\n\n  補足\n  - 進行表は議事録作成の基盤資料として活用され、ドラフト作成のベースとなる。\n  - Google Drive の格納フォルダは所定の場所で管理され、全員へ内容確認依頼の通知が行われる。\n\n  以上をもとに、運営委員会議事録作成プロセスを標準化・共有化することで、作業の透明性と記録の正確性を確保します。必要であれば、各役割の担当者名や納期を追加して運用手順書として整備します。\n\nOutput format:\nmarkdown_mermaid",
-          "output_preview": "```mermaid\nflowchart TD\n  %% Phase: 事前準備\n  subgraph 事前準備\n    P1[書記A・書記Bが12回分の議事録を交互担当する体制を確立]\n    P2[議事録ドラフトの基礎として、運営委員会進行表を用意・参照する準備]\n  end\n\n  %% Phase: 議事場（会議中）\n  subgraph 議事場(会議中)\n    G1[議事場: 議事を進行しつつドラフトを作成]\n    G2[録音担当: 会議をスマホのボイスメモで録音]\n  end\n\n  %% Phase: 会議後\n  subgraph 会議後の初期対応\n    A1[議事録担当書記が作成したドラフトについて、もう一方の書記へ内容確認を依頼するメールを送信]\n  end\n\n  %% Phase: 内容確認と共有\n  subgraph 内容確認と共有\n    C1[Google Drive 管理担当: 議事録ドラフトと録音ファイルを格納（所定フォルダ）]\n    C2[Google Drive 管理担当: 内容確認依頼を運営委員へメール通知]\n  end\n\n  %% Phase: 正式化\n  subgraph 完了・正式化\n    F1[内容確認終了後、ドラフト表記を外して正式な議事録ファイル名へ更新]\n  end\n\n  %% Phase: 成果物\n  subgraph 成果物\n    DraftOut[議事録ドラフト（draft 表記付き）]\n    DriveFolder[Google Drive の所定フォルダ（ドラフトと録音ファイル格納）]\n    NotifyAll[議事録内容確認の通知メール（全委員宛）]\n    FinalOut[当月分の正式な議事録]\n  end\n\n  %% フローの接続\n  P1 --> P2\n  P2 --> G1\n  G1 --> DraftOut\n  G1 --> G2\n  G2 --> A1\n  A1 --> C1\n  C1 --> DriveFolder\n  C2 --> NotifyAll\n  DraftOut --> F1\n  C2 --> F1\n  F1 --> FinalOut\n```",
-          "full_input_ref": null,
-          "full_output_ref": null,
-          "error_message": null,
-          "logs": [
-            "llm task=generate executed"
-          ],
-          "retry_count": 0,
-          "requires_human_action": false,
-          "adapter_ref": null,
-          "contract": null,
-          "connection_ref": null,
-          "resolved_capabilities": []
-        },
-        {
-          "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-          "node_id": "end_node",
-          "node_type": "human_gate",
-          "status": "WAITING_HUMAN",
-          "started_at": "2026-04-21T05:48:55.256750Z",
-          "finished_at": null,
-          "input_preview": "human_gate task=approval",
-          "output_preview": null,
-          "full_input_ref": null,
-          "full_output_ref": null,
-          "error_message": null,
-          "logs": [
-            "human_gate reached (approval); waiting for human action."
-          ],
-          "retry_count": 0,
-          "requires_human_action": true,
-          "adapter_ref": null,
-          "contract": null,
-          "connection_ref": null,
-          "resolved_capabilities": []
-        }
-      ],
-      "summary": null
-    },
-    {
       "execution_id": "9e353b55-3e7d-4d3a-bfca-6748244ebd72",
       "workflow_id": "sample_workflow_2",
       "workflow_version": null,
@@ -2650,6 +2518,204 @@
           "node_type": "human_gate",
           "status": "WAITING_HUMAN",
           "started_at": "2026-04-21T06:08:10.751512Z",
+          "finished_at": null,
+          "input_preview": "human_gate task=approval",
+          "output_preview": null,
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": true,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "WAITING_HUMAN",
+      "started_at": "2026-04-21T11:52:19.978389Z",
+      "finished_at": "2026-04-21T11:52:29.430090Z",
+      "node_records": [
+        {
+          "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T11:52:20.023189Z",
+          "finished_at": "2026-04-21T11:52:29.413935Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+          "node_id": "node3",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T11:52:29.466007Z",
+          "finished_at": "2026-04-21T11:53:14.601781Z",
+          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
+          "output_preview": "# 業務記述書：運営委員会議事録作成プロセス\n\n目的は、運営委員会の議事録を正確かつ適時に作成・共有・確定すること。\n\n## 1. 担い手（関与者と役割）\n\n- 書記（2名体制、交互担当）\n  - 役割: 議事録ドラフトの作成。事前準備として進行表をベースにドラフトを用意する。\n- 議事録担当書記\n  - 役割: 主担当としてドラフトを作成。会議中の議事録作成を実施。\n- もう一方の書記\n  - 役割: 内容確認の対応を受け持つ。\n- 運営委員会全員\n  - 役割: 議事録内容の確認依頼を受け、必要に応じて回答・承認を行う。\n- Google Drive 管理/利用者\n  - 役割: 議事録ドラフトと録音ファイルの格納・管理、共有依頼の運用を支援。\n- 録音機材\n  - 役割: 議事録の正確性確保のための会議録音（スマホのボイスメモ）。\n\n※ 今期の方針として、生成AIなどによる自動議事録作成の導入検討について特に議論はなし。\n\n## 2. 入出力（成果物と情報ソース）\n\n- 入力\n  - 運営委員会進行表\n  - 議事録ドラフト（ドラフト表記付き）\n  - 議事録録音ファイル\n- 出力\n  - 当月分の最終版議事録（ draft 表記を除去）\n  - 録音ファイル（残存・共有用）\n  - 内容確認依頼メール・最終通知\n  - Google Drive の所定フォルダに格納されたドラフト＋録音ファイル\n\n## 3. 時系列（工程の流れ）\n\n- 3.1 事前準備\n  - 担い手: 書記A・書記B（交互担当）\n  - 作業内容: 運営委員会進行表をベースに議事録ドラフトを用意\n  - 出力物: 議事録ドラフト案（draft付き）\n\n- 3.2 議事録ドラフト作成と同時作成\n  - 担い手: 議事録担当書記\n  - 作業内容: 事前ドラフトを用い、議事進行と同時に議事録を作成\n  - 出力物: 議事録ドラフト（更新版）\n\n- 3.3 議事録の正確性確保（録音）\n  - 担い手: 書記\n  - 作業内容: 議事を録音（スマホのボイスメモを使用）して正確性を担保\n  - 出力物: 録音ファイル\n\n- 3.4 AI活用に関する方針\n  - 担い手: なし（方針決定事項）\n  - 作業内容: 今期は生成AIなどによる自動作成の導入是非について特別な検討なし\n  - 出力物: なし\n\n- 3.5 会議終了後の初期確認依頼\n  - 担い手: 議事録担当書記 → もう一方の書記\n  - 作業内容: 作成ドラフトの内容確認依頼をメールで実施\n  - 出力物: 内容確認依頼メール\n\n- 3.6 内容確認と格納・全体通知\n  - 担い手: 初期作成者（議事録担当初期）・全体\n  - 作業内容: Google Drive の所定フォルダにドラフトと録音ファイルを格納し、運営委員全員へ議事録内容確認を依頼するメールを送付\n  - 出力物: Google Drive 上のドラフト＋録音ファイル、確認依頼メール\n\n- 3.7 確認完了後の最終処理\n  - 担い手: なし\n  - 作業内容: 確認が終了した段階で、議事録ファイル名から draft 表記を外し、当月の議事録対応完了\n  - 出力物: 最終版議事録\n\n## 4. 品質管理・留意点\n\n- 録音の品質を確保し、聴き取り不能な箇所がないよう配慮する。\n- 議事録ドラフトと確定版の差分管理を明確にする（draft 表記の付与・削除ルールを遵守）。\n- AI活用の有無は今期の方針に従い、必要に応じて再検討する。\n\n以上が、与えられた情報を基に整理した業務記述書（工程・担い手・時系列を構造化した形）です。必要に応じて、組織固有の用語や運用ルールに合わせて追補・調整してください。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+          "node_id": "node4",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T11:53:14.611228Z",
+          "finished_at": "2026-04-21T11:54:44.680240Z",
+          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。なお、業務記述書でフローとして読み取れるものは、フローとして記述し、単独でどこにもつながらない工程は極力作らないようにしてください。\n\nInput definition:\n[参照ノード]\n- node3.result:\n  # 業務記述書：運営委員会議事録作成プロセス\n\n  目的は、運営委員会の議事録を正確かつ適時に作成・共有・確定すること。\n\n  ## 1. 担い手（関与者と役割）\n\n  - 書記（2名体制、交互担当）\n    - 役割: 議事録ドラフトの作成。事前準備として進行表をベースにドラフトを用意する。\n  - 議事録担当書記\n    - 役割: 主担当としてドラフトを作成。会議中の議事録作成を実施。\n  - もう一方の書記\n    - 役割: 内容確認の対応を受け持つ。\n  - 運営委員会全員\n    - 役割: 議事録内容の確認依頼を受け、必要に応じて回答・承認を行う。\n  - Google Drive 管理/利用者\n    - 役割: 議事録ドラフトと録音ファイルの格納・管理、共有依頼の運用を支援。\n  - 録音機材\n    - 役割: 議事録の正確性確保のための会議録音（スマホのボイスメモ）。\n\n  ※ 今期の方針として、生成AIなどによる自動議事録作成の導入検討について特に議論はなし。\n\n  ## 2. 入出力（成果物と情報ソース）\n\n  - 入力\n    - 運営委員会進行表\n    - 議事録ドラフト（ドラフト表記付き）\n    - 議事録録音ファイル\n  - 出力\n    - 当月分の最終版議事録（ draft 表記を除去）\n    - 録音ファイル（残存・共有用）\n    - 内容確認依頼メール・最終通知\n    - Google Drive の所定フォルダに格納されたドラフト＋録音ファイル\n\n  ## 3. 時系列（工程の流れ）\n\n  - 3.1 事前準備\n    - 担い手: 書記A・書記B（交互担当）\n    - 作業内容: 運営委員会進行表をベースに議事録ドラフトを用意\n    - 出力物: 議事録ドラフト案（draft付き）\n\n  - 3.2 議事録ドラフト作成と同時作成\n    - 担い手: 議事録担当書記\n    - 作業内容: 事前ドラフトを用い、議事進行と同時に議事録を作成\n    - 出力物: 議事録ドラフト（更新版）\n\n  - 3.3 議事録の正確性確保（録音）\n    - 担い手: 書記\n    - 作業内容: 議事を録音（スマホのボイスメモを使用）して正確性を担保\n    - 出力物: 録音ファイル\n\n  - 3.4 AI活用に関する方針\n    - 担い手: なし（方針決定事項）\n    - 作業内容: 今期は生成AIなどによる自動作成の導入是非について特別な検討なし\n    - 出力物: なし\n\n  - 3.5 会議終了後の初期確認依頼\n    - 担い手: 議事録担当書記 → もう一方の書記\n    - 作業内容: 作成ドラフトの内容確認依頼をメールで実施\n    - 出力物: 内容確認依頼メール\n\n  - 3.6 内容確認と格納・全体通知\n    - 担い手: 初期作成者（議事録担当初期）・全体\n    - 作業内容: Google Drive の所定フォルダにドラフトと録音ファイルを格納し、運営委員全員へ議事録内容確認を依頼するメールを送付\n    - 出力物: Google Drive 上のドラフト＋録音ファイル、確認依頼メール\n\n  - 3.7 確認完了後の最終処理\n    - 担い手: なし\n    - 作業内容: 確認が終了した段階で、議事録ファイル名から draft 表記を外し、当月の議事録対応完了\n    - 出力物: 最終版議事録\n\n  ## 4. 品質管理・留意点\n\n  - 録音の品質を確保し、聴き取り不能な箇所がないよう配慮する。\n  - 議事録ドラフトと確定版の差分管理を明確にする（draft 表記の付与・削除ルールを遵守）。\n  - AI活用の有無は今期の方針に従い、必要に応じて再検討する。\n\n  以上が、与えられた情報を基に整理した業務記述書（工程・担い手・時系列を構造化した形）です。必要に応じて、組織固有の用語や運用ルールに合わせて追補・調整してください。\n\nOutput format:\nmarkdown_mermaid",
+          "output_preview": "```mermaid\nflowchart TD\n  %% 入力\n  IN_ProgTable([運営委員会進行表])\n\n  %% 3.1 事前準備\n  S1_1[3.1 事前準備: 書記A・書記B 交互担当。運営委員会進行表をベースにドラフトを用意 (draft付き)]\n  %% 3.2 議事録ドラフト作成と同時作成\n  S1_2[3.2 議事録ドラフト作成と同時作成: 議事進行と同時にドラフトを作成 (更新版)]\n  %% 3.3 録音による正確性確保\n  S1_3[3.3 議事録の正確性確保（録音）: 録音ファイルを作成]\n  %% 3.4 AI方針\n  S1_4[3.4 AI活用方針決定: 今期は特別な検討なし]\n  %% 3.5 初期確認依頼\n  S1_5[3.5 会議終了後の初期確認依頼: 内容確認依頼メール]\n  %% 3.6 内容確認と格納・全体通知\n  S1_6[3.6 内容確認と格納・全体通知: Google Drive格納＋確認依頼メール送付]\n  %% 3.7 最終処理\n  S1_7[3.7 確認完了後の最終処理: draft 表記削除 → 最終版議事録]\n\n  %% 出力\n  D1[議事録ドラフト案（draft付き）]\n  D2[議事録ドラフト（更新版）]\n  Rec[録音ファイル]\n  EmailInit[内容確認依頼メール]\n  GDrive[Google Drive の所定フォルダに格納されたドラフト＋録音ファイル]\n  EmailFinal[確認依頼メール]\n  FinalDraft[最終版議事録]\n\n  %% 連携（時系列の流れ）\n  IN_ProgTable --> S1_1\n  S1_1 --> S1_2\n  S1_2 --> S1_3\n  S1_3 --> S1_4\n  S1_4 --> S1_5\n  S1_5 --> S1_6\n  S1_6 --> S1_7\n\n  %% 出力の流れ\n  S1_1 --> D1\n  S1_2 --> D2\n  S1_3 --> Rec\n  S1_5 --> EmailInit\n  S1_6 --> GDrive\n  S1_6 --> EmailFinal\n  S1_7 --> FinalDraft\n\n  %% 補足\n  %% 書記の役割（補足情報をオーバーヘッドとして表示）\n  note over S1_1: 書記A・書記Bが交互担当\n  %% 3.4 の方針は特別検討なし（注記）\n  note right of S1_4: 今期は生成AI自動作成の導入検討なし\n```",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+          "node_id": "end_node",
+          "node_type": "human_gate",
+          "status": "WAITING_HUMAN",
+          "started_at": "2026-04-21T11:54:44.694162Z",
+          "finished_at": null,
+          "input_preview": "human_gate task=approval",
+          "output_preview": null,
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (approval); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": true,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        }
+      ],
+      "summary": null
+    },
+    {
+      "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+      "workflow_id": "sample_workflow_2",
+      "workflow_version": null,
+      "status": "WAITING_HUMAN",
+      "started_at": "2026-04-21T12:07:21.169104Z",
+      "finished_at": "2026-04-21T12:07:28.876072Z",
+      "node_records": [
+        {
+          "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+          "node_id": "start_node",
+          "node_type": "human_gate",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T12:07:21.207142Z",
+          "finished_at": "2026-04-21T12:07:28.857586Z",
+          "input_preview": "human_gate task=entry_input",
+          "output_preview": "submitted",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "human_gate reached (entry_input); waiting for human action."
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+          "node_id": "node3",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T12:07:28.919106Z",
+          "finished_at": "2026-04-21T12:08:10.679468Z",
+          "input_preview": "あなたは業務分析の専門家です。\r\n与えられたテキストから業務に関する要素を抽出し、業務記述書を作成してください。業務記述書は、工程、担い手、時系列などで適切に構造化されている必要があります。\n\nInput definition:\n[参照ノード]\n- start_node.result:\n  運営委員会議事録作成\n  事前準備\n  書記2名体制だったことから、運営委員会12回の議事録を交互に担当\n  議事録担当書記は運営委員会進行表をベースに議事録ドラフトを用意\n  議場\n  事前に用意したドラフトを用いて、議事進行と同時に議事録を作成\n  正確性を記すため、議事を録音（スマホのボイスメモを使用）\n  なお、生成AIなどによる議事録自動作成について、今期は特に導入是非の議論なし\n  運営委員会終了後\n  議事録担当書記が作成した議事録について、メールでもう一方の書記に内容確認を依頼\n  内容確認後、議事録担当初期がGoogle Driveの所定フォルダに議事録ドラフトと録音ファイルを格納し、運営委員全員にメールで議事録内容確認を依頼\n  確認が終了した段階で、議事録ファイル名からdraft表記を外し、当月の議事録対応完了\n\nOutput format:\nmarkdown",
+          "output_preview": "# 業務記述書：運営委員会議事録作成業務\n\n目的\n- 運営委員会の議事録を正確に作成・共有・完了とすること。\n- 録音を活用して議事の正確性を担保し、全員へ内容確認を周知する運用を維持すること。\n\n範囲\n- 対象期間：今期の運営委員会12回分の議事録作成・管理\n- 対象成果物：議事録ドラフト、録音ファイル、確定版議事録、関連通知メール\n- 対象システム・場所：運営委員会進行表、Google Drive所定フォルダ、メール連絡\n\n担い手と役割\n- 書記（2名体制、交互担当）\n  - 役割1：議事録担当書記\n    - 使用資料：運営委員会進行表をベースに議事録ドラフトを作成\n    - 作業時点：議事進行と同時にドラフトを作成\n  - 役割2：議事録担当補助（交代で担当）\n- 議事録担当初期（ドラフト公開前の最終アップロード担当）\n  - 役割：議事録ドラフトと録音ファイルをGoogle Driveの所定フォルダに格納\n  - 作業後：運営委員全員へ議事内容確認を依頼するメールを送付\n- 全体の受領・確認担当\n  - 全員：内容確認を実施\n\n入力・関連資料\n- 運営委員会進行表：ドラフト作成のベース資料\n- 議事録ドラフト案\n- 議事録録音ファイル（スマホのボイスメモ）\n\n工程（作業内容の詳細）\n- 事前準備\n  - 二名の書記が交互に12回分の議事録を担当する体制を組成\n  - 運営委員会進行表を基に議事録ドラフトの骨格を作成する準備を実施\n- 議事場（議事進行と同時進行）\n  - 議事録担当書記は進行表をベースにドラフトを作成\n  - 議事場の議事進行と並行して議事録を作成\n  - 正確性確保のため、議事をスマホのボイスメモで録音\n  - 今期は生成AIによる自動作成の導入検討はなし\n- 議事後確認\n  - 議事録担当書記が作成した議事録ドラフトを、もう一名の書記へ内容確認依頼のメールを送付\n  - 内容確認を完了するまでの間、修正が生じる場合はドラフトを更新\n- ファイル管理・共有・最終化\n  - 内容確認後、議事録担当初期がGoogle Driveの所定フォルダへ「議事録ドラフト」と録音ファイルを格納\n  - 運営委員全員へ、議事録内容確認依頼の通知メールを送信\n  - 確認が終了した段階で、ファイル名にある「draft」表記を外し、当月の議事録対応完了として確定版へ移行\n- 出力物の整理\n  - 議事録ドラフト（ドラフト版）\n  - 録音ファイル（会議録音）\n  - 確定版議事録（承認済み・完了版）\n\n時系列フロー（典型的な流れ）\n1) 事前準備\n   - 書記2名が交互担当を決定\n   - 進行表を基にドラフトの下書きを作成準備\n2) 議事場（当日）\n   - 議事進行に沿ってドラフトを作成\n   - 議事をスマホで録音\n3) 議事後\n   - 議事録担当書記がドラフトを作成し、他書記へ内容確認依頼\n4) 公開準備\n   - 内容確認完了後、ドラフト版と録音ファイルをGoogle Driveへ格納\n   - 全員へ内容確認依頼メールを送信\n5) 完了・引渡し\n   - 内容確認が完了した時点で「draft」表記を削除し、当月の完了版として確定\n6) 備考\n   - 今期はAI自動作成の導入検討なし\n\n出力物・成果物の仕様\n- 議事録ドラフト\n  - 基づく進行表に沿った下書き\n  - 内容確認依頼前の暫定版\n- 録音ファイル\n  - スマホのボイスメモ形式等、再生可能な形式\n- 確定版議事録\n  - 内容確認完了後の最終版\n  - ファイル名から「draft」を除去\n- 管理・通知\n  - Google Drive所定フォルダへの格納\n  - 全員へ内容確認依頼のメール送付\n\nリスクと留意点\n- 録音品質の確保：録音が不十分だと議事の正確性に影響\n- ファイル共有遅延：ドラフトの確認返答が遅いと月次完了が遅れる可能性\n- AI自動作成の議論なし：今期はAI活用を前提としない運用に固定\n- ファイル命名規則の徹底：draftを早期に削除して確定版と区別する運用を徹底\n\n補足\n- この業務記述書は、実務運用の標準化を目的として作成されており、今後の運用状況に応じて更新することが望ましい。",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+          "node_id": "node4",
+          "node_type": "llm",
+          "status": "SUCCEEDED",
+          "started_at": "2026-04-21T12:08:10.689861Z",
+          "finished_at": "2026-04-21T12:09:28.693076Z",
+          "input_preview": "あなたは業務フロー作成の専門家です。\r\n与えられた業務記述書から、業務フローをmermaid記法（workflow）で生成してください。必要に応じてサブグラフを使うなど、わかりやすい業務フローにしてください。なお、業務記述書でフローとして読み取れるものは、フローとして記述し、単独でどこにもつながらない工程は極力作らないようにしてください。\n\nInput definition:\nflowchart TDのみ使用 / note構文禁止 / 出力は```mermaid単一ブロックのみ\n\n[参照ノード]\n- node3.result:\n  # 業務記述書：運営委員会議事録作成業務\n\n  目的\n  - 運営委員会の議事録を正確に作成・共有・完了とすること。\n  - 録音を活用して議事の正確性を担保し、全員へ内容確認を周知する運用を維持すること。\n\n  範囲\n  - 対象期間：今期の運営委員会12回分の議事録作成・管理\n  - 対象成果物：議事録ドラフト、録音ファイル、確定版議事録、関連通知メール\n  - 対象システム・場所：運営委員会進行表、Google Drive所定フォルダ、メール連絡\n\n  担い手と役割\n  - 書記（2名体制、交互担当）\n    - 役割1：議事録担当書記\n      - 使用資料：運営委員会進行表をベースに議事録ドラフトを作成\n      - 作業時点：議事進行と同時にドラフトを作成\n    - 役割2：議事録担当補助（交代で担当）\n  - 議事録担当初期（ドラフト公開前の最終アップロード担当）\n    - 役割：議事録ドラフトと録音ファイルをGoogle Driveの所定フォルダに格納\n    - 作業後：運営委員全員へ議事内容確認を依頼するメールを送付\n  - 全体の受領・確認担当\n    - 全員：内容確認を実施\n\n  入力・関連資料\n  - 運営委員会進行表：ドラフト作成のベース資料\n  - 議事録ドラフト案\n  - 議事録録音ファイル（スマホのボイスメモ）\n\n  工程（作業内容の詳細）\n  - 事前準備\n    - 二名の書記が交互に12回分の議事録を担当する体制を組成\n    - 運営委員会進行表を基に議事録ドラフトの骨格を作成する準備を実施\n  - 議事場（議事進行と同時進行）\n    - 議事録担当書記は進行表をベースにドラフトを作成\n    - 議事場の議事進行と並行して議事録を作成\n    - 正確性確保のため、議事をスマホのボイスメモで録音\n    - 今期は生成AIによる自動作成の導入検討はなし\n  - 議事後確認\n    - 議事録担当書記が作成した議事録ドラフトを、もう一名の書記へ内容確認依頼のメールを送付\n    - 内容確認を完了するまでの間、修正が生じる場合はドラフトを更新\n  - ファイル管理・共有・最終化\n    - 内容確認後、議事録担当初期がGoogle Driveの所定フォルダへ「議事録ドラフト」と録音ファイルを格納\n    - 運営委員全員へ、議事録内容確認依頼の通知メールを送信\n    - 確認が終了した段階で、ファイル名にある「draft」表記を外し、当月の議事録対応完了として確定版へ移行\n  - 出力物の整理\n    - 議事録ドラフト（ドラフト版）\n    - 録音ファイル（会議録音）\n    - 確定版議事録（承認済み・完了版）\n\n  時系列フロー（典型的な流れ）\n  1) 事前準備\n     - 書記2名が交互担当を決定\n     - 進行表を基にドラフトの下書きを作成準備\n  2) 議事場（当日）\n     - 議事進行に沿ってドラフトを作成\n     - 議事をスマホで録音\n  3) 議事後\n     - 議事録担当書記がドラフトを作成し、他書記へ内容確認依頼\n  4) 公開準備\n     - 内容確認完了後、ドラフト版と録音ファイルをGoogle Driveへ格納\n     - 全員へ内容確認依頼メールを送信\n  5) 完了・引渡し\n     - 内容確認が完了した時点で「draft」表記を削除し、当月の完了版として確定\n  6) 備考\n     - 今期はAI自動作成の導入検討なし\n\n  出力物・成果物の仕様\n  - 議事録ドラフト\n    - 基づく進行表に沿った下書き\n    - 内容確認依頼前の暫定版\n  - 録音ファイル\n    - スマホのボイスメモ形式等、再生可能な形式\n  - 確定版議事録\n    - 内容確認完了後の最終版\n    - ファイル名から「draft」を除去\n  - 管理・通知\n    - Google Drive所定フォルダへの格納\n    - 全員へ内容確認依頼のメール送付\n\n  リスクと留意点\n  - 録音品質の確保：録音が不十分だと議事の正確性に影響\n  - ファイル共有遅延：ドラフトの確認返答が遅いと月次完了が遅れる可能性\n  - AI自動作成の議論なし：今期はAI活用を前提としない運用に固定\n  - ファイル命名規則の徹底：draftを早期に削除して確定版と区別する運用を徹底\n\n  補足\n  - この業務記述書は、実務運用の標準化を目的として作成されており、今後の運用状況に応じて更新することが望ましい。\n\nOutput format:\nmarkdown_mermaid",
+          "output_preview": "```mermaid\nflowchart TD\n  A1[書記2名の交互担当を決定]\n  A2[運営委員会進行表を基にドラフトの骨格作成準備]\n  B1[議事進行表を基にドラフトを作成]\n  B2[議事場の議事進行と並行してドラフトを作成]\n  B3[議事をスマホで録音]\n  C1[議事録ドラフトの内容確認依頼メールを送付]\n  C2[内容確認完了までの修正・ドラフト更新]\n  D1[内容確認後、ドラフトと録音ファイルをGoogle Driveの所定フォルダへ格納]\n  D2[全員へ内容確認依頼メールを送信]\n  D3[確認終了時点でdraft表記を除去して確定版へ移行]\n  E1[議事録ドラフト（ドラフト版）]\n  E2[録音ファイル]\n  E3[確定版議事録]\n  F[出力物整理完了・運用完了]\n\n  A1 --> A2\n  A2 --> B1\n  A2 --> B3\n  B1 --> B2\n  B1 --> C1\n  B2 --> C1\n  B3 --> C1\n  C1 --> C2\n  C2 --> D1\n  D1 --> D2\n  D2 --> D3\n  D3 --> E3\n  D1 --> E1\n  D1 --> E2\n  E3 --> F\n  E1 --> F\n  E2 --> F\n```",
+          "full_input_ref": null,
+          "full_output_ref": null,
+          "error_message": null,
+          "logs": [
+            "llm task=generate executed"
+          ],
+          "retry_count": 0,
+          "requires_human_action": false,
+          "adapter_ref": null,
+          "contract": null,
+          "connection_ref": null,
+          "resolved_capabilities": []
+        },
+        {
+          "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+          "node_id": "end_node",
+          "node_type": "human_gate",
+          "status": "WAITING_HUMAN",
+          "started_at": "2026-04-21T12:09:28.700717Z",
           "finished_at": null,
           "input_preview": "human_gate task=approval",
           "output_preview": null,
@@ -2968,56 +3034,6 @@
         "event_type": "human_gate_submitted",
         "timestamp": "2026-04-20T03:27:24.406711Z",
         "execution_id": "27373d20-243b-446b-9648-1cc23ac8d6e8",
-        "node_id": "start_node",
-        "message": "Node input submitted by human.",
-        "payload_ref": null
-      }
-    ],
-    "d4d56d87-76d3-4e72-a7f6-80b329de9357": [
-      {
-        "event_type": "node_started",
-        "timestamp": "2026-04-20T04:02:47.141812Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-        "node_id": "start_node",
-        "message": "Node started: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_waiting_human",
-        "timestamp": "2026-04-20T04:02:47.146466Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-        "node_id": "start_node",
-        "message": "Node waiting for human action: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-20T04:02:47.147810Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-        "node_id": null,
-        "message": "Workflow status changed to WAITING_HUMAN",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_succeeded",
-        "timestamp": "2026-04-20T04:03:03.285820Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-        "node_id": "start_node",
-        "message": "Node succeeded: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-20T04:03:03.287560Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
-        "node_id": null,
-        "message": "Workflow status changed to SUCCEEDED",
-        "payload_ref": null
-      },
-      {
-        "event_type": "human_gate_submitted",
-        "timestamp": "2026-04-20T04:03:03.288692Z",
-        "execution_id": "d4d56d87-76d3-4e72-a7f6-80b329de9357",
         "node_id": "start_node",
         "message": "Node input submitted by human.",
         "payload_ref": null
@@ -5395,120 +5411,6 @@
         "payload_ref": null
       }
     ],
-    "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd": [
-      {
-        "event_type": "node_started",
-        "timestamp": "2026-04-21T05:45:55.068767Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "start_node",
-        "message": "Node started: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_waiting_human",
-        "timestamp": "2026-04-21T05:45:55.087581Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "start_node",
-        "message": "Node waiting for human action: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-21T05:45:55.094814Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": null,
-        "message": "Workflow status changed to WAITING_HUMAN",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_succeeded",
-        "timestamp": "2026-04-21T05:46:02.415699Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "start_node",
-        "message": "Node succeeded: start_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-21T05:46:02.433191Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": null,
-        "message": "Workflow status changed to SUCCEEDED",
-        "payload_ref": null
-      },
-      {
-        "event_type": "human_gate_submitted",
-        "timestamp": "2026-04-21T05:46:02.446909Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "start_node",
-        "message": "Node input submitted by human.",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-21T05:46:02.452299Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": null,
-        "message": "Workflow status changed to RUNNING",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_started",
-        "timestamp": "2026-04-21T05:46:02.474970Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "node3",
-        "message": "Node started: node3",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_succeeded",
-        "timestamp": "2026-04-21T05:46:50.632612Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "node3",
-        "message": "Node succeeded: node3",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_started",
-        "timestamp": "2026-04-21T05:46:50.655280Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "node4",
-        "message": "Node started: node4",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_succeeded",
-        "timestamp": "2026-04-21T05:48:55.243396Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "node4",
-        "message": "Node succeeded: node4",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_started",
-        "timestamp": "2026-04-21T05:48:55.256772Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "end_node",
-        "message": "Node started: end_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "node_waiting_human",
-        "timestamp": "2026-04-21T05:48:55.273833Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": "end_node",
-        "message": "Node waiting for human action: end_node",
-        "payload_ref": null
-      },
-      {
-        "event_type": "workflow_status_changed",
-        "timestamp": "2026-04-21T05:48:55.281070Z",
-        "execution_id": "2d60e4b8-dfaf-4a8e-a9c4-b7f8d25811dd",
-        "node_id": null,
-        "message": "Workflow status changed to WAITING_HUMAN",
-        "payload_ref": null
-      }
-    ],
     "9e353b55-3e7d-4d3a-bfca-6748244ebd72": [
       {
         "event_type": "node_started",
@@ -5732,6 +5634,234 @@
         "event_type": "workflow_status_changed",
         "timestamp": "2026-04-21T06:08:10.779889Z",
         "execution_id": "2ae3e4b1-e988-4c7f-9c91-e3acb3f042e2",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      }
+    ],
+    "940cca49-a0b2-49f8-b638-88aab2046bc5": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T11:52:20.023227Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-21T11:52:20.042653Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T11:52:20.050591Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T11:52:29.413963Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T11:52:29.430114Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-21T11:52:29.440383Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T11:52:29.443888Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T11:52:29.466033Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "node3",
+        "message": "Node started: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T11:53:14.601790Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "node3",
+        "message": "Node succeeded: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T11:53:14.611262Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "node4",
+        "message": "Node started: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T11:54:44.680249Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "node4",
+        "message": "Node succeeded: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T11:54:44.694183Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "end_node",
+        "message": "Node started: end_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-21T11:54:44.712017Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": "end_node",
+        "message": "Node waiting for human action: end_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T11:54:44.730098Z",
+        "execution_id": "940cca49-a0b2-49f8-b638-88aab2046bc5",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      }
+    ],
+    "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713": [
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T12:07:21.207161Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "start_node",
+        "message": "Node started: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-21T12:07:21.226168Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "start_node",
+        "message": "Node waiting for human action: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T12:07:21.234171Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": null,
+        "message": "Workflow status changed to WAITING_HUMAN",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T12:07:28.857619Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "start_node",
+        "message": "Node succeeded: start_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T12:07:28.876128Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": null,
+        "message": "Workflow status changed to SUCCEEDED",
+        "payload_ref": null
+      },
+      {
+        "event_type": "human_gate_submitted",
+        "timestamp": "2026-04-21T12:07:28.887650Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "start_node",
+        "message": "Node input submitted by human.",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T12:07:28.891390Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": null,
+        "message": "Workflow status changed to RUNNING",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T12:07:28.919158Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "node3",
+        "message": "Node started: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T12:08:10.679485Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "node3",
+        "message": "Node succeeded: node3",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T12:08:10.689879Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "node4",
+        "message": "Node started: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_succeeded",
+        "timestamp": "2026-04-21T12:09:28.693082Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "node4",
+        "message": "Node succeeded: node4",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_started",
+        "timestamp": "2026-04-21T12:09:28.700735Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "end_node",
+        "message": "Node started: end_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "node_waiting_human",
+        "timestamp": "2026-04-21T12:09:28.718611Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
+        "node_id": "end_node",
+        "message": "Node waiting for human action: end_node",
+        "payload_ref": null
+      },
+      {
+        "event_type": "workflow_status_changed",
+        "timestamp": "2026-04-21T12:09:28.732765Z",
+        "execution_id": "9b4862f2-dbf4-49e7-9ae4-d01e9c5e1713",
         "node_id": null,
         "message": "Workflow status changed to WAITING_HUMAN",
         "payload_ref": null

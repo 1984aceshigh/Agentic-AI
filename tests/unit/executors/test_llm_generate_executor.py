@@ -159,3 +159,32 @@ def test_llm_generate_executor_markdown_mermaid_unwraps_nested_markdown_mermaid_
 
     assert result.status == 'SUCCEEDED'
     assert result.output.get('result') == '```mermaid\nflowchart TD\n  A --> B\n```'
+
+
+def test_llm_generate_executor_markdown_mermaid_rewrites_note_lines_to_comments() -> None:
+    mermaid_with_notes = (
+        '```mermaid\n'
+        'flowchart TD\n'
+        '  A[開始] --> B[終了]\n'
+        '  note over A: 補足\n'
+        '  note right of B: 右注記\n'
+        '```'
+    )
+    executor = LLMGenerateExecutor(default_adapter=_CaptureAdapter(mermaid_with_notes))
+    context = DummyContext()
+    node = DummyNode(
+        id='task_understanding',
+        config={'prompt': 'Generate', 'output_format': 'markdown_mermaid'},
+    )
+
+    result = executor.execute(context, node)
+
+    assert result.status == 'SUCCEEDED'
+    assert result.output.get('result') == (
+        '```mermaid\n'
+        'flowchart TD\n'
+        '  A[開始] --> B[終了]\n'
+        '  %% NOTE: 補足\n'
+        '  %% NOTE: 右注記\n'
+        '```'
+    )
